@@ -1,10 +1,12 @@
-import queryString from 'query-string'
+import * as queryString from 'qs'
 
 export let default_state = {
   squares: 8,
   circles: 4,
 }
-export let default_state_string = queryString.stringify(default_state)
+export let default_state_string = queryString.stringify(default_state, {
+  encode: false,
+})
 
 export let valid_state_keys = Object.entries(default_state).map(
   array => array[0]

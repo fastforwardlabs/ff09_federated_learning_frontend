@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import queryString from 'query-string'
+import * as queryString from 'qs'
 import { default_state, default_state_string, filterState } from './State'
 import StateNumberInput from './StateNumberInput'
-import * as _ from 'lodash'
 import HistoryItem from './HistoryItem'
 import * as df from 'date-fns'
 
@@ -38,12 +37,18 @@ class App extends Component {
   }
 
   componentDidMount() {
-    let dirty_url_state = queryString.parse(this.props.location.search)
-    let dirty_url_state_string = queryString.stringify(dirty_url_state)
+    let dirty_url_state = queryString.parse(this.props.location.search, {
+      ignoreQueryPrefix: true,
+    })
+    let dirty_url_state_string = queryString.stringify(dirty_url_state, {
+      encode: false,
+    })
     let filtered_url_state = filterState(dirty_url_state)
     if (dirty_url_state_string !== default_state_string) {
       let updated_state = Object.assign({}, default_state, filtered_url_state)
-      let updated_search = queryString.stringify(updated_state)
+      let updated_search = queryString.stringify(updated_state, {
+        encode: false,
+      })
       this.props.history.replace({ pathname: '/', search: updated_search })
     }
 
@@ -67,9 +72,13 @@ class App extends Component {
   }
 
   handleSave() {
-    let dirty_url_state = queryString.parse(this.props.location.search)
+    let dirty_url_state = queryString.parse(this.props.location.search, {
+      ignoreQueryPrefix: true,
+    })
     let filtered_url_state = filterState(dirty_url_state)
-    let url_string = queryString.stringify(filtered_url_state)
+    let url_string = queryString.stringify(filtered_url_state, {
+      encode: false,
+    })
     let saved = []
     let last_saved = null
     if (localStorage.getItem('saved')) {
@@ -106,11 +115,15 @@ class App extends Component {
   }
 
   render() {
-    let dirty_url_state = queryString.parse(this.props.location.search)
+    let dirty_url_state = queryString.parse(this.props.location.search, {
+      ignoreQueryPrefix: true,
+    })
     let filtered_url_state = filterState(dirty_url_state)
-    let url_string = queryString.stringify(filtered_url_state)
+    let url_string = queryString.stringify(filtered_url_state, {
+      encode: false,
+    })
     let { circles, squares } = filterState(
-      queryString.parse(this.props.location.search)
+      queryString.parse(this.props.location.search, { ignoreQueryPrefix: true })
     )
     let saved = []
     let storage_check = localStorage.getItem('saved')
