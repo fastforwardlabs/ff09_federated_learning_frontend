@@ -61,6 +61,12 @@ class App extends Component {
     this.intervalID = setInterval(() => this.tick(), 15 * 1000)
   }
 
+  componentDidUpdate() {
+    if (this.props.history.action === 'POP' && this.state.time_travelling) {
+      this.clearTravel()
+    }
+  }
+
   updateWindowWidth() {
     this.setState({ ww: window.innerWidth })
   }
@@ -303,9 +309,10 @@ class App extends Component {
                   It is tricky to set the right user expectations about how the
                   URL state and the local history interact. The history is
                   specific to the device, not the URL, so it will not be
-                  accessible to other people or devices you share it with. I've
-                  tried to set expectations here, but you'd probably want to do
-                  it even more carefully in a polished app.
+                  accessible to other people or devices you share it with. Back
+                  and forward browser navigation also gets dicey because they
+                  have access to the URL history but not the local history
+                  selections.
                 </p>
                 <p style={{ margin: 0 }}>
                   I'd love to hear any thoughts you have on this pattern and how
