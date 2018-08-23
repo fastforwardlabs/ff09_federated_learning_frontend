@@ -15,7 +15,6 @@ export function stateControl(WrappedComponent) {
         })
         if (updated_search !== queryString.stringify(qs, { encode: false })) {
           this.props.history.push({
-            pathname: '/',
             search: updated_search,
           })
         }
