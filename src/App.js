@@ -49,7 +49,7 @@ class App extends Component {
       let updated_search = queryString.stringify(updated_state, {
         encode: false,
       })
-      this.props.history.replace({ pathname: '/', search: updated_search })
+      this.props.history.replace({ search: updated_search })
     }
 
     window.addEventListener('resize', this.updateWindowWidth.bind(this))
