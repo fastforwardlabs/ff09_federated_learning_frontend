@@ -6,14 +6,16 @@ import { button_reset } from './Constants'
 class HistoryItem extends Component {
   handleClick(e) {
     this.props.timeTravel()
-    this.props.handleChange(queryString.parse(this.props.config.string))
+    this.props.handleChange(
+      queryString.parse(this.props.config.string, { ignoreQueryPrefix: true })
+    )
     e.preventDefault()
   }
 
   render() {
     return (
       <a
-        href="#"
+        href={this.props.config.string}
         style={{
           color: 'black',
           display: 'block',
