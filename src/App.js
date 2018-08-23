@@ -202,8 +202,29 @@ class App extends Component {
                 LOCAL HISTORY
               </div>
               <div style={{ overflow: 'auto' }}>
-                {this.state.time_travelling ? null : (
-                  <div style={{ background: '#bbb' }}>
+                {this.state.time_travelling ? (
+                  <div
+                    style={{ borderBottom: 'dotted 1px black' }}
+                    onClick={() => {
+                      this.clearTravel()
+                      let saved = JSON.parse(localStorage.getItem('saved'))
+                      let last_saved = saved[saved.length - 1].string
+                      this.props.history.push({
+                        pathname: process.env.PUBLIC_URL,
+                        search: last_saved,
+                      })
+                    }}
+                  >
+                    <div style={{ fontSize: '80%' }}>current</div>
+                    <div>inactive</div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      background: '#bbb',
+                      borderBottom: 'dotted 1px black',
+                    }}
+                  >
                     <div style={{ fontSize: '80%' }}>current</div>
                     <div>{url_string}</div>
                   </div>
@@ -221,18 +242,16 @@ class App extends Component {
                         style={{
                           fontSize: '80%',
                         }}
-                      />
-                      <div>
-                        <span style={{ fontSize: '80%' }}>{i + 1}.</span>
-                        {config.string}
+                      >
+                        <div>{df.distanceInWordsToNow(config.time)} ago</div>
                       </div>
+
                       <div
                         style={{
                           fontSize: '80%',
                         }}
-                      >
-                        <div>{df.distanceInWordsToNow(config.time)} ago</div>
-                      </div>
+                      />
+                      <div>{config.string}</div>
                     </HistoryItem>
                   )
                 })}
