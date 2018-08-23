@@ -1,7 +1,7 @@
 {
   "name": "usl",
   "version": "0.1.0",
-  "homepage": "usl",
+  "homepage": "https://grantcuster.github.io/usl",
   "private": true,
   "dependencies": {
     "date-fns": "^1.29.0",
