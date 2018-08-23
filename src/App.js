@@ -285,7 +285,10 @@ class App extends Component {
                 <p style={{ margin: 0 }}>
                   by{' '}
                   <a href="http://feed.grantcuster.com/about">Grant Custer</a>{' '}
-                  &middot; <a href="">code viewable on Github</a>
+                  &middot;{' '}
+                  <a href="https://github.com/GrantCuster/usl">
+                    code viewable on Github
+                  </a>
                 </p>
                 <p style={{ margin: 0 }}>
                   This is a minimal example of a pattern I've been using to
