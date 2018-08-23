@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { stateControl } from './stateControl'
-import queryString from 'query-string'
-import { button_reset } from './Constants'
+import * as queryString from 'qs'
 
 class HistoryItem extends Component {
   handleClick(e) {
