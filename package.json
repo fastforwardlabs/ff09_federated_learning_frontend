@@ -6,6 +6,7 @@
   "dependencies": {
     "date-fns": "^1.29.0",
     "gh-pages": "^1.2.0",
+    "glamour": "^1.2.3",
     "lodash": "^4.17.10",
     "qs": "^6.5.2",
     "react": "^16.4.2",
