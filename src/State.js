@@ -1,8 +1,6 @@
 import * as queryString from 'qs'
 
 export let default_state = {
-  squares: 8,
-  circles: 4,
 }
 export let default_state_string = queryString.stringify(default_state, {
   encode: false,
