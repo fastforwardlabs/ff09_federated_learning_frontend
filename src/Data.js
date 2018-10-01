@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
+import { selected_features } from './Constants'
+import * as _ from 'lodash'
 
 let prediction_keys = ['local_model', 'federated_model']
+let number_key = 'engine_no'
 
 class Data extends Component {
   constructor(props) {
@@ -13,26 +16,50 @@ class Data extends Component {
 
   componentDidMount() {
     let request = async () => {
-      let response = await fetch(`${process.env.PUBLIC_URL}/data/engines.json`)
+      let response = await fetch(`${process.env.PUBLIC_URL}/data/main2.json`)
       let json = await response.json()
-      let reducer = (accumulator, current) => {
-        if (accumulator[current.engine_no] !== undefined) {
-          accumulator[current.engine_no].push(current)
+      let reducer = (accumulator, current, index) => {
+        if (index === 0) {
+          accumulator.push([current])
         } else {
-          accumulator[current.engine_no] = [current]
+          let last_group = accumulator[accumulator.length - 1]
+          let last_slice = last_group[last_group.length - 1]
+          if (last_slice.engine_no === current.engine_no) {
+            last_group.push(current)
+          } else {
+            accumulator.push([current])
+          }
         }
         return accumulator
       }
-      let engines = json.reduce(reducer, {})
-      let engine_names = Object.keys(engines)
-      let engine_keys = Object.keys(engines[engine_names[0]][0]).filter(
-        key => !prediction_keys.includes(key)
+      let keys = Object.keys(json[0])
+      let key_columns = keys.map(k => json.map(r => r[k]))
+      let ranges = key_columns.map(column =>
+        column.reduce(
+          (total, current) => {
+            return [Math.min(total[0], current), Math.max(total[1], current)]
+          },
+          [column[0], column[0]]
+        )
       )
+      // special case ranges
+      for (let i = 0; i < keys.length; i++) {
+        let key = keys[i]
+        if (['time', 'RUL_local', 'RUL_federated'].includes(key)) {
+          ranges[i][0] = 0
+          if (['RUL_local', 'RUL_federated'].includes(key)) {
+            ranges[i][1] = Math.max(
+              ranges[keys.indexOf('RUL_local')][1],
+              ranges[keys.indexOf('RUL_federated')][1]
+            )
+          }
+        }
+      }
+      let engines = json.reduce(reducer, [])
       this.setDataState({
         engines,
-        engine_names,
-        engine_keys,
-        prediction_keys,
+        keys,
+        ranges,
         engines_loaded: true,
       })
     }

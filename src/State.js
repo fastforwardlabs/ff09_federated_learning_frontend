@@ -1,7 +1,7 @@
 import * as queryString from 'qs'
 
-export let default_state = {
-}
+export let default_state = {}
+
 export let default_state_string = queryString.stringify(default_state, {
   encode: false,
 })

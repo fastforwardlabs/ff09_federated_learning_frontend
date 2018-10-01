@@ -1,0 +1,18 @@
+export selected_features = [
+           “setting_1”,
+           “setting_2",
+           “T24”,
+           “T30",
+           “T50”,
+           “P30",
+           “Nf”,
+           “Nc”,
+           “Ps30”,
+           “phi”,
+           “NRf”,
+           “NRc”,
+           “BPR”,
+           “htBleed”,
+           “W31”,
+           “W32",
+       ]
