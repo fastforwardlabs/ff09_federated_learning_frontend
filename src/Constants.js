@@ -26,12 +26,15 @@ export let selected_features = [
   'W32',
 ]
 
-export let cycle_profit = 500
-export let maitained_penalty = 500
-export let exploded_penalty = 2000
+export let cycle_profit = 50
+let engine_profit = cycle_profit * 4
+export let maitained_penalty = engine_profit * 10 * 4
+export let exploded_penalty = engine_profit * 100 * 2
 
 export let maintained_delay = 5
 export let exploded_delay = 20
+
+export let data_scientist_cost = engine_profit * 6
 
 export let strategies = {
   corrective: 'time',
@@ -45,14 +48,7 @@ export let strategy_names = Object.keys(strategies)
 export let preventative_threshold = 100
 export let predictive_threshold = 10
 
-export let factory_colors = [
-  'blue',
-  'green',
-  'purple',
-  'cyan',
-  'pink',
-  'yellow',
-]
+export let factory_colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
 
 export function maitenanceCheck(rev, strategy_name, failure_mean) {
   switch (strategy_name) {

@@ -3,7 +3,7 @@ import Canvas from './Canvas'
 import { scale } from './Utilties'
 import { min, max } from 'lodash'
 
-class AverageGraph extends Component {
+class ProfitGraph extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -21,7 +21,7 @@ class AverageGraph extends Component {
   componentDidUpdate(prevProps, prevState) {
     let averages = this.props.averages
     let ctx = this.state.ctx
-    let x_step = this.props.width / 200
+    let x_step = this.props.width / (400 + 400 * 0.25)
     if (averages[0][0] !== undefined) {
       let mins = []
       let maxes = []
@@ -29,9 +29,10 @@ class AverageGraph extends Component {
         mins.push(min(averages[i]))
         maxes.push(max(averages[i]))
       }
-      let minned = Math.min(min(mins), 0)
-      let maxed = Math.max(max(maxes), 1)
-      let range = [minned - maxed * 0.2, maxed * 1.2]
+      let minned = min(mins)
+      let maxed = max(maxes)
+      let additional = Math.max(Math.abs(minned * 0.2), Math.abs(maxed * 0.2))
+      let range = [minned - additional, maxed + additional]
       ctx.clearRect(0, 0, this.props.width, this.props.height)
       ctx.fillStyle = '#ccc'
       ctx.fillRect(
@@ -41,13 +42,15 @@ class AverageGraph extends Component {
         1
       )
       for (let i = 0; i < averages.length; i++) {
-        ctx.strokeStyle = this.props.colors[i]
+        let ri = averages.length - 1 - i
+        ctx.strokeStyle = this.props.colors[ri]
         ctx.lineWidth = 2
         ctx.beginPath()
         for (let j = 0; j < averages[0].length; j++) {
           let x = x_step * j
           let y =
-            this.props.height - scale(averages[i][j], range) * this.props.height
+            this.props.height -
+            scale(averages[ri][j], range) * this.props.height
           if (j == 0) {
             ctx.moveTo(x, y)
           } else {
@@ -55,6 +58,20 @@ class AverageGraph extends Component {
           }
         }
         ctx.stroke()
+        ctx.fillStyle = this.props.colors[ri]
+        let history = this.props.histories[ri]
+        let adjusted = Math.min(this.props.counter, 400)
+        let offset = this.props.counter - adjusted
+        for (let j = 0; j < history.length; j++) {
+          let entry = history[j]
+          if (entry[1] >= offset) {
+            let x = x_step * (entry[1] - offset)
+            let y =
+              this.props.height -
+              scale(averages[ri][entry[1] - offset], range) * this.props.height
+            ctx.fillRect(x - 5, y - 5, 10, 10)
+          }
+        }
       }
     }
   }
@@ -70,4 +87,4 @@ class AverageGraph extends Component {
   }
 }
 
-export default AverageGraph
+export default ProfitGraph
