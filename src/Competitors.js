@@ -10,6 +10,7 @@ import {
 import ProfitGraph from './ProfitGraph'
 import AverageGraph from './AverageGraph'
 import { commas } from './Utilties'
+import LastStrategies from './LastStrategies'
 
 function compare(a, b) {
   if (a[1] > b[1]) {
@@ -111,43 +112,43 @@ class Competitors extends Component {
           <div
             style={{
               border: 'solid 1px black',
-              padding: 10,
               marginBottom: 10,
               order: ordered[0],
-              background: factory_colors[0],
-              color: '#fff',
             }}
           >
-            <div style={{}}>Your Factory</div>
-            <div>
-              profit: $
-              {this.props.your_profits.length > 0
-                ? commas(
-                    this.props.your_profits[this.props.your_profits.length - 1]
-                  )
-                : null}
+            <div
+              style={{
+                background: factory_colors[0],
+                color: '#fff',
+                padding: '5px 10px',
+              }}
+            >
+              Your Factory
             </div>
-            <div>
-              {this.props.your_history
-                .slice()
-                .reverse()
-                .map((entry, i) => {
-                  let ri = this.props.your_history.length - 1 - i
-                  return (
-                    <span>
-                      <span style={{ border: 'solid 1px black' }}>
-                        {entry[0]},{' '}
-                        {ri === this.props.your_history.length - 1
-                          ? this.props.counter - entry[1]
-                          : this.props.your_history[ri + 1][1]}{' '}
-                        cycles
-                      </span>
-                    </span>
-                  )
-                })}
+            <div
+              style={{
+                padding: 10,
+              }}
+            >
+              <div>
+                profit: $
+                {this.props.your_profits.length > 0
+                  ? commas(
+                      this.props.your_profits[
+                        this.props.your_profits.length - 1
+                      ]
+                    )
+                  : null}
+              </div>
+              <LastStrategies
+                history={this.props.your_history}
+                counter={this.props.counter}
+              />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+                <div>maintained: {this.props.your_maintained}</div>
+                <div>explosions: {this.props.your_explosions}</div>
+              </div>
             </div>
-            <div>maintained: {this.props.your_maintained}</div>
-            <div>explosions: {this.props.your_explosions}</div>
           </div>
           {[...Array(this.props.competitor_number)].map((n, i) => (
             <Factory

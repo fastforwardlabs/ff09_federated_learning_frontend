@@ -13,6 +13,7 @@ import {
 import StrategyChooser from './StrategyChoooser'
 import { formatTime, roundTwo, commas } from './Utilties'
 import { mean } from 'lodash'
+import LastStrategies from './LastStrategies'
 
 class Factory extends Component {
   constructor(props) {
@@ -183,13 +184,17 @@ class Factory extends Component {
           <div
             style={{
               border: 'solid 1px black',
-              padding: '10px',
-              background: factory_colors[0],
-              color: '#fff',
             }}
           >
-            <div style={{}}>Your Factory</div>
-            <div />
+            <div
+              style={{
+                background: factory_colors[0],
+                color: '#fff',
+                padding: '5px 10px',
+              }}
+            >
+              Your Factory
+            </div>
             <div
               style={{
                 border: 'dotted 1px black',
@@ -206,55 +211,67 @@ class Factory extends Component {
               <div>Exploded delay: {formatTime(exploded_delay)}</div>
               <div>Data scientist cost: ${commas(data_scientist_cost)}</div>
             </div>
-            <div>profit: ${profit_display}</div>
-            {/* <div>average profit per engine: ${average_profit_display}</div> */}
-            <div>maintained: {this.maintained}</div>
-            <div>exploded: {this.exploded}</div>
-            {[...Array(this.props.engine_number)].map((n, i) => (
-              <Engine
-                key={i}
-                engines={this.props.engines}
-                keys={this.props.keys}
-                counter={this.props.counter}
-                addCycles={this.addCycles}
-                addMaintained={this.addMaintained}
-                addExploded={this.addExploded}
-                failure_mean={this.failure_mean}
-                ranges={this.props.ranges}
-                visible_engines={this.props.visible_engines}
-                strategy={this.props.strategy}
-                ww={this.props.ww}
-              />
-            ))}
+            <div
+              style={{
+                padding: '10px',
+              }}
+            >
+              <div>profit: ${profit_display}</div>
+              {/* <div>average profit per engine: ${average_profit_display}</div> */}
+              <div>maintained: {this.maintained}</div>
+              <div>exploded: {this.exploded}</div>
+              {[...Array(this.props.engine_number)].map((n, i) => (
+                <Engine
+                  key={i}
+                  engines={this.props.engines}
+                  keys={this.props.keys}
+                  counter={this.props.counter}
+                  addCycles={this.addCycles}
+                  addMaintained={this.addMaintained}
+                  addExploded={this.addExploded}
+                  failure_mean={this.failure_mean}
+                  ranges={this.props.ranges}
+                  visible_engines={this.props.visible_engines}
+                  strategy={this.props.strategy}
+                  ww={this.props.ww}
+                />
+              ))}
+            </div>
           </div>
         ) : (
           <div
             style={{
               border: 'solid 1px black',
-              padding: '10px',
-              background: this.props.color || 'transparent',
-              color: '#fff',
             }}
           >
-            {this.props.name ? <div>{this.props.name}</div> : null}
-            <div>profit: ${profit_display}</div>
-            {/* <div>average profit per engine: ${average_profit_display}</div> */}
-            <div>strategy: {this.props.strategy}</div>
-            <div>
-              {this.history.map((entry, i) => (
-                <span>
-                  <span style={{ border: 'solid 1px black' }}>
-                    {entry[0]},{' '}
-                    {i === this.history.length - 1
-                      ? this.props.counter - entry[1]
-                      : this.history[i + 1][1]}{' '}
-                    cycles
-                  </span>
-                </span>
-              ))}
+            {this.props.name ? (
+              <div
+                style={{
+                  background: this.props.color || 'transparent',
+                  color: '#fff',
+                  padding: '5px 10px',
+                }}
+              >
+                {this.props.name}
+              </div>
+            ) : null}
+            <div
+              style={{
+                padding: '10px',
+              }}
+            >
+              <div>profit: ${profit_display}</div>
+              {/* <div>average profit per engine: ${average_profit_display}</div> */}
+              <div>strategy: {this.props.strategy}</div>
+              <LastStrategies
+                history={this.history}
+                counter={this.props.counter}
+              />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+                <div>maintained: {this.maintained}</div>
+                <div>exploded: {this.exploded}</div>
+              </div>
             </div>
-            <div>maintained: {this.maintained}</div>
-            <div>exploded: {this.exploded}</div>
             <div>
               {[...Array(this.props.engine_number)].map((n, i) => (
                 <Engine

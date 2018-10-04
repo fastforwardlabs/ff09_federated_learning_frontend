@@ -133,8 +133,10 @@ class Engine extends Component {
                 failure_mean={this.props.failure_mean}
               />
             </div>
-            <div>maintained {maintained}</div>
-            <div>exploded {exploded}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+              <div>maintained {maintained}</div>
+              <div>exploded {exploded}</div>
+            </div>
           </div>
         </div>
       )
