@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Canvas from './Canvas'
-import { scale } from './Utilties'
+import { scale, commas } from './Utilties'
 import { min, max } from 'lodash'
 
 class ProfitGraph extends Component {
@@ -58,6 +58,18 @@ class ProfitGraph extends Component {
           }
         }
         ctx.stroke()
+        ctx.fillStyle = this.props.colors[ri]
+        let last_average = averages[ri][averages[ri].length - 1]
+        if (last_average !== undefined) {
+          let last_x = x_step * averages[ri].length
+          let last_y =
+            this.props.height - scale(last_average, range) * this.props.height
+          let text = '$' + commas(last_average)
+          let width = ctx.measureText(text).width
+          ctx.fillRect(last_x + 4, last_y - 11, width + 8, 20)
+          ctx.fillStyle = 'white'
+          ctx.fillText(text, last_x + 8, last_y + 3)
+        }
         ctx.fillStyle = this.props.colors[ri]
         let history = this.props.histories[ri]
         let adjusted = Math.min(this.props.counter, 400)

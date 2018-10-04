@@ -66,7 +66,7 @@ class Engine extends Component {
       let { offset, engine, maintained, exploded } = this.fake_state
       let this_time = counter - offset
       let rev = engine[this_time]
-      let background = 'transparent'
+      let background = 'white'
       if (this.fake_state.maintained_delay_count > 0) {
         background = 'orange'
       } else if (this.fake_state.exploded_delay_count > 0) {
@@ -77,6 +77,7 @@ class Engine extends Component {
           <div
             style={{
               padding: 10,
+              color: 'black',
               border: 'solid 1px black',
               marginBottom: 10,
               background: background,

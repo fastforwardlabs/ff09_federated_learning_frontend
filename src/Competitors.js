@@ -114,17 +114,11 @@ class Competitors extends Component {
               padding: 10,
               marginBottom: 10,
               order: ordered[0],
+              background: factory_colors[0],
+              color: '#fff',
             }}
           >
-            <div
-              style={{
-                background: factory_colors[0],
-                color: '#fff',
-                padding: 4,
-              }}
-            >
-              Your Factory
-            </div>
+            <div style={{}}>Your Factory</div>
             <div>
               profit: $
               {this.props.your_profits.length > 0
@@ -134,17 +128,23 @@ class Competitors extends Component {
                 : null}
             </div>
             <div>
-              {this.props.your_history.map((entry, i) => (
-                <span>
-                  <span style={{ border: 'solid 1px black' }}>
-                    {entry[0]},{' '}
-                    {i === this.props.your_history.length - 1
-                      ? this.props.counter - entry[1]
-                      : this.props.your_history[i + 1][1]}{' '}
-                    cycles
-                  </span>
-                </span>
-              ))}
+              {this.props.your_history
+                .slice()
+                .reverse()
+                .map((entry, i) => {
+                  let ri = this.props.your_history.length - 1 - i
+                  return (
+                    <span>
+                      <span style={{ border: 'solid 1px black' }}>
+                        {entry[0]},{' '}
+                        {ri === this.props.your_history.length - 1
+                          ? this.props.counter - entry[1]
+                          : this.props.your_history[ri + 1][1]}{' '}
+                        cycles
+                      </span>
+                    </span>
+                  )
+                })}
             </div>
             <div>maintained: {this.props.your_maintained}</div>
             <div>explosions: {this.props.your_explosions}</div>

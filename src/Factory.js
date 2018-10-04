@@ -184,17 +184,11 @@ class Factory extends Component {
             style={{
               border: 'solid 1px black',
               padding: '10px',
+              background: factory_colors[0],
+              color: '#fff',
             }}
           >
-            <div
-              style={{
-                background: factory_colors[0],
-                padding: 5,
-                color: '#fff',
-              }}
-            >
-              Your Factory
-            </div>
+            <div style={{}}>Your Factory</div>
             <div />
             <div
               style={{
@@ -238,19 +232,11 @@ class Factory extends Component {
             style={{
               border: 'solid 1px black',
               padding: '10px',
+              background: this.props.color || 'transparent',
+              color: '#fff',
             }}
           >
-            {this.props.name ? (
-              <div
-                style={{
-                  background: this.props.color || 'transparent',
-                  color: '#fff',
-                  padding: 4,
-                }}
-              >
-                {this.props.name}
-              </div>
-            ) : null}
+            {this.props.name ? <div>{this.props.name}</div> : null}
             <div>profit: ${profit_display}</div>
             {/* <div>average profit per engine: ${average_profit_display}</div> */}
             <div>strategy: {this.props.strategy}</div>

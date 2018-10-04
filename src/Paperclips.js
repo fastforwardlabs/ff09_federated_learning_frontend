@@ -40,11 +40,11 @@ class Paperclips extends Component {
   play() {
     let count = 0
     let start = () => {
-      if (count === 4) {
-        this.setState({ counter: this.state.counter + 1 })
-        count = 0
-      }
-      count++
+      // if (count === 4) {
+      this.setState({ counter: this.state.counter + 1 })
+      // count = 0
+      // }
+      // count++
       this.animating = window.requestAnimationFrame(start)
     }
     this.animating = start()
@@ -103,6 +103,8 @@ class Paperclips extends Component {
             display: 'flex',
             justifyContent: 'space-between',
             padding: 10,
+            background: 'black',
+            color: 'white',
           }}
         >
           <div>Factory Simulator</div>
