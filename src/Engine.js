@@ -9,6 +9,9 @@ import {
   maintained_delay,
   exploded_delay,
   selected_features,
+  factory_colors,
+  repair_color,
+  maintain_color,
 } from './Constants'
 import Dial from './Dial'
 
@@ -23,6 +26,8 @@ class Engine extends Component {
       start: 0,
       maintained_delay_count: 0,
       exploded_delay_count: 0,
+      maintain_status: false,
+      explode_status: false,
     }
   }
 
@@ -31,12 +36,24 @@ class Engine extends Component {
     let { offset, engine } = this.fake_state
     let this_time = counter - offset
     let next_rev = engine[this_time + 1]
+    this.props.setMaintainStatus(this.props.index, false)
+    this.props.setExplodeStatus(this.props.index, false)
+    this.fake_state.maintain_status = false
+    this.fake_state.explode_status = false
     if (this.fake_state.maintained_delay_count > 0) {
-      this.fake_state.offset = counter + 1
+      this.fake_state.offset = this.fake_state.offset + 1
+      if (this.fake_state.maintained_delay_count === 1) {
+        this.fake_state.offset = this.props.counter + 1
+        this.fake_state.engine = sample(this.props.engines)
+      }
       this.fake_state.maintained_delay_count =
         this.fake_state.maintained_delay_count - 1
     } else if (this.fake_state.exploded_delay_count > 0) {
-      this.fake_state.offset = counter + 1
+      this.fake_state.offset = this.fake_state.offset + 1
+      if (this.fake_state.exploded_delay_count === 1) {
+        this.fake_state.offset = this.props.counter + 1
+        this.fake_state.engine = sample(this.props.engines)
+      }
       this.fake_state.exploded_delay_count =
         this.fake_state.exploded_delay_count - 1
     } else {
@@ -45,17 +62,19 @@ class Engine extends Component {
         next_rev &&
         maitenanceCheck(next_rev, this.props.strategy, this.props.failure_mean)
       ) {
-        this.fake_state.engine = sample(this.props.engines)
-        this.fake_state.offset = counter + 1
+        this.fake_state.offset = this.fake_state.offset + 1
         this.fake_state.maintained = this.fake_state.maintained + 1
         this.fake_state.maintained_delay_count = maintained_delay
+        this.props.setMaintainStatus(this.props.index, true)
         this.props.addMaintained()
+        this.fake_state.maintain_status = true
       } else if (next_rev === undefined) {
-        this.fake_state.engine = sample(this.props.engines)
-        this.fake_state.offset = counter + 1
+        this.fake_state.offset = this.fake_state.offset + 1
         this.fake_state.exploded = this.fake_state.exploded + 1
         this.fake_state.exploded_delay_count = exploded_delay
+        this.props.setExplodeStatus(this.props.index, true)
         this.props.addExploded(this_time)
+        this.fake_state.explode_status = true
       }
     }
   }
@@ -67,75 +86,152 @@ class Engine extends Component {
       let this_time = counter - offset
       let rev = engine[this_time]
       let background = 'white'
-      if (this.fake_state.maintained_delay_count > 0) {
-        background = 'orange'
-      } else if (this.fake_state.exploded_delay_count > 0) {
-        background = 'red'
+      let maintaining = this.fake_state.maintained_delay_count > 0
+      let repairing = this.fake_state.exploded_delay_count > 0
+      let status_color = 'white'
+      let text_color = 'black '
+      if (maintaining) {
+        status_color = maintain_color
+      }
+      if (repairing) {
+        status_color = repair_color
       }
       return (
         <div>
           <div
             style={{
-              padding: 10,
               color: 'black',
               border: 'solid 1px black',
               marginBottom: 10,
-              background: background,
+              fontSize: '12px',
             }}
           >
-            {this.fake_state.maintained_delay_count > 0 ? (
-              <div>Maintaining {this.fake_state.maintained_delay_count}</div>
-            ) : null}
-            {this.fake_state.exploded_delay_count > 0 ? (
-              <div>Repairing {this.fake_state.exploded_delay_count}</div>
-            ) : null}
-
-            {this.fake_state.maintained_delay_count > 0 ||
-            this.fake_state.exploded_delay_count > 0 ? null : (
-              <div>{rev.time} cycles</div>
-            )}
             <div
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gridColumnGap: 10,
+                background: status_color,
+                color: text_color,
               }}
             >
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(8, 40px)',
-                  gridColumnGap: 10,
-                  gridRowGap: 10,
-                  padding: '10px 0',
+                  padding: '5px 10px 5px',
                 }}
               >
-                <Dial
-                  width={40}
-                  height={40}
-                  this_time={this_time}
-                  engine={this.fake_state.engine}
-                  strategy={this.props.strategy}
-                  ranges={this.props.ranges}
-                  keys={this.props.keys}
-                  counter={this.props.counter}
-                />
+                TURBOFAN {this.props.index + 1}
               </div>
-              <PredictGraph
-                counter={this.props.counter}
-                width={200}
-                height={68 * 2 - 14 * 2 + 10}
-                this_time={this_time}
-                engine={this.fake_state.engine}
-                strategy={this.props.strategy}
-                ranges={this.props.ranges}
-                keys={this.props.keys}
-                failure_mean={this.props.failure_mean}
-              />
+              {!maintaining && !repairing ? (
+                <div style={{ padding: '5px 10px 5px' }}>
+                  CYCLES: {rev.time}
+                </div>
+              ) : null}
+              {maintaining ? (
+                <div
+                  style={{
+                    padding: '5px 10px 5px',
+                  }}
+                >
+                  MAINTAINING: {this.fake_state.maintained_delay_count}
+                </div>
+              ) : null}
+              {repairing ? (
+                <div
+                  style={{
+                    padding: '5px 10px 5px',
+                  }}
+                >
+                  REPAIRING: {this.fake_state.exploded_delay_count}
+                </div>
+              ) : null}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-              <div>maintained {maintained}</div>
-              <div>exploded {exploded}</div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                paddingBottom: '5px',
+                gridColumnGap: 10,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: '12px', padding: '5px 10px 5px' }}>
+                  SENSORS
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(8, 40px)',
+                    gridColumnGap: 10,
+                    gridRowGap: 10,
+                    padding: '0 10px',
+                  }}
+                >
+                  <Dial
+                    width={40}
+                    height={40}
+                    this_time={this_time}
+                    engine={this.fake_state.engine}
+                    strategy={this.props.strategy}
+                    ranges={this.props.ranges}
+                    keys={this.props.keys}
+                    counter={this.props.counter}
+                  />
+                </div>
+              </div>
+              <div style={{ paddingRight: 10 }}>
+                <div style={{ fontSize: '12px', padding: '5px 0 0' }}>
+                  STRATEGY
+                </div>
+                <div
+                  style={{
+                    padding: '3px 0 4px',
+                    maxWidth: 200 + 10 + 2 + 2,
+                    // border: `solid 1px ${factory_colors[0]}`,
+                    // background: factory_colors[0],
+                  }}
+                >
+                  <PredictGraph
+                    counter={this.props.counter}
+                    width={200}
+                    height={128 - 10 - 9}
+                    this_time={this_time}
+                    engine={this.fake_state.engine}
+                    strategy={this.props.strategy}
+                    ranges={this.props.ranges}
+                    keys={this.props.keys}
+                    failure_mean={this.props.failure_mean}
+                    background={
+                      repairing
+                        ? repair_color
+                        : maintaining
+                          ? maintain_color
+                          : 'white'
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                fontSize: '12px',
+              }}
+            >
+              <div
+                style={{
+                  padding: '5px 10px',
+                }}
+              >
+                MAINTAINED: {maintained}
+              </div>
+              <div
+                style={{
+                  padding: '5px 10px',
+                }}
+              >
+                FAILED: {exploded}
+              </div>
             </div>
           </div>
         </div>

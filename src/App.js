@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom'
 import * as queryString from 'qs'
 import { default_state, default_state_string, filterState } from './State'
 import Paperclips from './Paperclips'
+import Paperclips2 from './Paperclips2'
 
 class App extends Component {
   constructor(props) {
@@ -52,7 +53,7 @@ class App extends Component {
     return (
       <div>
         {this.props.engines_loaded ? (
-          <Paperclips {...this.props} ww={this.state.ww} />
+          <Paperclips2 {...this.props} ww={this.state.ww} />
         ) : (
           'loading...'
         )}

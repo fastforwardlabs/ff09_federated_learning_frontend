@@ -1,15 +1,46 @@
 import React, { Component } from 'react'
-import { maitenanceCheck, strategies, strategy_names } from './Constants'
+import {
+  maitenanceCheck,
+  strategies,
+  strategy_names,
+  factory_colors,
+} from './Constants'
 
 let info_style = { fontSize: '0.9em' }
 
 class StrategyChooser extends Component {
+  constructor(props) {
+    super(props)
+    this.descriptions = [
+      'repair engines when they fail',
+      'perform maintenance based on average of previous engine failures',
+      'perform maintenance based on predicted failure from model trained on previous local engine failures',
+      'perform maintenance based on predicted failure from model trained on previous local and federated engine failures',
+    ]
+    this.requirements = [
+      false,
+      '4 engine failures for data',
+      'hire data scientist',
+      'federation offer',
+    ]
+  }
   setStrategy(n) {
+    this.props.setYourHistory([n, this.props.counter - 1])
     this.props.setYourStrategy(n)
   }
   render() {
+    let strat_availability = [
+      true,
+      this.props.exploded >= 4,
+      this.props.your_data_scientist,
+      this.props.federation_offer,
+    ]
     return (
-      <div>
+      <div
+        style={{
+          marginBottom: 20,
+        }}
+      >
         <div
           style={{
             marginBottom: 10,
@@ -17,249 +48,85 @@ class StrategyChooser extends Component {
             justifyContent: 'space-between',
           }}
         >
-          <div>STRATEGY</div>
-          <div>auto-upgrading enabled</div>
+          <div>Your Strategy</div>
+          <div style={{ display: 'none' }}>
+            <input type="checkbox" checked={this.props.autoUpgrade} />{' '}
+            auto-upgrade
+          </div>
         </div>
-
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: '200px 1fr',
-            gridColumnGap: 20,
+            border: 'solid 1px black',
+            borderTop: 'none',
           }}
         >
-          <div>
-            <div
-              style={{
-                background: '#444',
-                color: 'white',
-                height: 100,
-                textAlign: 'center',
-                padding: 10,
-                marginBottom: 10,
-                position: 'relative',
-              }}
-            >
+          {strategy_names.map((name, i) => {
+            let requirement = strat_availability[i] ? '✓' : '☐'
+            requirement = requirement + ' ' + this.requirements[i]
+            if (!strat_availability[i]) {
+              if (name === strategy_names[1]) {
+                requirement = requirement + `: ${this.props.exploded}/4`
+              } else if (name === strategy_names[2]) {
+                requirement = requirement + `: no data scientists available yet`
+              } else if (name === strategy_names[3]) {
+                requirement = requirement + `: no federation offers yet`
+              }
+            }
+            return (
               <div
                 style={{
-                  position: 'absolute',
-                  left: -20,
-                  width: 20,
-                  background: '#444',
-                  height: 10,
-                  top: '50%',
-                  marginTop: '-5px',
-                }}
-              />
-              {this.props.strategy}
-            </div>
-            {this.props.strategy === strategy_names[3] ? (
-              <div
-                style={{
-                  background: '#444',
-                  color: 'white',
-                  height: 100,
-                  textAlign: 'center',
-                  padding: 10,
-                  position: 'relative',
+                  background: strat_availability[i] ? '#fff' : '#ddd',
+                  borderTop: 'solid 1px black',
+                  padding: '0 4px',
                 }}
               >
+                {this.requirements[i] ? (
+                  <div
+                    style={{
+                      fontSize: '14px',
+                      padding: '5px 6px 0',
+                    }}
+                  >
+                    <span style={{ fontSize: '12px' }}>REQUIREMENT:</span>{' '}
+                    {requirement}
+                  </div>
+                ) : null}
                 <div
                   style={{
-                    position: 'absolute',
-                    top: -10,
-                    width: 10,
-                    background: '#444',
-                    height: 10,
-                    left: '50%',
-                    marginLeft: '-5px',
+                    padding: '2px 5px 5px',
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr',
+                    alignContent: 'center',
+                    gridColumnGap: 7,
                   }}
-                />
-                federation
-              </div>
-            ) : null}
-          </div>
-          <div style={{ padding: '0 0 20px 0' }}>
-            <div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  padding: 10,
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr',
-                }}
-              >
-                <div>
-                  <input
-                    type="radio"
-                    checked={this.props.strategy === strategy_names[0]}
-                    onClick={this.setStrategy.bind(this, strategy_names[0])}
-                  />
-                </div>
-                <div>
-                  <div>{strategy_names[0]}</div>
-                  <div style={{ ...info_style }}>
-                    Repair engines when they break down.
+                >
+                  <div>
+                    <input
+                      type="radio"
+                      checked={this.props.strategy === name}
+                      disabled={!strat_availability[i]}
+                      onClick={this.setStrategy.bind(this, name)}
+                      style={{ padding: 0, margin: 0 }}
+                    />
                   </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  padding: 10,
-                  background: this.props.exploded >= 4 ? 'transparent' : '#ddd',
-                  color: this.props.exploded >= 4 ? 'black' : '#666',
-                  ...info_style,
-                }}
-              >
-                <div>
-                  Requirement: 4 explosions for data
-                  {this.props.exploded >= 4 ? (
-                    ''
-                  ) : (
-                    <span>
-                      : {this.props.exploded}
-                      /4
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  padding: 10,
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr',
-                  background: this.props.exploded >= 4 ? 'transparent' : '#ddd',
-                  color: this.props.exploded >= 4 ? 'black' : '#666',
-                }}
-              >
-                <div>
-                  <input
-                    type="radio"
-                    checked={this.props.strategy === strategy_names[1]}
-                    onClick={this.setStrategy.bind(this, strategy_names[1])}
-                    disabled={!this.props.exploded >= 4}
-                  />
-                </div>
-                <div>
-                  <div>{strategy_names[1]}</div>
-                  <div style={{ ...info_style }}>
-                    Perform maintenance when engine cycles reach average of past
-                    engine failures - 10.
-                  </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  padding: 10,
-                  background: this.props.exploded >= 4 ? 'transparent' : '#ddd',
-                  color: this.props.exploded >= 4 ? 'black' : '#666',
-                }}
-              >
-                <div>unlock machine learning options</div>
-                <div>
-                  {this.props.your_data_scientist ? (
-                    'data scientist hired'
-                  ) : (
-                    <button
+                  <div>
+                    <div>
+                      <strong>{name}</strong>
+                    </div>
+                    <div
                       style={{
-                        background:
-                          this.props.exploded >= 4 ? 'transparent' : '#ddd',
-                        color: this.props.exploded >= 4 ? 'black' : '#666',
+                        display: 'none',
+                        fontSize: '13px',
+                        lineHeight: 1.5,
                       }}
-                      onClick={this.setStrategy.bind(this, strategy_names[0])}
-                      disabled={!this.props.exploded >= 4}
                     >
-                      hire data scientist
-                    </button>
-                  )}
+                      {this.descriptions[i]}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  padding: 10,
-                  background: this.props.your_data_scientist
-                    ? 'transparent'
-                    : '#ddd',
-                  color: this.props.your_data_scientist ? 'black' : '#666',
-                  ...info_style,
-                }}
-              >
-                <div>Requirement: Hire data scientist</div>
-              </div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  padding: 10,
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr',
-                  background: this.props.your_data_scientist
-                    ? 'transparent'
-                    : '#ddd',
-                  color: this.props.your_data_scientist ? 'black' : '#666',
-                }}
-              >
-                <div>
-                  <input
-                    type="radio"
-                    checked={this.props.strategy === strategy_names[2]}
-                    onClick={this.setStrategy.bind(this, strategy_names[2])}
-                  />
-                </div>
-                <div>
-                  <div>{strategy_names[2]}</div>
-                  <div style={{ ...info_style }}>predictive</div>
-                </div>
-              </div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  padding: 10,
-                  background: this.props.your_data_scientist
-                    ? 'transparent'
-                    : '#ddd',
-                  color: this.props.your_data_scientist ? 'black' : '#666',
-                  ...info_style,
-                }}
-              >
-                <div>Requirement: Federation offer</div>
-              </div>
-              <div
-                style={{
-                  display: 'grid',
-                  border: 'solid 1px black',
-                  borderTop: 'none',
-                  gridTemplateColumns: 'auto 1fr',
-                  padding: 10,
-                  background: this.props.your_data_scientist
-                    ? 'transparent'
-                    : '#ddd',
-                  color: this.props.your_data_scientist ? 'black' : '#666',
-                }}
-              >
-                <div>
-                  <input
-                    type="radio"
-                    checked={this.props.strategy === strategy_names[3]}
-                    onClick={this.setStrategy.bind(this, strategy_names[3])}
-                  />
-                </div>
-                <div>
-                  <div>{strategy_names[3]}</div>
-                  <div style={{ ...info_style }}>predictive</div>
-                </div>
-              </div>
-            </div>
-          </div>
+            )
+          })}
         </div>
       </div>
     )

@@ -26,13 +26,21 @@ export let selected_features = [
   'W32',
 ]
 
-export let cycle_profit = 50
+export let cycle_profit = 200
 let engine_profit = cycle_profit * 4
-export let maitained_penalty = engine_profit * 10 * 4
-export let exploded_penalty = engine_profit * 100 * 2
+export let maitained_penalty = 10000
+export let exploded_penalty = 40000
 
-export let maintained_delay = 5
-export let exploded_delay = 20
+export function calculateProfit([cycles, maintained, failed]) {
+  return (
+    cycles * cycle_profit -
+    maintained * maitained_penalty -
+    failed * exploded_penalty
+  )
+}
+
+export let maintained_delay = 20
+export let exploded_delay = 60
 
 export let data_scientist_cost = engine_profit * 6
 
@@ -45,17 +53,34 @@ export let strategies = {
 
 export let strategy_names = Object.keys(strategies)
 
-export let preventative_threshold = 100
 export let predictive_threshold = 10
+export let preventative_threshold = 193
 
 export let factory_colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
+
+export let maintain_color = '#fffa71'
+export let repair_color = '#ff8282'
 
 export function maitenanceCheck(rev, strategy_name, failure_mean) {
   switch (strategy_name) {
     case strategy_names[0]:
       return false
     case strategy_names[1]:
-      return rev[strategies[strategy_name]] >= failure_mean - 10
+      // return rev[strategies[strategy_name]] >= 180
+      return rev[strategies[strategy_name]] >= preventative_threshold
+    case strategy_names[2]:
+      return rev[strategies[strategy_name]] <= predictive_threshold
+    case strategy_names[3]:
+      return rev[strategies[strategy_name]] <= predictive_threshold
+  }
+}
+
+export function mCheck(rev, strategy_name, failure_mean) {
+  switch (strategy_name) {
+    case strategy_names[0]:
+      return false
+    case strategy_names[1]:
+      return rev[strategies[strategy_name]] >= preventative_threshold
     case strategy_names[2]:
       return rev[strategies[strategy_name]] <= predictive_threshold
     case strategy_names[3]:
@@ -141,7 +166,6 @@ let corpora_greek_flattened = [
   'Erebus',
   'Eros',
   'Hypnos',
-  'Uranus',
   'Gaia',
   'Phanes',
   'Pontus',
@@ -178,3 +202,14 @@ function sample(array) {
 export function makeName() {
   return sample(corpora_greek_flattened) + ' ' + sample(endings)
 }
+
+export let requirement_strings = [
+  null,
+  'four turbofan failures for data',
+  'hire data scientist',
+  'federation offer',
+]
+
+export let profit_array_length = 300
+
+export let finish = 2000

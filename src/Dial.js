@@ -10,7 +10,7 @@ import {
 import { scale } from './Utilties'
 import { registerPartial } from 'handlebars'
 
-let x_steps = 100
+let x_steps = 50
 
 class Dial extends Component {
   constructor(props) {
@@ -35,7 +35,7 @@ class Dial extends Component {
       ctx.clearRect(0, 0, this.props.width, this.props.height)
     }
     let x_step = this.props.width / x_steps
-    let last_100 = Math.min(this_time, 100)
+    let last_100 = Math.min(this_time, x_steps)
     for (let i = 0; i < last_100; i++) {
       let adjusted = this_time - last_100 + i
       for (let j = 0; j < selected_features.length; j++) {
@@ -65,13 +65,13 @@ class Dial extends Component {
       >
         {selected_features.map(c => (
           <div>
-            <div style={{ fontSize: '10px', color: '#999' }}>{c}</div>
+            <div style={{ fontSize: '10px', paddingBottom: 3 }}>{c}</div>
             <Canvas
               width={this.props.width}
               height={this.props.height}
               getCtx={this.getCtx}
             />
-            <div style={{ fontSize: '10px', color: '#999' }}>
+            <div style={{ fontSize: '10px', paddingTop: 3, display: 'none' }}>
               {this.props.engine[this.props.this_time][c]}
             </div>
           </div>

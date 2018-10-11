@@ -6,17 +6,21 @@ import {
   strategy_names,
   factory_colors,
   makeName,
+  maintain_color,
+  repair_color,
 } from './Constants'
 import ProfitGraph from './ProfitGraph'
 import AverageGraph from './AverageGraph'
 import { commas } from './Utilties'
 import LastStrategies from './LastStrategies'
+import FlipMove from 'react-flip-move'
+import { max } from 'lodash'
 
 function compare(a, b) {
-  if (a[1] > b[1]) {
+  if (a[0] > b[0]) {
     return -1
   }
-  if (a[1] < b[1]) {
+  if (a[0] < b[0]) {
     return 1
   }
   return 0
@@ -29,6 +33,9 @@ class Competitors extends Component {
     super(props)
     this.averages = [...Array(props.competitor_number)].map(n => [])
     this.comp_profits = [...Array(props.competitor_number)].map(n => [])
+    // this.histories = [...Array(props.competitor_number)].map((n, i) => [
+    //   [strategy_names[i], 0],
+    // ])
     this.histories = [...Array(props.competitor_number)].map(n => [
       [strategy_names[0], 0],
     ])
@@ -41,6 +48,7 @@ class Competitors extends Component {
     this.factory_names = [...Array(props.competitor_number)].map(n =>
       makeName()
     )
+    this.grid = null
   }
 
   setAverage(i, average) {
@@ -49,6 +57,7 @@ class Competitors extends Component {
       this_array.shift()
     }
     this_array.push(average)
+    if (this.grid) this.grid.forceGridAnimation()
   }
 
   setCompProfits(i, profit) {
@@ -81,39 +90,25 @@ class Competitors extends Component {
     let combined = [this.props.your_average_profits, ...this.averages]
     let combined_histories = [this.props.your_history, ...this.histories]
 
-    // average profit order
-    // if (this.averages[0][0] !== undefined) {
-    //   let to_order = this.averages.map((f, i) => [i, f[f.length - 1]])
-    //   to_order.sort(compare)
-    //   for (let i = 0; i < to_order.length; i++) {
-    //     ordered[to_order[i][0]] = i
-    //   }
-    // }
-    return (
-      <div>
-        <ProfitGraph
-          averages={combined_profits}
-          colors={factory_colors}
-          histories={combined_histories}
-          width={700}
-          height={200}
-          counter={this.props.counter}
-        />
-        {true ? null : (
-          <AverageGraph
-            averages={combined}
-            colors={factory_colors}
-            width={800}
-            height={200}
-          />
-        )}
-        <div style={{ marginBottom: 10 }}>Competitors</div>
-        <div style={{ display: 'grid' }}>
+    let last_entries = combined_histories.map(h => h[h.length - 1][1])
+    let last_max = max(last_entries)
+    let last_index = last_entries.indexOf(last_max)
+    let last_group = combined_histories[last_index]
+    let last = last_group[last_group.length - 1]
+    let last_name = ['Your Factory', ...this.factory_names][last_index]
+    let last_color = factory_colors[last_index]
+
+    let factories = null
+    let ordered_factories = null
+    if (combined_profits[0][0] !== undefined) {
+      factories = [
+        [
+          combined_profits[0][combined_profits[0].length - 1],
           <div
             style={{
               border: 'solid 1px black',
+              background: 'white',
               marginBottom: 10,
-              order: ordered[0],
             }}
           >
             <div
@@ -125,32 +120,59 @@ class Competitors extends Component {
             >
               Your Factory
             </div>
-            <div
-              style={{
-                padding: 10,
-              }}
-            >
-              <div>
-                profit: $
-                {this.props.your_profits.length > 0
-                  ? commas(
-                      this.props.your_profits[
-                        this.props.your_profits.length - 1
-                      ]
-                    )
-                  : null}
+
+            <div style={{ padding: '5px 10px 0', fontSize: '18px' }}>
+              {this.props.your_profits.length > 0
+                ? '$' +
+                  commas(
+                    this.props.your_profits[this.props.your_profits.length - 1]
+                  ) +
+                  ' profit'
+                : null}
+            </div>
+            <div style={{ padding: '5px 10px 5px' }}>
+              <div style={{ fontSize: '12px', paddingBottom: '2px' }}>
+                STRATEGY HISTORY:
               </div>
               <LastStrategies
                 history={this.props.your_history}
                 counter={this.props.counter}
+                color={factory_colors[0]}
               />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-                <div>maintained: {this.props.your_maintained}</div>
-                <div>explosions: {this.props.your_explosions}</div>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                fontSize: '12px',
+              }}
+            >
+              <div
+                style={{
+                  padding: '5px 10px',
+                  background: this.props.your_maintain_status
+                    ? maintain_color
+                    : 'white',
+                }}
+              >
+                TOTAL MAINTAINED: {this.props.your_maintained}
+              </div>
+              <div
+                style={{
+                  padding: '5px 10px',
+                  background: this.props.your_explode_status
+                    ? repair_color
+                    : 'white',
+                }}
+              >
+                TOTAL FAILED: {this.props.your_explosions}
               </div>
             </div>
-          </div>
-          {[...Array(this.props.competitor_number)].map((n, i) => (
+          </div>,
+        ],
+        ...[...Array(this.props.competitor_number)].map((n, i) => [
+          combined_profits[i + 1][combined_profits[i + 1].length - 1],
+          <div key={this.factory_names[i]}>
             <Factory
               engine_number={4}
               name={this.factory_names[i]}
@@ -161,16 +183,61 @@ class Competitors extends Component {
               counter={this.props.counter}
               strategy={this.strategies[i]}
               visible_engines={false}
-              strategy={this.strategies[i]}
               setAverage={this.setAverage.bind(this)}
               setCompProfits={this.setCompProfits}
               order={ordered[i + 1]}
               color={factory_colors[i + 1]}
               setCompHistories={this.setCompHistories}
               setStrategies={this.setStrategies}
+              autoUpgrade={false}
             />
-          ))}
+          </div>,
+        ]),
+      ]
+    }
+
+    if (factories) {
+      let sorted = factories.sort(compare)
+      ordered_factories = sorted.map(f => f[1])
+    }
+
+    return (
+      <div style={{ padding: '10px 10px 0', border: 'solid 1px black' }}>
+        <div style={{ padding: '0 0 10px' }}>Leaderboard</div>
+        <div style={{ paddingBottom: 10 }}>
+          <ProfitGraph
+            averages={combined_profits}
+            colors={factory_colors}
+            histories={combined_histories}
+            strategies={[this.props.your_strategy, ...this.strategies]}
+            width={700}
+            height={200}
+            counter={this.props.counter}
+          />
         </div>
+        <div style={{ marginBottom: 10, fontSize: '14px' }}>
+          <span style={{ fontSize: '12px' }}>LATEST EVENT: </span>
+          {last[1] === 0 ? (
+            <span>Simulation started {this.props.counter} cycles ago.</span>
+          ) : (
+            <span style={{}}>
+              <span
+                style={{
+                  background: last_color,
+                  color: 'white',
+                  padding: '0 2px',
+                }}
+              >
+                {last_name}
+              </span>{' '}
+              changed strategy to <strong>{last[0]}</strong>{' '}
+              {commas(this.props.counter - last[1])} cycles ago.
+            </span>
+          )}
+        </div>
+        <FlipMove duration={250} enterAnimation={false} leaveAnimation={false}>
+          {ordered_factories}
+        </FlipMove>
       </div>
     )
   }

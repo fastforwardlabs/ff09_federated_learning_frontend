@@ -25,3 +25,17 @@ export let commas = x => {
 export function scale(value, range) {
   return (value - range[0]) / (range[1] - range[0])
 }
+
+export function lastStrat(history) {
+  history[history.length - 1][0]
+}
+
+export function compare(a, b) {
+  if (a[0] > b[0]) {
+    return -1
+  }
+  if (a[0] < b[0]) {
+    return 1
+  }
+  return 0
+}

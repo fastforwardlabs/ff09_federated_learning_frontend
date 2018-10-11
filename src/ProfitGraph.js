@@ -44,7 +44,11 @@ class ProfitGraph extends Component {
       for (let i = 0; i < averages.length; i++) {
         let ri = averages.length - 1 - i
         ctx.strokeStyle = this.props.colors[ri]
-        ctx.lineWidth = 2
+        if (ri === 0) {
+          ctx.lineWidth = 2
+        } else {
+          ctx.lineWidth = 2
+        }
         ctx.beginPath()
         for (let j = 0; j < averages[0].length; j++) {
           let x = x_step * j
@@ -65,10 +69,11 @@ class ProfitGraph extends Component {
           let last_y =
             this.props.height - scale(last_average, range) * this.props.height
           let text = '$' + commas(last_average)
+          // text = this.props.strategies[ri]
           let width = ctx.measureText(text).width
-          ctx.fillRect(last_x + 4, last_y - 11, width + 8, 20)
+          ctx.fillRect(last_x, last_y - 11, width + 8, 20)
           ctx.fillStyle = 'white'
-          ctx.fillText(text, last_x + 8, last_y + 3)
+          ctx.fillText(text, last_x + 4, last_y + 3)
         }
         ctx.fillStyle = this.props.colors[ri]
         let history = this.props.histories[ri]
@@ -81,7 +86,9 @@ class ProfitGraph extends Component {
             let y =
               this.props.height -
               scale(averages[ri][entry[1] - offset], range) * this.props.height
-            ctx.fillRect(x - 5, y - 5, 10, 10)
+            ctx.beginPath()
+            ctx.arc(x, y, 5, 0, 2 * Math.PI)
+            ctx.fill()
           }
         }
       }
