@@ -28,6 +28,8 @@ let engine_number = 4
 let data_scientist_pause = 400
 let federation_offer_pause = 400
 
+let speed_bound = 10
+
 class Paperclips extends Component {
   constructor(props) {
     super(props)
@@ -36,6 +38,11 @@ class Paperclips extends Component {
       speed: 2,
       playing: true,
     }
+    this.initialize.bind(this)
+    this.initialize()
+  }
+
+  initialize() {
     let engine_length = this.props.engines.length
     this.factories = [...Array(factory_number)]
     // cycles, maintained, failed
@@ -62,13 +69,26 @@ class Paperclips extends Component {
     // offset, maintained, failed
     this.engine_state = this.engines.map(n => [0, 0, 0])
     this.engine_delays = this.engines.map(n => [0, 0])
-    this.playing = true
+    this.togglePlay = this.togglePlay.bind(this)
+    this.reset = this.reset.bind(this)
+    this.adjustSpeed.bind(this)
+  }
+
+  adjustSpeed(e) {
+    this.setState({ speed: speed_bound + 1 - parseInt(e.target.value) }, () => {
+      this.play()
+    })
+  }
+
+  reset() {
+    this.props.reset()
   }
 
   componentDidMount() {
     this.play()
   }
   play() {
+    window.cancelAnimationFrame(this.animating)
     let count = 0
     let start = () => {
       if (count === this.state.speed) {
@@ -76,15 +96,24 @@ class Paperclips extends Component {
         count = 0
       }
       count++
-      if (this.playing) {
+      if (this.state.playing) {
         this.animating = window.requestAnimationFrame(start)
       }
     }
     this.animating = window.requestAnimationFrame(start)
   }
 
+  togglePlay() {
+    if (this.state.playing) {
+      this.pause()
+    } else {
+      this.setState({ playing: true })
+      this.play()
+    }
+  }
+
   pause() {
-    this.playing = false
+    this.setState({ playing: false })
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -262,7 +291,53 @@ class Paperclips extends Component {
           }}
         >
           <div>Factory Simulator</div>
-          <div>{this.state.counter + 1}</div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'auto auto auto 110px',
+              gridColumnGap: 5,
+              textAlign: 'right',
+            }}
+          >
+            <div>
+              <button onClick={this.reset} style={{ width: '60px' }}>
+                reset
+              </button>
+            </div>
+            <div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto auto auto',
+                  alignItems: 'center',
+                  gridColumnGap: 5,
+                  padding: '0 5px',
+                }}
+              >
+                <div style={{ fontSize: '12px' }}>SPEED:</div>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  onChange={this.adjustSpeed.bind(this)}
+                  step={1}
+                  value={speed_bound + 1 - this.state.speed}
+                  style={{
+                    width: '60px',
+                  }}
+                />
+                <div style={{ fontSize: '12px' }}>
+                  {speed_bound + 1 - this.state.speed}
+                </div>
+              </div>
+            </div>
+            <div>
+              <button onClick={this.togglePlay} style={{ width: '60px' }}>
+                {this.state.playing ? 'pause' : 'play'}
+              </button>
+            </div>
+            <div>{commas(this.state.counter + 1)} cycles</div>
+          </div>
         </div>
         <div
           style={{
@@ -461,7 +536,7 @@ class Paperclips extends Component {
                       >
                         <span
                           style={{
-                            fontSize: '10px',
+                            fontSize: '11px',
                             textTransform: 'uppercase',
                           }}
                         >
@@ -490,7 +565,7 @@ class Paperclips extends Component {
               <div style={{ marginBottom: 10 }}>Leaderboard</div>
               <div style={{ marginBottom: 10 }}>
                 <LeaderGraph
-                  width={600}
+                  width={this.props.ww / 2 - 20}
                   height={200}
                   counter={this.state.counter}
                   factory_profits={this.factory_profits}

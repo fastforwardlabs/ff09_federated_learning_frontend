@@ -10,6 +10,7 @@ class App extends Component {
     super(props)
     this.state = {
       ww: window.innerWidth,
+      reset_key: 0,
     }
   }
 
@@ -42,6 +43,10 @@ class App extends Component {
     window.removeEventListener('resize', this.updateWindowWidth.bind(this))
   }
 
+  reset() {
+    this.setState({ reset_key: this.state.reset_key + 1 })
+  }
+
   render() {
     let dirty_url_state = queryString.parse(this.props.location.search, {
       ignoreQueryPrefix: true,
@@ -53,7 +58,12 @@ class App extends Component {
     return (
       <div>
         {this.props.engines_loaded ? (
-          <Paperclips2 {...this.props} ww={this.state.ww} />
+          <Paperclips2
+            key={this.state.reset_key}
+            {...this.props}
+            ww={this.state.ww}
+            reset={this.reset.bind(this)}
+          />
         ) : (
           'loading...'
         )}

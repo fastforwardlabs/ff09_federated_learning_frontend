@@ -93,8 +93,7 @@ class Dial extends Component {
       if (this.props.strategy) {
         ctx.font = 'bold 11px sans-serif'
         ctx.fillText(
-          this.props.strategy.charAt(0).toUpperCase() +
-            this.props.strategy.slice(1),
+          this.props.strategy,
           this.props.width - predict_width - 1,
           text_height + 1 - 6
         )
