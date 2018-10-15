@@ -29,7 +29,7 @@ export let selected_features = [
 export let cycle_profit = 200
 let engine_profit = cycle_profit * 4
 export let maitained_penalty = 10000
-export let exploded_penalty = 40000
+export let exploded_penalty = 50000
 
 export function calculateProfit([cycles, maintained, failed]) {
   return (

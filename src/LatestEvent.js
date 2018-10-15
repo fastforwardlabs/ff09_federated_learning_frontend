@@ -25,7 +25,7 @@ class LatestEvent extends Component {
           latest event:{' '}
         </span>
         {last[1] === 0 ? (
-          <span>Simulation started {this.props.counter} cycles ago.</span>
+          <span>Simulation started.</span>
         ) : (
           <span style={{}}>
             <span
@@ -37,8 +37,7 @@ class LatestEvent extends Component {
             >
               {last_name}
             </span>{' '}
-            changed strategy to <strong>{last[0]}</strong>{' '}
-            {commas(this.props.counter - last[1])} cycles ago.
+            changed strategy to <strong>{last[0]}</strong>.
           </span>
         )}
       </div>

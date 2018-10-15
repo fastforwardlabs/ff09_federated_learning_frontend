@@ -37,9 +37,11 @@ class Paperclips extends Component {
       counter: 0,
       speed: 2,
       playing: true,
+      modal: false,
     }
     this.initialize.bind(this)
     this.initialize()
+    this.last_render = null
   }
 
   initialize() {
@@ -70,14 +72,98 @@ class Paperclips extends Component {
     this.engine_state = this.engines.map(n => [0, 0, 0])
     this.engine_delays = this.engines.map(n => [0, 0])
     this.togglePlay = this.togglePlay.bind(this)
+    this.play = this.play.bind(this)
     this.reset = this.reset.bind(this)
+    this.ff = this.ff.bind(this)
+    this.ffing = false
+    this.auto_upgrade = false
+    this.tutorial_mode = true
     this.adjustSpeed.bind(this)
+    this.openModal = this.openModal.bind(this)
+    this.closeModal = this.closeModal.bind(this)
+    this.openUpgrade = this.openUpgrade.bind(this)
+    this.yesUpgrade = this.yesUpgrade.bind(this)
+    this.requirements = [...Array(factory_number)].map(n => [null, null, null])
+    this.round_delays = [...Array(factory_number)].map(n => null)
+  }
+
+  openModal() {
+    this.setState({ modal: true, playing: false })
+  }
+
+  closeModal() {
+    this.setState({ modal: false, playing: true })
+    this.play()
+  }
+
+  openUpgrade() {
+    this.openModal()
+  }
+
+  yesUpgrade() {
+    let upgrade_index = 0
+    for (let i = 0; i < this.requirements[0].length; i++) {
+      if (this.requirements[0][i] !== null) upgrade_index = i + 1
+    }
+    this.factories_strategies[0].push([
+      strategy_names[upgrade_index],
+      this.state.counter,
+    ])
+    this.closeModal()
+  }
+
+  setYourStrategy(strat, available) {
+    if (available === undefined || available === true) {
+      if (strat !== last(this.factories_strategies[0])[0]) {
+        this.auto_upgrade = false
+        this.factories_strategies[0].push([strat, this.state.counter])
+      }
+    }
   }
 
   adjustSpeed(e) {
     this.setState({ speed: speed_bound + 1 - parseInt(e.target.value) }, () => {
       this.play()
     })
+  }
+
+  ff() {
+    this.ffing = true
+    let restart = false
+    if (this.state.playing === true) {
+      restart = true
+      this.pause()
+    }
+    let jump = 1000
+    let me = this
+    let playCallback = () => {
+      setTimeout(() => {
+        this.ffing = false
+        if (restart) {
+          me.setState({ playing: true })
+          me.play()
+        }
+      }, 0)
+    }
+    for (let i = 0; i < jump; i++) {
+      if (i === jump - 1) {
+        setTimeout(() => {
+          this.setState(function(state, props) {
+            return {
+              counter: state.counter + 1,
+            }
+          }, playCallback)
+        }, 0)
+      } else {
+        setTimeout(() => {
+          this.setState(function(state, props) {
+            return {
+              counter: state.counter + 1,
+            }
+          })
+        }, 0)
+      }
+    }
   }
 
   reset() {
@@ -87,6 +173,7 @@ class Paperclips extends Component {
   componentDidMount() {
     this.play()
   }
+
   play() {
     window.cancelAnimationFrame(this.animating)
     let count = 0
@@ -124,44 +211,6 @@ class Paperclips extends Component {
         let simulation_limit = this.simulation_limits[fi]
         let upgrades = this.factory_upgrades[fi]
         let last_switch = last(this.factories_strategies[fi])[1]
-
-        // Simulate (you want to run after last render)
-        if (factory_strategy === strategy_names[0] && simulation_limit > 0) {
-          if (factory_state[2] >= 4) {
-            this.factories_strategies[fi].push([
-              strategy_names[1],
-              this.state.counter,
-            ])
-          }
-        } else if (
-          factory_strategy === strategy_names[1] &&
-          simulation_limit > 1
-        ) {
-          if (!upgrades[0]) {
-            if (this.state.counter > data_scientist_pause + last_switch) {
-              upgrades[0] = true
-            }
-          } else {
-            this.factories_strategies[fi].push([
-              strategy_names[2],
-              this.state.counter,
-            ])
-          }
-        } else if (
-          factory_strategy === strategy_names[2] &&
-          simulation_limit > 2
-        ) {
-          if (!upgrades[1]) {
-            if (this.state.counter > federation_offer_pause + last_switch) {
-              upgrades[1] = true
-            }
-          } else {
-            this.factories_strategies[fi].push([
-              strategy_names[3],
-              this.state.counter,
-            ])
-          }
-        }
 
         for (let ei = 0; ei < engine_number; ei++) {
           let engine_flat_i = fi * factory_number + ei
@@ -219,7 +268,98 @@ class Paperclips extends Component {
           profit_array.shift()
         }
         profit_array.push(factory_profit)
+
+        let your_factory = fi === 0
+        let auto_upgrade =
+          !your_factory || (your_factory && this.auto_upgrade === true)
+        let tutorial_mode = your_factory && this.tutorial_mode
+
+        let requirements = this.requirements[fi]
+        let round_delay = this.round_delays[fi]
+
+        if (requirements[0] === null) {
+          if (factory_state[2] >= 4) {
+            console.log('what the hell')
+            console.log(this.round_delays[fi])
+            if (round_delay === null) {
+              this.round_delays[fi] = this.state.counter + 1
+            }
+            if (round_delay === this.state.counter) {
+              console.log('matches')
+              this.requirements[fi][0] = this.state.counter
+              if (tutorial_mode) {
+                console.log('open it')
+                setTimeout(() => {
+                  this.openUpgrade(strategy_names[1])
+                }, 0)
+              }
+            }
+          }
+        } else {
+          if (requirements[1] === null) {
+            if (
+              this.state.counter >
+              this.requirements[fi][0] + data_scientist_pause
+            ) {
+              this.requirements[fi][1] = this.state.counter
+              if (tutorial_mode) {
+                this.openUpgrade(strategy_names[2])
+              }
+            }
+          } else {
+            if (this.requirements[fi][2] === null) {
+              if (
+                this.state.counter >
+                this.requirements[fi][1] + data_scientist_pause
+              ) {
+                this.requirements[fi][2] = this.state.counter
+                if (tutorial_mode) {
+                  this.openUpgrade(strategy_names[3])
+                }
+              }
+            }
+          }
+        }
+
+        if (
+          factory_strategy === strategy_names[0] &&
+          simulation_limit > 0 &&
+          this.requirements[fi][0] !== null
+        ) {
+          if (auto_upgrade) {
+            this.factories_strategies[fi].push([
+              strategy_names[1],
+              this.state.counter,
+            ])
+          }
+        } else if (
+          factory_strategy === strategy_names[1] &&
+          simulation_limit > 1 &&
+          this.requirements[fi][1] !== null
+        ) {
+          if (auto_upgrade) {
+            this.factories_strategies[fi].push([
+              strategy_names[2],
+              this.state.counter,
+            ])
+          }
+        } else if (
+          factory_strategy === strategy_names[2] &&
+          simulation_limit > 2 &&
+          this.requirements[fi][2] !== null
+        ) {
+          if (auto_upgrade) {
+            this.factories_strategies[fi].push([
+              strategy_names[3],
+              this.state.counter,
+            ])
+          }
+        }
       }
+    }
+
+    if (this.state.counter === 2000 && this.state.modal === false) {
+      this.openUpgrade()
     }
   }
 
@@ -227,18 +367,30 @@ class Paperclips extends Component {
     let profits = this.factory_profits.map((p, i) => [last(p), i])
     profits.sort(compare)
 
+    let render_counter = this.state.counter
+
+    let upgrade_index = 0
+    for (let i = 0; i < this.requirements[0].length; i++) {
+      if (this.requirements[0][i] !== null) upgrade_index = i + 1
+    }
+
     let leaderboard = profits.map((n, sorted_i) => {
       let fi = profits[sorted_i][1]
       let factory_state = this.factories_state[fi]
       return (
         <div
           key={`factory_${fi}`}
-          style={{ border: 'solid 1px black', marginBottom: 10 }}
+          style={{
+            border: 'solid 1px black',
+            marginBottom: 10,
+            background: 'white',
+          }}
         >
           <div
             style={{
               background: factory_colors[fi],
               color: 'white',
+              fontSmoothing: 'antialiased',
               padding: '5px 10px',
             }}
           >
@@ -248,17 +400,26 @@ class Paperclips extends Component {
             <div style={{ fontSize: larger_font }}>
               ${commas(calculateProfit(factory_state))} profit
             </div>
-            <div>{last(this.factories_strategies[fi])[0]}</div>
-            {this.factory_engines_empty.map((n, ei) => {
-              let engine_flat_i = fi * factory_number + ei
-              let engine = this.props.engines[this.engines[engine_flat_i]]
-              let engine_state = this.engine_state[engine_flat_i]
-              let this_time =
-                this.state.counter - this.engine_state[engine_flat_i][0]
-              let rev = engine[this_time]
-              let maintaining = this.engine_delays[engine_flat_i][0] > 0
-              let repairing = this.engine_delays[engine_flat_i][1] > 0
-            })}
+            <div style={{ padding: '5px 0 5px' }}>
+              <div style={{ fontSize: '12px' }}>STRATEGY HISTORY:</div>
+              {this.factories_strategies[fi].map((n, i) => {
+                let ri = this.factories_strategies[fi].length - 1 - i
+                let color =
+                  ri === this.factories_strategies[fi].length - 1
+                    ? 'black'
+                    : '#999'
+                let current = ri === this.factories_strategies[fi].length - 1
+                return (
+                  <div style={{ color: color }}>
+                    <strong>{this.factories_strategies[fi][ri][0]}</strong>
+                    {current
+                      ? ''
+                      : ` for ${this.factories_strategies[fi][ri + 1][1] -
+                          this.factories_strategies[fi][ri][1]} cycles`}
+                  </div>
+                )
+              })}
+            </div>
             <div
               style={{
                 display: 'grid',
@@ -275,7 +436,7 @@ class Paperclips extends Component {
       )
     })
 
-    return (
+    let to_render = (
       <div
         style={{
           display: 'grid',
@@ -294,302 +455,431 @@ class Paperclips extends Component {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'auto auto auto 110px',
+              gridTemplateColumns: 'auto 100px auto auto',
               gridColumnGap: 5,
               textAlign: 'right',
             }}
           >
-            <div>
-              <button onClick={this.reset} style={{ width: '60px' }}>
-                reset
-              </button>
-            </div>
-            <div>
-              <div
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'auto auto',
+                alignItems: 'center',
+                gridColumnGap: 5,
+                padding: '0 5px',
+              }}
+            >
+              <div style={{ fontSize: '12px' }}>SPEED:</div>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                onChange={this.adjustSpeed.bind(this)}
+                step={1}
+                value={speed_bound + 1 - this.state.speed}
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'auto auto auto',
-                  alignItems: 'center',
-                  gridColumnGap: 5,
-                  padding: '0 5px',
+                  width: '60px',
                 }}
-              >
-                <div style={{ fontSize: '12px' }}>SPEED:</div>
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  onChange={this.adjustSpeed.bind(this)}
-                  step={1}
-                  value={speed_bound + 1 - this.state.speed}
-                  style={{
-                    width: '60px',
-                  }}
-                />
-                <div style={{ fontSize: '12px' }}>
-                  {speed_bound + 1 - this.state.speed}
-                </div>
-              </div>
+              />
+            </div>
+            <div style={{ paddingRight: 5 }}>
+              {commas(render_counter + 1)} cycles
             </div>
             <div>
-              <button onClick={this.togglePlay} style={{ width: '60px' }}>
+              <button
+                className="top-button"
+                onClick={this.togglePlay}
+                style={{ width: '60px' }}
+              >
                 {this.state.playing ? 'pause' : 'play'}
               </button>
             </div>
-            <div>{commas(this.state.counter + 1)} cycles</div>
+            <div>
+              <button
+                className="top-button"
+                onClick={this.reset}
+                style={{ width: '60px' }}
+              >
+                reset
+              </button>
+            </div>
+
+            {false && this.state.counter > 2000 ? (
+              <div>
+                <button onClick={this.ff} style={{ width: '60px' }}>
+                  skip 1000
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            padding: 10,
-            gridColumnGap: 10,
-            height: 'calc(100vh - 40px)',
-            overflow: 'auto',
-          }}
-        >
-          <div>
-            {this.factories.slice(0, 1).map((n, fi) => {
-              let factory_state = this.factories_state[fi]
-              return (
-                <div
-                  key={`factory_${fi}`}
-                  style={{
-                    marginBottom: 20,
-                    border: 'solid 1px black',
-                  }}
-                >
-                  <div
-                    style={{
-                      background: factory_colors[fi],
-                      color: 'white',
-                      padding: '5px 10px',
-                    }}
-                  >
-                    {this.factory_names[fi]}
-                  </div>
-                  <div style={{ padding: 10 }}>
-                    <div style={{ marginBottom: 10, fontSize: larger_font }}>
-                      ${commas(last(this.factory_profits[fi]))} profit
-                    </div>
-                    <div
-                      style={{
-                        marginBottom: 5,
-                        fontSize: smaller_font,
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      TURBOFANS:
-                    </div>
-                    {this.factory_engines_empty.map((n, ei) => {
-                      let engine_flat_i = fi * factory_number + ei
-                      let engine = this.props.engines[
-                        this.engines[engine_flat_i]
-                      ]
-                      let engine_state = this.engine_state[engine_flat_i]
-                      let this_time =
-                        this.state.counter - this.engine_state[engine_flat_i][0]
-                      let rev = engine[this_time]
-                      let maintaining = this.engine_delays[engine_flat_i][0] > 0
-                      let repairing = this.engine_delays[engine_flat_i][1] > 0
-                      let background = 'white'
-                      if (maintaining) background = maintain_color
-                      if (repairing) background = repair_color
-                      return (
-                        <div
-                          key={`engine_${engine_flat_i}`}
-                          style={{
-                            marginBottom: 10,
-                            border: 'solid 1px black',
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: smaller_font,
-                              background: background,
-                              textTransform: 'uppercase',
-                              padding: '5px 10px 5px',
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                            }}
-                          >
-                            <div>cycles: {rev.time}</div>
-                            <div>
-                              {maintaining
-                                ? `maintaining: ${
-                                    this.engine_delays[engine_flat_i][0]
-                                  }`
-                                : null}
-                              {repairing
-                                ? `repairing: ${
-                                    this.engine_delays[engine_flat_i][1]
-                                  }`
-                                : null}
-                            </div>
-                          </div>
-                          <div style={{ padding: '5px 10px 10px' }}>
-                            <div
-                              style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 202px',
-                                fontSize: smaller_font,
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              <div>sensors:</div>
-                              <div>strategy:</div>
-                            </div>
-                            <div style={{ padding: '5px 0 5px' }}>
-                              <Dials
-                                counter={this.state.counter}
-                                this_time={this_time}
-                                keys={this.props.keys}
-                                ranges={this.props.ranges}
-                                engine={engine}
-                                strategy={this.engine_strategies[engine_flat_i]}
-                                width={660}
-                                height={150}
-                                maintaining={maintaining}
-                                repairing={repairing}
-                              />
-                            </div>
-                            <div
-                              style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 1fr',
-                                fontSize: smaller_font,
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              <div>maintained: {engine_state[1]}</div>
-                              <div>failed: {engine_state[2]}</div>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        fontSize: smaller_font,
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      <div>total maintained: {factory_state[1]}</div>
-                      <div>total failed: {factory_state[2]}</div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <div>
-            <div style={{ marginBottom: 10 }}>Your strategy</div>
-            <div
-              style={{
-                marginBottom: 10,
-                borderTop: 'solid 1px black',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-              }}
-            >
-              {strategy_names.map((n, i) => {
-                let checked = n === last(this.factories_strategies[0])[0]
-                let available = true
-                let requirement_info
-                let borderRounding = {}
-                if (i === 1) {
-                  available = this.factories_state[0][2] >= 4
-                  requirement_info = ': ' + this.factories_state[0][2] + '/4'
-                } else if (i === 2) {
-                  available = this.factory_upgrades[0][0]
-                  requirement_info = ': none available yet'
-                } else if (i === 3) {
-                  available = this.factory_upgrades[0][1]
-                  requirement_info = ': no offer yet'
-                  borderRounding = {
-                    borderBottomLeftRadius: '8px',
-                    borderBottomRightRadius: '8px',
-                  }
-                } else {
-                  borderRounding = {
-                    borderTopLeftRadius: '8px',
-                    borderTopRightRadius: '8px',
-                  }
-                }
-                let requirement_string = requirement_strings[i]
+        {this.ffing ? (
+          'fast-forwarding'
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              padding: 10,
+              gridColumnGap: 10,
+              height: 'calc(100vh - 40px)',
+              overflow: 'auto',
+            }}
+          >
+            <div>
+              {this.factories.slice(0, 1).map((n, fi) => {
+                let factory_state = this.factories_state[fi]
                 return (
                   <div
+                    key={`factory_${fi}`}
                     style={{
-                      background: available ? 'white' : '#ddd',
+                      marginBottom: 20,
                       border: 'solid 1px black',
-                      borderTop: 'none',
-                      padding: '2px',
-                      ...borderRounding,
                     }}
                   >
-                    {requirement_string !== null ? (
-                      <div
-                        style={{ fontSize: small_font, padding: '3px 5px 0px' }}
-                      >
-                        <span
-                          style={{
-                            fontSize: '11px',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          requirement
-                        </span>{' '}
-                        {available ? '✓' : '☐'} {requirement_string}
-                        {available ? null : requirement_info}
+                    <div
+                      style={{
+                        background: factory_colors[fi],
+                        color: 'white',
+                        fontSmoothing: 'antialiased',
+                        padding: '5px 10px',
+                      }}
+                    >
+                      {this.factory_names[fi]}
+                    </div>
+                    <div style={{ padding: 10 }}>
+                      <div style={{ marginBottom: 10, fontSize: larger_font }}>
+                        ${commas(last(this.factory_profits[fi]))} profit
                       </div>
-                    ) : null}
-                    <div style={{ padding: '2px 5px 5px' }}>
-                      <input
-                        type="radio"
-                        checked={checked}
-                        disabled={!available}
-                        style={{ position: 'relative', top: '-1px' }}
-                      />{' '}
-                      <span style={{ fontWeight: checked ? 700 : 400 }}>
-                        {n}
-                      </span>
+                      <div
+                        style={{
+                          marginBottom: 5,
+                          fontSize: smaller_font,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        TURBOFANS:
+                      </div>
+                      {!this.ffing
+                        ? this.factory_engines_empty.map((n, ei) => {
+                            let engine_flat_i = fi * factory_number + ei
+                            let engine = this.props.engines[
+                              this.engines[engine_flat_i]
+                            ]
+                            let engine_state = this.engine_state[engine_flat_i]
+                            let this_time =
+                              render_counter -
+                              this.engine_state[engine_flat_i][0]
+                            let rev = engine[this_time]
+                            let maintaining =
+                              this.engine_delays[engine_flat_i][0] > 0
+                            let repairing =
+                              this.engine_delays[engine_flat_i][1] > 0
+                            let background = 'white'
+                            if (maintaining) background = maintain_color
+                            if (repairing) background = repair_color
+                            return (
+                              <div
+                                key={`engine_${engine_flat_i}`}
+                                style={{
+                                  marginBottom: 10,
+                                  border: 'solid 1px black',
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: smaller_font,
+                                    background: background,
+                                    textTransform: 'uppercase',
+                                    padding: '5px 10px 5px',
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 1fr',
+                                  }}
+                                >
+                                  <div>cycles: {rev.time}</div>
+                                  <div>
+                                    {maintaining
+                                      ? `maintaining: ${
+                                          this.engine_delays[engine_flat_i][0]
+                                        }`
+                                      : null}
+                                    {repairing
+                                      ? `repairing: ${
+                                          this.engine_delays[engine_flat_i][1]
+                                        }`
+                                      : null}
+                                  </div>
+                                </div>
+                                <div style={{ padding: '5px 10px 10px' }}>
+                                  <div
+                                    style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '1fr 202px',
+                                      fontSize: smaller_font,
+                                      textTransform: 'uppercase',
+                                    }}
+                                  >
+                                    <div>sensors:</div>
+                                    <div>strategy:</div>
+                                  </div>
+                                  <div style={{ padding: '5px 0 5px' }}>
+                                    <Dials
+                                      counter={render_counter}
+                                      this_time={this_time}
+                                      keys={this.props.keys}
+                                      ranges={this.props.ranges}
+                                      engine={engine}
+                                      strategy={
+                                        this.engine_strategies[engine_flat_i]
+                                      }
+                                      width={660}
+                                      height={150}
+                                      maintaining={maintaining}
+                                      repairing={repairing}
+                                    />
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '1fr 1fr',
+                                      fontSize: smaller_font,
+                                      textTransform: 'uppercase',
+                                    }}
+                                  >
+                                    <div>maintained: {engine_state[1]}</div>
+                                    <div>failed: {engine_state[2]}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })
+                        : null}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          fontSize: smaller_font,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        <div>total maintained: {factory_state[1]}</div>
+                        <div>total failed: {factory_state[2]}</div>
+                      </div>
                     </div>
                   </div>
                 )
               })}
             </div>
             <div>
-              <div style={{ marginBottom: 10 }}>Leaderboard</div>
-              <div style={{ marginBottom: 10 }}>
-                <LeaderGraph
-                  width={this.props.ww / 2 - 20}
-                  height={200}
-                  counter={this.state.counter}
-                  factory_profits={this.factory_profits}
-                  factories_strategies={this.factories_strategies}
-                />
-              </div>
-              <LatestEvent
-                factories_strategies={this.factories_strategies}
-                factory_names={this.factory_names}
-                counter={this.state.counter}
-              />
-
-              <FlipMove
-                duration={250}
-                enterAnimation={false}
-                leaveAnimation={false}
+              <div
+                style={{
+                  border: 'solid 1px black',
+                  marginBottom: 10,
+                  position: 'relative',
+                }}
               >
-                {leaderboard}
-              </FlipMove>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: -12,
+                    top: '50%',
+                    width: '12px',
+                    height: '1px',
+                    background: 'black',
+                  }}
+                />
+                <div
+                  style={{
+                    padding: '5px 10px 5px',
+                    background: factory_colors[0],
+                    color: 'white',
+                  }}
+                >
+                  Your Strategy
+                </div>
+                <div style={{}}>
+                  {strategy_names.map((n, i) => {
+                    let checked = n === last(this.factories_strategies[0])[0]
+                    let available = true
+                    let requirement_info
+                    if (i === 1) {
+                      available = this.requirements[0][0] !== null
+                      requirement_info =
+                        ': ' + this.factories_state[0][2] + '/4'
+                    } else if (i === 2) {
+                      available = this.requirements[0][1] !== null
+                      requirement_info = ': none available yet'
+                    } else if (i === 3) {
+                      available = this.requirements[0][2] !== null
+                      requirement_info = ': no offer yet'
+                    }
+                    let requirement_string = requirement_strings[i]
+                    let additional_classes = ''
+                    if (checked) additional_classes += ' selected'
+                    if (!available) additional_classes += ' disabled'
+                    return (
+                      <div
+                        className={'hoverinner' + additional_classes}
+                        onClick={this.setYourStrategy.bind(this, n, available)}
+                        style={{
+                          background: available ? 'white' : '#ddd',
+                          cursor: available ? 'pointer' : 'not-allowed',
+                          padding: '5px 10px',
+                        }}
+                      >
+                        {requirement_string !== null ? (
+                          <div
+                            style={{
+                              fontSize: small_font,
+                              paddingBottom: '2px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              requirement
+                            </span>{' '}
+                            {available ? '✓' : '☐'} {requirement_string}
+                            {available ? null : requirement_info}
+                          </div>
+                        ) : null}
+                        <div>
+                          <input
+                            type="radio"
+                            checked={checked}
+                            disabled={!available}
+                            style={{
+                              position: 'relative',
+                              top: '-1px',
+                              marginRight: '2px',
+                            }}
+                          />{' '}
+                          <span
+                            className="hoverinner-target"
+                            style={{ fontWeight: checked ? 700 : 400 }}
+                          >
+                            {n}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              <div>
+                <div style={{ marginBottom: 10 }}>Leaderboard</div>
+                <div style={{ marginBottom: 10 }}>
+                  <LeaderGraph
+                    width={this.props.ww / 2 - 20}
+                    height={200}
+                    counter={render_counter}
+                    factory_profits={this.factory_profits}
+                    factories_strategies={this.factories_strategies}
+                  />
+                </div>
+                <LatestEvent
+                  factories_strategies={this.factories_strategies}
+                  factory_names={this.factory_names}
+                  counter={render_counter}
+                />
+                <FlipMove
+                  duration={250}
+                  enterAnimation={false}
+                  leaveAnimation={false}
+                >
+                  {leaderboard}
+                </FlipMove>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {this.state.modal ? (
+          <div
+            style={{
+              position: 'fixed',
+              left: 0,
+              top: 0,
+              height: '100vh',
+              width: '100%',
+              background: 'rgba(0,0,0,0.2)',
+              display: 'grid',
+              justifyContent: 'center',
+              alignContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                background: 'white',
+                width: '600px',
+                border: 'solid 1px black',
+              }}
+            >
+              <div
+                style={{
+                  background: 'black',
+                  color: 'white',
+                  fontSmoothing: 'antialiased',
+                  padding: '5px 10px',
+                }}
+              >
+                Strategy upgrade available
+              </div>
+              <div style={{ padding: '15px 15px 10px' }}>
+                {upgrade_index === 3 ? (
+                  <div>
+                    <p>Finish line!</p>
+                    <div>
+                      Standings:
+                      <div>{leaderboard}</div>
+                    </div>
+                    <div>
+                      <button
+                        className="top-button variable"
+                        onClick={this.closeModal}
+                      >
+                        Keep playing
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p>
+                      Do you want to upgrade to {strategy_names[upgrade_index]}?
+                    </p>
+                    <div style={{ padding: '5px 0' }}>
+                      <button
+                        onClick={this.yesUpgrade}
+                        className="top-button variable"
+                      >
+                        Yes
+                      </button>
+                      <span>&nbsp;&nbsp;</span>
+                      <button
+                        className="top-button variable"
+                        onClick={this.closeModal}
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     )
+
+    if (this.ffing) {
+      return this.last_render
+    } else {
+      this.last_render = to_render
+      return to_render
+    }
   }
 }
 

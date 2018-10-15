@@ -3,8 +3,6 @@ import React, { Component } from 'react'
 class Canvas extends Component {
   componentDidMount() {
     this.props.getCtx(this.refs.canvas)
-    console.log(this.props)
-    console.log('mount what the hell')
   }
 
   render() {
