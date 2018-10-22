@@ -39,8 +39,8 @@ export function calculateProfit([cycles, maintained, failed]) {
   )
 }
 
-export let maintained_delay = 20
-export let exploded_delay = 60
+export let maintained_delay = 30
+export let exploded_delay = 90
 
 export let data_scientist_cost = engine_profit * 6
 

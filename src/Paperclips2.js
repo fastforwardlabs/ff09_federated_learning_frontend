@@ -35,8 +35,8 @@ let larger_font = '18px'
 
 let factory_number = 4
 let engine_number = 4
-let data_scientist_pause = 200
-let federation_offer_pause = 200
+let data_scientist_pause = 500
+let federation_offer_pause = 500
 
 let speed_bound = 10
 
@@ -914,7 +914,7 @@ class Paperclips extends Component {
                 <span style={{ ...color_span(factory_colors[3]) }}>
                   {this.factory_names[3]}
                 </span>
-                , to score the largest profit on the leaderboard. They'll be
+                , to score the largest profit on the scoreboard. They'll be
                 upgrading their strategies as well, so you'll need to move fast.
               </p>
               <p>
@@ -1266,7 +1266,7 @@ class Paperclips extends Component {
                                       gridTemplateColumns: '1fr 1fr',
                                     }}
                                   >
-                                    <div>cycles: {rev.time}</div>
+                                    <div>active cycles: {rev.time}</div>
                                     <div>
                                       {maintaining
                                         ? `maintaining: ${
@@ -1274,7 +1274,7 @@ class Paperclips extends Component {
                                           }`
                                         : null}
                                       {repairing
-                                        ? `repairing: ${
+                                        ? `failed – repairing: ${
                                             this.engine_delays[engine_flat_i][1]
                                           }`
                                         : null}
@@ -1503,7 +1503,7 @@ class Paperclips extends Component {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <div>Leaderboard</div>
+                    <div>Factory Scoreboard</div>
                     <div
                       style={{ cursor: 'pointer' }}
                       onClick={this.props.toggleSolo}
@@ -1567,10 +1567,12 @@ class Paperclips extends Component {
               padding: '10px 0',
             }}
             onClick={() => {
-              if (this.state.modal_state === 'finish') {
+              {
+                /* if (this.state.modal_state === 'finish') {
                 this.keepPlaying()
               } else {
                 this.closeModal()
+              } */
               }
             }}
           >
