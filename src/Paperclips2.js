@@ -616,10 +616,10 @@ class Paperclips extends Component {
             </div>
           ) : null}
           <p>
-            A <strong>preventative</strong> maintenance strategy uses data about
-            when engines failed in the past to choose a fixed time to perform
-            maintenance. In this case engine maintenance is performed when an
-            engine reaches 193 cycles.
+            A <strong>preventative</strong> maintenance strategy averages data
+            about when engines failed in the past to choose a fixed time to
+            perform maintenance. In this case engine maintenance is performed
+            when an engine reaches 193 cycles.
           </p>
           <p style={{ overflow: 'hidden' }}>
             <div
@@ -670,7 +670,8 @@ class Paperclips extends Component {
             engine failures. Rather than simply averaging their failure times,
             however, it uses the sensor data to make a more sophisticated guess
             about when the engine will fail. Maintenance is performed when the
-            model's predicted remaining life for the engine drops below ten.
+            model's predicted remaining life for the engine drops below ten
+            cycles.
           </p>
           <p style={{ overflow: 'hidden' }}>
             <div
@@ -720,7 +721,7 @@ class Paperclips extends Component {
             engine failures. Through federated learning, it's been trained on
             data from all the factories in the federation. Maintenance is
             performed when the model's predicted remaining life for the engine
-            drops below ten.
+            drops below ten cycles.
           </p>
           <p style={{ overflow: 'hidden' }}>
             <div
@@ -870,7 +871,7 @@ class Paperclips extends Component {
                 <a href="#">our blog post</a>.
               </div>
               <p>
-                In <em>TURBOFAN Tycoon</em>, you are the proud operator of a
+                In <em>TURBOFAN Tycoon</em>, you play as the proud operator of a
                 factory containing four turbofans. Every time one of your
                 turbofans completes a cycle you make ${cycle_profit} profit.
                 Sounds like a pretty sweet deal, right?
@@ -884,11 +885,12 @@ class Paperclips extends Component {
                 to perform.
               </p>
               <p>
-                You need a good maintenance strategy, but for that you need data
-                and expertise. You can unlock new maintenance strategies as you
-                gain experience: moving from an initial repair-it-when-it-breaks{' '}
-                <strong>corrective</strong> approach all the way up to a{' '}
-                <strong>federated predictive</strong> model. Use the{' '}
+                You need to pick a good maintenance strategy, but for that you
+                need data and expertise. You can unlock new maintenance
+                strategies as you gain experience: moving from an initial
+                repair-it-when-it-breaks <strong>corrective</strong> approach
+                all the way up to a <strong>federated predictive</strong> model.
+                Use the{' '}
                 <span style={{ ...color_span(factory_colors[0]) }}>
                   Your Strategy
                 </span>{' '}
