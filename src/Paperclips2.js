@@ -12,12 +12,22 @@ import {
   requirement_strings,
   factory_colors,
   profit_array_length,
+  finish,
+  strategy_descriptions,
+  cycle_profit,
+  exploded_penalty,
+  maitained_penalty,
 } from './Constants'
 import { commas, compare } from './Utilties'
 import FlipMove from 'react-flip-move'
 import Dials from './Dial2'
 import LeaderGraph from './LeaderGraph'
 import LatestEvent from './LatestEvent'
+import Turbofan from './Turbofan'
+import corr_img from './images/corr.png'
+import prev_img from './images/prev.png'
+import loc_img from './images/loc.png'
+import fed_img from './images/fed.png'
 
 let small_font = '13px'
 let smaller_font = '13px'
@@ -25,19 +35,47 @@ let larger_font = '18px'
 
 let factory_number = 4
 let engine_number = 4
-let data_scientist_pause = 400
-let federation_offer_pause = 400
+let data_scientist_pause = 200
+let federation_offer_pause = 200
 
 let speed_bound = 10
+
+let finish_line = finish
+
+let modal_title_styling = {
+  background: 'black',
+  color: 'white',
+  fontSmoothing: 'antialiased',
+  padding: '5px 20px',
+  fontSize: '17px',
+  display: 'flex',
+  justifyContent: 'space-between',
+}
+
+let modal_body_styling = {
+  padding: '20px',
+  lineHeight: '1.5',
+}
+
+function color_span(bg) {
+  return {
+    color: 'white',
+    margin: '0 3px',
+    background: bg,
+    boxShadow: `3px 1px 0 ${bg}, -3px 1px 0 ${bg}, 3px -1px 0 ${bg}, -3px -1px 0 ${bg}`,
+  }
+}
 
 class Paperclips extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      counter: 0,
-      speed: 2,
+      counter: null,
       playing: true,
       modal: false,
+      modal_state: null,
+      your_strategy: strategy_names[0],
+      engine_rerender: 0,
     }
     this.initialize.bind(this)
     this.initialize()
@@ -67,7 +105,7 @@ class Paperclips extends Component {
     this.engines = [...Array(factory_number * engine_number)].map(n =>
       this.getNewEngine()
     )
-    this.engine_strategies = this.engines.map(n => null)
+    this.engine_strategies = this.engines.map(n => strategy_names[0])
     // offset, maintained, failed
     this.engine_state = this.engines.map(n => [0, 0, 0])
     this.engine_delays = this.engines.map(n => [0, 0])
@@ -76,27 +114,57 @@ class Paperclips extends Component {
     this.reset = this.reset.bind(this)
     this.ff = this.ff.bind(this)
     this.ffing = false
-    this.auto_upgrade = false
     this.tutorial_mode = true
+    this.modal_close_play = true
     this.adjustSpeed.bind(this)
     this.openModal = this.openModal.bind(this)
     this.closeModal = this.closeModal.bind(this)
+    this.keepPlaying = this.keepPlaying.bind(this)
     this.openUpgrade = this.openUpgrade.bind(this)
     this.yesUpgrade = this.yesUpgrade.bind(this)
+    this.updateYourStrat = this.upgradeYourStrat.bind(this)
     this.requirements = [...Array(factory_number)].map(n => [null, null, null])
     this.round_delays = [...Array(factory_number)].map(n => null)
+    this.keep_playing = false
+    this.modal_state = null
+    this.info_index = null
+    this.setModalState = this.setModalState.bind(this)
+  }
+
+  upgradeYourStrat(strat) {
+    this.setState({ your_strategy: strat })
   }
 
   openModal() {
-    this.setState({ modal: true, playing: false })
+    this.modal_close_play = this.state.playing
+    this.setState({ modal: true })
+  }
+
+  openInfo(info_index) {
+    this.setModalState('strategy_info')
+    this.info_index = info_index
+    this.openModal()
+  }
+
+  setModalState(new_state) {
+    this.setState({ modal_state: new_state })
   }
 
   closeModal() {
-    this.setState({ modal: false, playing: true })
+    this.setState({ modal: false, playing: this.modal_close_play })
+    if (this.modal_close_play) {
+      this.play()
+    }
+  }
+
+  keepPlaying() {
+    this.keep_playing = true
+    this.setState({ modal: false })
     this.play()
   }
 
   openUpgrade() {
+    this.setModalState('upgrade')
     this.openModal()
   }
 
@@ -115,26 +183,34 @@ class Paperclips extends Component {
   setYourStrategy(strat, available) {
     if (available === undefined || available === true) {
       if (strat !== last(this.factories_strategies[0])[0]) {
-        this.auto_upgrade = false
+        if (this.props.auto_upgrade) {
+          this.props.toggleAuto()
+        }
         this.factories_strategies[0].push([strat, this.state.counter])
+        this.updateYourStrat(strat)
       }
     }
   }
 
   adjustSpeed(e) {
-    this.setState({ speed: speed_bound + 1 - parseInt(e.target.value) }, () => {
-      this.play()
-    })
+    this.props.adjustSpeed(e)
+    this.play()
   }
 
-  ff() {
+  ff(finish) {
+    // this.setModalState('ffing')
+    // this.openModal()
     this.ffing = true
+    // setTimeout(() => {
     let restart = false
     if (this.state.playing === true) {
       restart = true
       this.pause()
     }
     let jump = 1000
+    if (finish) {
+      jump = finish_line - 1 - this.state.counter
+    }
     let me = this
     let playCallback = () => {
       setTimeout(() => {
@@ -164,6 +240,7 @@ class Paperclips extends Component {
         }, 0)
       }
     }
+    // }, 100)
   }
 
   reset() {
@@ -171,19 +248,26 @@ class Paperclips extends Component {
   }
 
   componentDidMount() {
-    this.play()
+    this.setState(
+      {
+        counter: 0,
+      },
+      () => {
+        this.play()
+      }
+    )
   }
 
   play() {
     window.cancelAnimationFrame(this.animating)
     let count = 0
     let start = () => {
-      if (count === this.state.speed) {
+      if (count === this.props.speeds[this.props.speed]) {
         this.setState({ counter: this.state.counter + 1 })
         count = 0
       }
       count++
-      if (this.state.playing) {
+      if (this.state.playing && this.state.modal === false) {
         this.animating = window.requestAnimationFrame(start)
       }
     }
@@ -204,6 +288,21 @@ class Paperclips extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (
+      !this.state.playing &&
+      prevState.your_strategy !== this.state.your_strategy
+    ) {
+      let fi = 0
+      let factory_strategy = last(this.factories_strategies[fi])[0]
+      for (let ei = 0; ei < engine_number; ei++) {
+        let engine_flat_i = fi * factory_number + ei
+        let engine_delays = this.engine_delays[engine_flat_i]
+        if (!(engine_delays[0] > 0 || engine_delays[1] > 0)) {
+          this.engine_strategies[engine_flat_i] = factory_strategy
+        }
+      }
+      this.setState({ engine_rerender: this.state.engine_rerender + 1 })
+    }
     if (prevState.counter !== this.state.counter) {
       for (let fi = 0; fi < factory_number; fi++) {
         let factory_state = this.factories_state[fi]
@@ -271,7 +370,7 @@ class Paperclips extends Component {
 
         let your_factory = fi === 0
         let auto_upgrade =
-          !your_factory || (your_factory && this.auto_upgrade === true)
+          !your_factory || (your_factory && this.props.auto_upgrade === true)
         let tutorial_mode = your_factory && this.tutorial_mode
 
         let requirements = this.requirements[fi]
@@ -279,16 +378,12 @@ class Paperclips extends Component {
 
         if (requirements[0] === null) {
           if (factory_state[2] >= 4) {
-            console.log('what the hell')
-            console.log(this.round_delays[fi])
             if (round_delay === null) {
               this.round_delays[fi] = this.state.counter + 1
             }
             if (round_delay === this.state.counter) {
-              console.log('matches')
               this.requirements[fi][0] = this.state.counter
-              if (tutorial_mode) {
-                console.log('open it')
+              if (tutorial_mode && !auto_upgrade) {
                 setTimeout(() => {
                   this.openUpgrade(strategy_names[1])
                 }, 0)
@@ -302,7 +397,7 @@ class Paperclips extends Component {
               this.requirements[fi][0] + data_scientist_pause
             ) {
               this.requirements[fi][1] = this.state.counter
-              if (tutorial_mode) {
+              if (tutorial_mode && !auto_upgrade) {
                 this.openUpgrade(strategy_names[2])
               }
             }
@@ -310,10 +405,10 @@ class Paperclips extends Component {
             if (this.requirements[fi][2] === null) {
               if (
                 this.state.counter >
-                this.requirements[fi][1] + data_scientist_pause
+                this.requirements[fi][1] + federation_offer_pause
               ) {
                 this.requirements[fi][2] = this.state.counter
-                if (tutorial_mode) {
+                if (tutorial_mode && !auto_upgrade) {
                   this.openUpgrade(strategy_names[3])
                 }
               }
@@ -327,6 +422,7 @@ class Paperclips extends Component {
           this.requirements[fi][0] !== null
         ) {
           if (auto_upgrade) {
+            if (your_factory) this.upgradeYourStrat(strategy_names[1])
             this.factories_strategies[fi].push([
               strategy_names[1],
               this.state.counter,
@@ -338,6 +434,7 @@ class Paperclips extends Component {
           this.requirements[fi][1] !== null
         ) {
           if (auto_upgrade) {
+            if (your_factory) this.upgradeYourStrat(strategy_names[2])
             this.factories_strategies[fi].push([
               strategy_names[2],
               this.state.counter,
@@ -349,6 +446,7 @@ class Paperclips extends Component {
           this.requirements[fi][2] !== null
         ) {
           if (auto_upgrade) {
+            if (your_factory) this.upgradeYourStrat(strategy_names[3])
             this.factories_strategies[fi].push([
               strategy_names[3],
               this.state.counter,
@@ -358,8 +456,19 @@ class Paperclips extends Component {
       }
     }
 
-    if (this.state.counter === 2000 && this.state.modal === false) {
-      this.openUpgrade()
+    if (
+      this.state.counter === finish_line &&
+      !this.keep_playing &&
+      this.state.modal === false
+    ) {
+      this.setModalState('finish')
+      this.openModal()
+    }
+
+    if (this.props.show_intro && this.state.counter === 0) {
+      this.setModalState('intro')
+      this.openModal()
+      this.props.introShown()
     }
   }
 
@@ -374,8 +483,12 @@ class Paperclips extends Component {
       if (this.requirements[0][i] !== null) upgrade_index = i + 1
     }
 
-    let leaderboard = profits.map((n, sorted_i) => {
+    let your_profit = profits.slice(0, 1)
+    let prof_map = profits
+    if (this.props.solo_mode) prof_map = your_profit
+    let leaderboard = prof_map.map((n, sorted_i) => {
       let fi = profits[sorted_i][1]
+      if (this.props.solo_mode) fi = 0
       let factory_state = this.factories_state[fi]
       return (
         <div
@@ -398,7 +511,8 @@ class Paperclips extends Component {
           </div>
           <div style={{ padding: '5px 10px 10px' }}>
             <div style={{ fontSize: larger_font }}>
-              ${commas(calculateProfit(factory_state))} profit
+              ${commas(calculateProfit(factory_state))}{' '}
+              {calculateProfit(factory_state) >= 0 ? 'profit' : 'loss'}
             </div>
             <div style={{ padding: '5px 0 5px' }}>
               <div style={{ fontSize: '12px' }}>STRATEGY HISTORY:</div>
@@ -428,36 +542,536 @@ class Paperclips extends Component {
                 textTransform: 'uppercase',
               }}
             >
-              <div>total maintained: {factory_state[1]}</div>
-              <div>total failed: {factory_state[2]}</div>
+              <div>maintained: {factory_state[1]}</div>
+              <div>failed: {factory_state[2]}</div>
             </div>
           </div>
         </div>
       )
     })
 
+    let close_button = (
+      <div>
+        <button
+          onClick={() => {
+            if (this.state.modal_state === 'finish') {
+              this.keepPlaying()
+            } else {
+              this.closeModal()
+            }
+          }}
+          className="unbutton closebutton"
+        >
+          &times;
+        </button>
+      </div>
+    )
+
+    let strategy_info = null
+    if (this.info_index === 0) {
+      strategy_info = (
+        <div>
+          <p>
+            A <strong>corrective</strong> maintenance strategy isn't really much
+            of a strategy. It simply waits for an engine to fail to repair it.
+          </p>
+          <p style={{ overflow: 'hidden' }}>
+            <div
+              style={{
+                border: 'solid 1px black',
+                padding: '0 5px 5px',
+                float: 'left',
+              }}
+            >
+              <div style={{ fontSize: smaller_font, padding: '10px 10px 0' }}>
+                STRATEGY:
+              </div>
+              <img className="strat_image" src={corr_img} alt="" />
+            </div>
+          </p>
+          <p>
+            You can see this approach applied to each of your turbofans in the
+            strategy section. For the <strong>corrective</strong> strategy, it's
+            just a line counting the number of cycles the engine has ran. This
+            section gets more intersting once you get into the other strategies.
+          </p>
+        </div>
+      )
+    } else if (upgrade_index === 1 || this.info_index === 1) {
+      strategy_info = (
+        <div>
+          {this.requirements[0][0] === null &&
+          this.state.modal_state === 'strategy_info' ? (
+            <div
+              style={{
+                background: '#efefef',
+                fontStyle: 'italic',
+                padding: '5px 10px',
+                marginBottom: 15,
+                fontSize: '15px',
+              }}
+            >
+              This strategy option will be unlocked when you have data from four
+              engine failures.
+            </div>
+          ) : null}
+          <p>
+            A <strong>preventative</strong> maintenance strategy uses data about
+            when engines failed in the past to choose a fixed time to perform
+            maintenance. In this case engine maintenance is performed when an
+            engine reaches 193 cycles.
+          </p>
+          <p style={{ overflow: 'hidden' }}>
+            <div
+              style={{
+                border: 'solid 1px black',
+                padding: '0 5px 5px',
+                float: 'left',
+              }}
+            >
+              <div style={{ fontSize: smaller_font, padding: '10px 10px 0' }}>
+                STRATEGY:
+              </div>
+              <img className="strat_image" src={prev_img} alt="" />
+            </div>
+          </p>
+          <p>
+            You can see this approach applied to each of your turbofans in the
+            strategy section. When the number of cycles reaches the scheduled
+            time (shown as a dotted line) maintenance is performed. Some engines
+            will fail before reaching the scheduled maintenance point.
+          </p>
+        </div>
+      )
+    } else if (upgrade_index === 2 || this.info_index === 2) {
+      strategy_info = (
+        <div>
+          {this.requirements[0][1] === null &&
+          this.state.modal_state === 'strategy_info' ? (
+            <div
+              style={{
+                background: '#efefef',
+                fontStyle: 'italic',
+                padding: '5px 10px',
+                marginBottom: 15,
+                fontSize: '15px',
+              }}
+            >
+              This strategy will be unlocked when you have hired a data
+              scientist. Data scientists become available about{' '}
+              {data_scientist_pause} cycles after you've satisfied the
+              preventative strategy requirement.
+            </div>
+          ) : null}
+
+          <p>
+            Like the preventative strategy, the{' '}
+            <strong>local predictive</strong> model uses the data from past
+            engine failures. Rather than simply averaging their failure times,
+            however, it uses the sensor data to make a more sophisticated guess
+            about when the engine will fail. Maintenance is performed when the
+            model's predicted remaining life for the engine drops below ten.
+          </p>
+          <p style={{ overflow: 'hidden' }}>
+            <div
+              style={{
+                border: 'solid 1px black',
+                padding: '0 5px 5px',
+                float: 'left',
+              }}
+            >
+              <div style={{ fontSize: smaller_font, padding: '10px 10px 0' }}>
+                STRATEGY:
+              </div>
+              <img className="strat_image" src={loc_img} alt="" />
+            </div>
+          </p>
+          <p>
+            You can see this approach applied to each of your turbofans in the
+            strategy section. The graph plots the cycle number on the x-axis and
+            the predicted remaining life on the y-axis. The threshold for when
+            maintenance is performed by the dotted line.
+          </p>
+        </div>
+      )
+    } else if (upgrade_index === 3 || this.info_index === 3) {
+      strategy_info = (
+        <div>
+          {this.requirements[0][1] === null &&
+          this.state.modal_state === 'strategy_info' ? (
+            <div
+              style={{
+                background: '#efefef',
+                fontStyle: 'italic',
+                padding: '5px 10px',
+                marginBottom: 15,
+                fontSize: '15px',
+              }}
+            >
+              This strategy will be unlocked when you have received a federation
+              offer. A federation offer generally comes about{' '}
+              {data_scientist_pause} cycles after you've satisfied the local
+              predictive requirement.
+            </div>
+          ) : null}
+          <p>
+            Like the local predictive model, the{' '}
+            <strong>federated predictive</strong> model is trained on data from
+            engine failures. Through federated learning, it's been trained on
+            data from all the factories in the federation. Maintenance is
+            performed when the model's predicted remaining life for the engine
+            drops below ten.
+          </p>
+          <p style={{ overflow: 'hidden' }}>
+            <div
+              style={{
+                border: 'solid 1px black',
+                padding: '0 5px 5px',
+                float: 'left',
+              }}
+            >
+              <div style={{ fontSize: smaller_font, padding: '10px 10px 0' }}>
+                STRATEGY:
+              </div>
+              <img className="strat_image" src={fed_img} alt="" />
+            </div>
+          </p>
+          <p>
+            You can see this approach applied to each of your turbofans in the
+            strategy section. The graph plots the cycle number on the x-axis and
+            the predicted remaining life on the y-axis. The threshold for when
+            maintenance is performed by the dotted line.
+          </p>
+        </div>
+      )
+    }
+
+    let upgrade_content = null
+    if (upgrade_index === 1) {
+      upgrade_content = (
+        <div>
+          <p>
+            Now that your factory has experienced four engine failures you have
+            the option to upgrade to a <strong>preventative</strong> maintenance
+            strategy.
+          </p>
+          {strategy_info}
+          <div
+            style={{
+              background: '#efefef',
+              fontStyle: 'italic',
+              padding: '5px 10px',
+              marginBottom: 15,
+              fontSize: '15px',
+            }}
+          >
+            Our advice: though not particularly sophisticated, a preventative
+            strategy is definitely a step up from just waiting for your engines
+            to fail. We heartily recommend this upgrade.
+          </div>
+          <p>
+            Do you want to upgrade to{' '}
+            <strong>{strategy_names[upgrade_index]}</strong>?
+          </p>
+        </div>
+      )
+    } else if (upgrade_index === 2) {
+      upgrade_content = (
+        <div>
+          <p>
+            After a long search, your factory has been able to hire a data
+            scientist, unlocking the possibility of using a{' '}
+            <strong>local predictive</strong> model for your maintenance
+            strategy.
+          </p>
+          {strategy_info}{' '}
+          <div
+            style={{
+              background: '#efefef',
+              fontStyle: 'italic',
+              padding: '5px 10px',
+              marginBottom: 15,
+              fontSize: '15px',
+            }}
+          >
+            Our advice: Now we're cooking with data science! Upgrade strongly
+            recommended.
+          </div>
+          <p>
+            Do you want to upgrade to{' '}
+            <strong>{strategy_names[upgrade_index]}</strong>?
+          </p>
+        </div>
+      )
+    } else if (upgrade_index === 3) {
+      upgrade_content = (
+        <div>
+          <p>
+            A group of factory owners have approached you with the opportunity
+            to participate in their <strong>federated predictive</strong> model.
+          </p>
+          {strategy_info}
+          <div
+            style={{
+              background: '#efefef',
+              fontStyle: 'italic',
+              padding: '5px 10px',
+              marginBottom: 15,
+              fontSize: '15px',
+            }}
+          >
+            Our advice: with access to more data the predictive model strategy
+            becomes even more powerful. Upgrade for the ultimate in efficient
+            maintenance.
+          </div>
+          <p>
+            Do you want to upgrade to{' '}
+            <strong>{strategy_names[upgrade_index]}</strong>?
+          </p>
+        </div>
+      )
+    }
+
+    let modal_content = null
+    switch (this.state.modal_state) {
+      case 'ffing':
+        modal_content = (
+          <div>
+            <div style={modal_title_styling}>Fast forwarding</div>
+            <div style={modal_body_styling}>
+              Fast forwarding the simulation.
+            </div>
+          </div>
+        )
+        break
+      case 'intro':
+        modal_content = (
+          <div>
+            <div style={modal_title_styling}>
+              <div>
+                Welcome to <em>TURBOFAN Tycoon</em>
+              </div>
+              {close_button}
+            </div>
+            <div style={modal_body_styling}>
+              <div
+                style={{
+                  background: '#efefef',
+                  fontStyle: 'italic',
+                  padding: '5px 10px',
+                  marginBottom: 15,
+                }}
+              >
+                TURBOFAN Tycoon is a research prototype by{' '}
+                <a href="#">Cloudera Fast Forward Labs</a> built to accompany
+                our report on Federated Learning. It uses real turbofan data to
+                show the benefites of using a federative predictive model. You
+                can learn more about the thinking behind the prototype in{' '}
+                <a href="#">our blog post</a>.
+              </div>
+              <p>
+                In <em>TURBOFAN Tycoon</em>, you are the proud operator of a
+                factory containing four turbofans. Every time one of your
+                turbofans completes a cycle you make ${cycle_profit} profit.
+                Sounds like a pretty sweet deal, right?
+              </p>
+              <p>
+                The problem is, turbofans don't run forever. A broken turbofan
+                costs ${commas(exploded_penalty)} to repair, and it takes{' '}
+                {exploded_delay} cycles to get it running again. If you catch it
+                before it breaks, turbofan maintenance costs $
+                {commas(maitained_penalty)} and takes {maintained_delay} cycles
+                to perform.
+              </p>
+              <p>
+                You need a good maintenance strategy, but for that you need data
+                and expertise. You can unlock new maintenance strategies as you
+                gain experience: moving from an initial repair-it-when-it-breaks{' '}
+                <strong>corrective</strong> approach all the way up to a{' '}
+                <strong>federated predictive</strong> model. Use the{' '}
+                <span style={{ ...color_span(factory_colors[0]) }}>
+                  Your Strategy
+                </span>{' '}
+                controls to upgrade your strategy as new methods become
+                available. We'll guide you through the first round of upgrades.
+              </p>
+              <p>
+                Under{' '}
+                <span style={{ ...color_span(factory_colors[0]) }}>
+                  Your Factory
+                </span>{' '}
+                you can see the state of each of your engines: including the
+                sensor data and current maintenance strategy. As you upgrade
+                you'll be competing against three other aspiring tycoons:{' '}
+                <span style={{ ...color_span(factory_colors[1]) }}>
+                  {this.factory_names[1]}
+                </span>
+                ,{' '}
+                <span style={{ ...color_span(factory_colors[2]) }}>
+                  {this.factory_names[2]}
+                </span>{' '}
+                and{' '}
+                <span style={{ ...color_span(factory_colors[3]) }}>
+                  {this.factory_names[3]}
+                </span>
+                , to score the largest profit on the leaderboard. They'll be
+                upgrading their strategies as well, so you'll need to move fast.
+              </p>
+              <p>
+                The finish line is at 3,000 cycles, though you'll have the
+                option to continue playing after that. You can control the speed
+                of the cycles and pause at anytime using the controls in the top
+                right. Happy turbofanning!
+              </p>
+              <div style={{ padding: '5px 0' }}>
+                <button className="button2 highlight" onClick={this.closeModal}>
+                  {this.state.counter === 0
+                    ? 'Start playing'
+                    : 'Continue playing'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+        break
+      case 'upgrade':
+        modal_content = (
+          <div>
+            <div style={modal_title_styling}>
+              <div>Strategy upgrade available</div>
+              {close_button}
+            </div>
+            <div style={modal_body_styling}>
+              <div>
+                {upgrade_content}
+                <div style={{ padding: '5px 0' }}>
+                  <button
+                    onClick={this.yesUpgrade}
+                    className="button2 highlight"
+                  >
+                    Yes
+                  </button>
+                  <span>&nbsp;&nbsp;</span>
+                  <button className="button2" onClick={this.closeModal}>
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+        break
+      case 'strategy_info':
+        modal_content = (
+          <div style={{}}>
+            <div
+              style={{
+                ...modal_title_styling,
+                textTransform: 'capitalize',
+              }}
+            >
+              <div>{strategy_names[this.info_index]} Strategy Info</div>
+              {close_button}
+            </div>
+            <div style={modal_body_styling}>
+              <div>{strategy_info}</div>
+            </div>
+          </div>
+        )
+        break
+
+      case 'finish':
+        modal_content = (
+          <div>
+            <div style={modal_title_styling}>
+              <div>Finish Line</div>
+              {close_button}
+            </div>
+            <div style={modal_body_styling}>
+              <div>
+                <p>
+                  You've reached the 3,000 cycle finish line. See how your
+                  factory did in the final standings. You can continue the
+                  simulation by choosing to keep playing below.{' '}
+                </p>
+                <div
+                  style={{
+                    border: 'solid 1px black',
+                    padding: '10px 10px 5px',
+                    marginBottom: 10,
+                  }}
+                >
+                  <div style={{ fontSize: smaller_font, marginBottom: 5 }}>
+                    FINAL STANDINGS:
+                  </div>
+                  <div>{leaderboard}</div>
+                </div>
+                <div>
+                  <button className="button2" onClick={this.keepPlaying}>
+                    Keep playing
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+        break
+    }
+
     let to_render = (
       <div
         style={{
           display: 'grid',
-          gridTemplateRows: '42px 1fr',
+          gridTemplateRows: '40px calc(100vh - 40px)',
         }}
       >
         <div
           style={{
-            padding: 10,
             borderBottom: 'solid 1px black',
-            display: 'flex',
-            justifyContent: 'space-between',
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr auto',
+            overflow: 'hidden',
+            lineHeight: 1,
+            padding: '0 10px',
           }}
         >
-          <div>Factory Simulator</div>
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'auto 100px auto auto',
+              gridTemplateColumns: 'auto auto auto',
+              alignItems: 'center',
+              gridColumnGap: 6,
+            }}
+          >
+            <div
+              style={{
+                margin: 0,
+                display: 'grid',
+                gridTemplateColumns: 'auto auto',
+                gridColumnGap: 5,
+                alignContent: 'center',
+              }}
+            >
+              <Turbofan
+                width={22}
+                height={22}
+                counter={this.state.counter}
+                speed={this.props.speed}
+                speed_bound={speed_bound}
+              />
+              <div style={{ height: 24, lineHeight: '24px' }}>
+                TURBOFAN Tycoon
+              </div>
+            </div>
+          </div>
+          <div />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'auto auto auto auto 110px auto',
               gridColumnGap: 5,
               textAlign: 'right',
+              alignContent: 'center',
             }}
           >
             <div
@@ -466,28 +1080,25 @@ class Paperclips extends Component {
                 gridTemplateColumns: 'auto auto',
                 alignItems: 'center',
                 gridColumnGap: 5,
-                padding: '0 5px',
+                paddingRight: 5,
               }}
             >
-              <div style={{ fontSize: '12px' }}>SPEED:</div>
+              <div style={{ fontSize: smaller_font }}>SPEED:</div>
               <input
                 type="range"
-                min={1}
-                max={10}
+                min={0}
+                max={this.props.speeds.length - 1}
                 onChange={this.adjustSpeed.bind(this)}
                 step={1}
-                value={speed_bound + 1 - this.state.speed}
+                value={this.props.speed}
                 style={{
                   width: '60px',
                 }}
               />
             </div>
-            <div style={{ paddingRight: 5 }}>
-              {commas(render_counter + 1)} cycles
-            </div>
             <div>
               <button
-                className="top-button"
+                className="button2"
                 onClick={this.togglePlay}
                 style={{ width: '60px' }}
               >
@@ -496,303 +1107,446 @@ class Paperclips extends Component {
             </div>
             <div>
               <button
-                className="top-button"
+                className="button2"
                 onClick={this.reset}
                 style={{ width: '60px' }}
               >
                 reset
               </button>
             </div>
-
-            {false && this.state.counter > 2000 ? (
+            {this.state.counter > finish_line ? (
               <div>
-                <button onClick={this.ff} style={{ width: '60px' }}>
-                  skip 1000
+                <button
+                  className="button2"
+                  onClick={() => {
+                    this.ff(false)
+                  }}
+                >
+                  skip 1,000
                 </button>
               </div>
-            ) : null}
+            ) : (
+              <div>
+                <button
+                  className={
+                    'button2' +
+                    (this.requirements[0][2] === null ? ' disabled' : '')
+                  }
+                  disabled={this.requirements[0][2] === null}
+                  title={
+                    this.requirements[0][2]
+                      ? null
+                      : 'All strategy requirements must be met before you can skip.'
+                  }
+                  onClick={() =>
+                    this.requirements[0][2] === null ? null : this.ff(true)
+                  }
+                >
+                  skip to finish
+                </button>
+              </div>
+            )}
+            <div
+              style={{
+                fontSize: smaller_font,
+                textAlign: 'right',
+                lineHeight: '24px',
+                height: '22px',
+              }}
+            >
+              {commas(render_counter + 1)} CYCLES
+            </div>
+            <button
+              style={{
+                position: 'relative',
+                background: '#fff',
+                padding: '2px 6px',
+                border: 'solid 1px #999',
+                marginLeft: '5px',
+                marginRight: '5px',
+              }}
+              onClick={() => {
+                this.setModalState('intro')
+                this.openModal()
+              }}
+              className="unbutton button-hover"
+            >
+              info
+            </button>
           </div>
         </div>
         {this.ffing ? (
           'fast-forwarding'
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              padding: 10,
-              gridColumnGap: 10,
-              height: 'calc(100vh - 40px)',
-              overflow: 'auto',
-            }}
-          >
-            <div>
-              {this.factories.slice(0, 1).map((n, fi) => {
-                let factory_state = this.factories_state[fi]
-                return (
-                  <div
-                    key={`factory_${fi}`}
-                    style={{
-                      marginBottom: 20,
-                      border: 'solid 1px black',
-                    }}
-                  >
+          <div style={{ overflow: 'auto' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                padding: 10,
+                gridColumnGap: 10,
+                background: '#fff',
+              }}
+            >
+              <div>
+                {this.factories.slice(0, 1).map((n, fi) => {
+                  let factory_state = this.factories_state[fi]
+                  return (
                     <div
+                      key={`factory_${fi}`}
                       style={{
-                        background: factory_colors[fi],
-                        color: 'white',
-                        fontSmoothing: 'antialiased',
-                        padding: '5px 10px',
+                        marginBottom: 20,
+                        border: 'solid 1px black',
+                        background: 'white',
                       }}
                     >
-                      {this.factory_names[fi]}
-                    </div>
-                    <div style={{ padding: 10 }}>
-                      <div style={{ marginBottom: 10, fontSize: larger_font }}>
-                        ${commas(last(this.factory_profits[fi]))} profit
-                      </div>
                       <div
                         style={{
-                          marginBottom: 5,
-                          fontSize: smaller_font,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        TURBOFANS:
-                      </div>
-                      {!this.ffing
-                        ? this.factory_engines_empty.map((n, ei) => {
-                            let engine_flat_i = fi * factory_number + ei
-                            let engine = this.props.engines[
-                              this.engines[engine_flat_i]
-                            ]
-                            let engine_state = this.engine_state[engine_flat_i]
-                            let this_time =
-                              render_counter -
-                              this.engine_state[engine_flat_i][0]
-                            let rev = engine[this_time]
-                            let maintaining =
-                              this.engine_delays[engine_flat_i][0] > 0
-                            let repairing =
-                              this.engine_delays[engine_flat_i][1] > 0
-                            let background = 'white'
-                            if (maintaining) background = maintain_color
-                            if (repairing) background = repair_color
-                            return (
-                              <div
-                                key={`engine_${engine_flat_i}`}
-                                style={{
-                                  marginBottom: 10,
-                                  border: 'solid 1px black',
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    fontSize: smaller_font,
-                                    background: background,
-                                    textTransform: 'uppercase',
-                                    padding: '5px 10px 5px',
-                                    display: 'grid',
-                                    gridTemplateColumns: '1fr 1fr',
-                                  }}
-                                >
-                                  <div>cycles: {rev.time}</div>
-                                  <div>
-                                    {maintaining
-                                      ? `maintaining: ${
-                                          this.engine_delays[engine_flat_i][0]
-                                        }`
-                                      : null}
-                                    {repairing
-                                      ? `repairing: ${
-                                          this.engine_delays[engine_flat_i][1]
-                                        }`
-                                      : null}
-                                  </div>
-                                </div>
-                                <div style={{ padding: '5px 10px 10px' }}>
-                                  <div
-                                    style={{
-                                      display: 'grid',
-                                      gridTemplateColumns: '1fr 202px',
-                                      fontSize: smaller_font,
-                                      textTransform: 'uppercase',
-                                    }}
-                                  >
-                                    <div>sensors:</div>
-                                    <div>strategy:</div>
-                                  </div>
-                                  <div style={{ padding: '5px 0 5px' }}>
-                                    <Dials
-                                      counter={render_counter}
-                                      this_time={this_time}
-                                      keys={this.props.keys}
-                                      ranges={this.props.ranges}
-                                      engine={engine}
-                                      strategy={
-                                        this.engine_strategies[engine_flat_i]
-                                      }
-                                      width={660}
-                                      height={150}
-                                      maintaining={maintaining}
-                                      repairing={repairing}
-                                    />
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: 'grid',
-                                      gridTemplateColumns: '1fr 1fr',
-                                      fontSize: smaller_font,
-                                      textTransform: 'uppercase',
-                                    }}
-                                  >
-                                    <div>maintained: {engine_state[1]}</div>
-                                    <div>failed: {engine_state[2]}</div>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          })
-                        : null}
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '1fr 1fr',
-                          fontSize: smaller_font,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        <div>total maintained: {factory_state[1]}</div>
-                        <div>total failed: {factory_state[2]}</div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div>
-              <div
-                style={{
-                  border: 'solid 1px black',
-                  marginBottom: 10,
-                  position: 'relative',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: -12,
-                    top: '50%',
-                    width: '12px',
-                    height: '1px',
-                    background: 'black',
-                  }}
-                />
-                <div
-                  style={{
-                    padding: '5px 10px 5px',
-                    background: factory_colors[0],
-                    color: 'white',
-                  }}
-                >
-                  Your Strategy
-                </div>
-                <div style={{}}>
-                  {strategy_names.map((n, i) => {
-                    let checked = n === last(this.factories_strategies[0])[0]
-                    let available = true
-                    let requirement_info
-                    if (i === 1) {
-                      available = this.requirements[0][0] !== null
-                      requirement_info =
-                        ': ' + this.factories_state[0][2] + '/4'
-                    } else if (i === 2) {
-                      available = this.requirements[0][1] !== null
-                      requirement_info = ': none available yet'
-                    } else if (i === 3) {
-                      available = this.requirements[0][2] !== null
-                      requirement_info = ': no offer yet'
-                    }
-                    let requirement_string = requirement_strings[i]
-                    let additional_classes = ''
-                    if (checked) additional_classes += ' selected'
-                    if (!available) additional_classes += ' disabled'
-                    return (
-                      <div
-                        className={'hoverinner' + additional_classes}
-                        onClick={this.setYourStrategy.bind(this, n, available)}
-                        style={{
-                          background: available ? 'white' : '#ddd',
-                          cursor: available ? 'pointer' : 'not-allowed',
+                          background: factory_colors[fi],
+                          color: 'white',
+                          fontSmoothing: 'antialiased',
                           padding: '5px 10px',
                         }}
                       >
-                        {requirement_string !== null ? (
-                          <div
-                            style={{
-                              fontSize: small_font,
-                              paddingBottom: '2px',
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: '11px',
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              requirement
-                            </span>{' '}
-                            {available ? '✓' : '☐'} {requirement_string}
-                            {available ? null : requirement_info}
-                          </div>
-                        ) : null}
-                        <div>
-                          <input
-                            type="radio"
-                            checked={checked}
-                            disabled={!available}
-                            style={{
-                              position: 'relative',
-                              top: '-1px',
-                              marginRight: '2px',
-                            }}
-                          />{' '}
-                          <span
-                            className="hoverinner-target"
-                            style={{ fontWeight: checked ? 700 : 400 }}
-                          >
-                            {n}
-                          </span>
+                        {this.factory_names[fi]}
+                      </div>
+                      <div style={{ padding: 10 }}>
+                        <div
+                          style={{ marginBottom: 10, fontSize: larger_font }}
+                        >
+                          ${commas(last(this.factory_profits[fi]))}{' '}
+                          {last(this.factory_profits[fi]) >= 0
+                            ? 'profit'
+                            : 'loss'}
+                        </div>
+                        <div
+                          style={{
+                            marginBottom: 5,
+                            fontSize: smaller_font,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          TURBOFANS:
+                        </div>
+                        {!this.ffing
+                          ? this.factory_engines_empty.map((n, ei) => {
+                              let engine_flat_i = fi * factory_number + ei
+                              let engine = this.props.engines[
+                                this.engines[engine_flat_i]
+                              ]
+                              let engine_state = this.engine_state[
+                                engine_flat_i
+                              ]
+                              let this_time =
+                                render_counter -
+                                this.engine_state[engine_flat_i][0]
+                              let rev = engine[this_time]
+                              let maintaining =
+                                this.engine_delays[engine_flat_i][0] > 0
+                              let repairing =
+                                this.engine_delays[engine_flat_i][1] > 0
+                              let background = 'white'
+                              if (maintaining) background = maintain_color
+                              if (repairing) background = repair_color
+                              return (
+                                <div
+                                  key={`engine_${engine_flat_i}`}
+                                  style={{
+                                    marginBottom: 10,
+                                    border: 'solid 1px black',
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      fontSize: smaller_font,
+                                      background: background,
+                                      textTransform: 'uppercase',
+                                      padding: '5px 10px 5px',
+                                      display: 'grid',
+                                      gridTemplateColumns: '1fr 1fr',
+                                    }}
+                                  >
+                                    <div>cycles: {rev.time}</div>
+                                    <div>
+                                      {maintaining
+                                        ? `maintaining: ${
+                                            this.engine_delays[engine_flat_i][0]
+                                          }`
+                                        : null}
+                                      {repairing
+                                        ? `repairing: ${
+                                            this.engine_delays[engine_flat_i][1]
+                                          }`
+                                        : null}
+                                    </div>
+                                  </div>
+                                  <div style={{ padding: '0 10px 10px' }}>
+                                    <div style={{ padding: '5px 0 0' }}>
+                                      <Dials
+                                        your_strateg={this.state.your_strategy}
+                                        counter={render_counter}
+                                        this_time={this_time}
+                                        keys={this.props.keys}
+                                        ranges={this.props.ranges}
+                                        engine={engine}
+                                        strategy={
+                                          this.engine_strategies[engine_flat_i]
+                                        }
+                                        width={this.props.ww / 2 - 60 - 1}
+                                        height={150}
+                                        maintaining={maintaining}
+                                        repairing={repairing}
+                                        engine_rerender={
+                                          this.state.engine_rerender
+                                        }
+                                      />
+                                    </div>
+                                    <div
+                                      style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr 1fr',
+                                        fontSize: smaller_font,
+                                        textTransform: 'uppercase',
+                                        display: 'none',
+                                      }}
+                                    >
+                                      <div>maintained: {engine_state[1]}</div>
+                                      <div>failed: {engine_state[2]}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })
+                          : null}
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            fontSize: smaller_font,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          <div>maintained: {factory_state[1]}</div>
+                          <div>failed: {factory_state[2]}</div>
                         </div>
                       </div>
-                    )
-                  })}
-                </div>
+                    </div>
+                  )
+                })}
               </div>
               <div>
-                <div style={{ marginBottom: 10 }}>Leaderboard</div>
-                <div style={{ marginBottom: 10 }}>
-                  <LeaderGraph
-                    width={this.props.ww / 2 - 20}
-                    height={200}
-                    counter={render_counter}
-                    factory_profits={this.factory_profits}
-                    factories_strategies={this.factories_strategies}
-                  />
-                </div>
-                <LatestEvent
-                  factories_strategies={this.factories_strategies}
-                  factory_names={this.factory_names}
-                  counter={render_counter}
-                />
-                <FlipMove
-                  duration={250}
-                  enterAnimation={false}
-                  leaveAnimation={false}
+                <div
+                  style={{
+                    border: 'solid 1px black',
+                    borderBottom: 'none',
+                    marginBottom: 10,
+                    position: 'relative',
+                  }}
                 >
-                  {leaderboard}
-                </FlipMove>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      display: 'none',
+                      left: -12,
+                      top: '50%',
+                      width: '12px',
+                      height: '1px',
+                      background: 'black',
+                    }}
+                  />
+                  <div
+                    style={{
+                      padding: '5px 10px 5px',
+                      background: factory_colors[0],
+                      color: 'white',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>Your Strategy</div>
+                    <div
+                      style={{ fontSize: smaller_font, cursor: 'pointer' }}
+                      onClick={this.props.toggleAuto}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={this.props.auto_upgrade}
+                      />{' '}
+                      auto upgrade
+                    </div>
+                  </div>
+                  <div style={{}}>
+                    {strategy_names.map((n, i) => {
+                      let checked = n === last(this.factories_strategies[0])[0]
+                      let available = true
+                      let requirement_info
+                      if (i === 1) {
+                        available = this.requirements[0][0] !== null
+                        requirement_info =
+                          ': ' + this.factories_state[0][2] + '/4'
+                      } else if (i === 2) {
+                        available = this.requirements[0][1] !== null
+                        requirement_info = ': none available yet'
+                      } else if (i === 3) {
+                        available = this.requirements[0][2] !== null
+                        requirement_info = ': no offer yet'
+                      }
+                      let requirement_string = requirement_strings[i]
+                      let additional_classes = ''
+                      if (checked) additional_classes += ' selected'
+                      if (!available) additional_classes += ' disabled'
+                      return (
+                        <div
+                          className={additional_classes}
+                          title={
+                            available
+                              ? null
+                              : 'This strategy is not unlocked yet.'
+                          }
+                          style={{
+                            background: available ? 'white' : '#ddd',
+                            color: available ? 'black' : '#777',
+                            padding: '7px 10px',
+                            borderBottom: 'solid 1px black',
+                          }}
+                        >
+                          {requirement_string !== null ? (
+                            <div
+                              style={{
+                                fontSize: small_font,
+                                paddingBottom: '2px',
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: '11px',
+                                  textTransform: 'uppercase',
+                                }}
+                              >
+                                requirement
+                              </span>{' '}
+                              {available ? '✓' : '☐'} {requirement_string}
+                              {available ? null : requirement_info}
+                            </div>
+                          ) : null}
+                          <div style={{ position: 'relative' }}>
+                            <div
+                              style={{
+                                position: 'absolute',
+                                right: 0,
+                                top: 0,
+                                fontSize: smaller_font,
+                                color: '#000',
+                              }}
+                            >
+                              <button
+                                style={{
+                                  background: '#fff',
+                                  padding: '2px 6px',
+                                  border: 'solid 1px #999',
+                                }}
+                                onClick={() => {
+                                  this.openInfo(i)
+                                }}
+                                className="unbutton button-hover"
+                              >
+                                info
+                              </button>
+                            </div>
+                            <span
+                              className="hoverinner"
+                              style={{
+                                cursor: available ? 'pointer' : 'default',
+                              }}
+                              onClick={this.setYourStrategy.bind(
+                                this,
+                                n,
+                                available
+                              )}
+                            >
+                              <input
+                                type="radio"
+                                checked={checked}
+                                disabled={!available}
+                                style={{
+                                  position: 'relative',
+                                  top: '-1px',
+                                  marginRight: '2px',
+                                }}
+                              />{' '}
+                              <span
+                                className="hoverinner-target"
+                                style={{
+                                  fontWeight: checked || true ? 700 : 400,
+                                }}
+                              >
+                                {n}
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    border: 'solid 1px black',
+                    background: 'white',
+                    padding: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: 10,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>Leaderboard</div>
+                    <div
+                      style={{ cursor: 'pointer' }}
+                      onClick={this.props.toggleSolo}
+                    >
+                      <input type="checkbox" checked={this.props.solo_mode} />{' '}
+                      solo mode
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 10 }}>
+                    <LeaderGraph
+                      width={this.props.ww / 2 - 40}
+                      height={200}
+                      counter={render_counter}
+                      factory_profits={this.factory_profits}
+                      factories_strategies={this.factories_strategies}
+                      solo_mode={this.props.solo_mode}
+                    />
+                  </div>
+                  <LatestEvent
+                    factories_strategies={this.factories_strategies}
+                    factory_names={this.factory_names}
+                    counter={render_counter}
+                    solo_mode={this.props.solo_mode}
+                  />
+                  <FlipMove
+                    duration={250}
+                    enterAnimation={false}
+                    leaveAnimation={false}
+                  >
+                    {leaderboard}
+                  </FlipMove>
+                </div>
               </div>
+            </div>
+            <div
+              style={{
+                borderTop: 'solid 1px black',
+                padding: '10px',
+                textAlign: 'center',
+              }}
+            >
+              TURBOFAN Tycoon is a federated learning research prototype by{' '}
+              <a href="#">Cloudera Fast Forward Labs</a>
             </div>
           </div>
         )}
@@ -808,67 +1562,32 @@ class Paperclips extends Component {
               background: 'rgba(0,0,0,0.2)',
               display: 'grid',
               justifyContent: 'center',
-              alignContent: 'center',
+              gridTemplateRows: '1fr auto 1fr',
+              overflow: 'auto',
+              padding: '10px 0',
+            }}
+            onClick={() => {
+              if (this.state.modal_state === 'finish') {
+                this.keepPlaying()
+              } else {
+                this.closeModal()
+              }
             }}
           >
+            <div />
             <div
               style={{
                 background: 'white',
                 width: '600px',
                 border: 'solid 1px black',
               }}
+              onClick={e => {
+                e.stopPropagation()
+              }}
             >
-              <div
-                style={{
-                  background: 'black',
-                  color: 'white',
-                  fontSmoothing: 'antialiased',
-                  padding: '5px 10px',
-                }}
-              >
-                Strategy upgrade available
-              </div>
-              <div style={{ padding: '15px 15px 10px' }}>
-                {upgrade_index === 3 ? (
-                  <div>
-                    <p>Finish line!</p>
-                    <div>
-                      Standings:
-                      <div>{leaderboard}</div>
-                    </div>
-                    <div>
-                      <button
-                        className="top-button variable"
-                        onClick={this.closeModal}
-                      >
-                        Keep playing
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p>
-                      Do you want to upgrade to {strategy_names[upgrade_index]}?
-                    </p>
-                    <div style={{ padding: '5px 0' }}>
-                      <button
-                        onClick={this.yesUpgrade}
-                        className="top-button variable"
-                      >
-                        Yes
-                      </button>
-                      <span>&nbsp;&nbsp;</span>
-                      <button
-                        className="top-button variable"
-                        onClick={this.closeModal}
-                      >
-                        No
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              {modal_content}
             </div>
+            <div />
           </div>
         ) : null}
       </div>

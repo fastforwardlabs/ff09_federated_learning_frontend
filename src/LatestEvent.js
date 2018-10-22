@@ -10,6 +10,7 @@ class LatestEvent extends Component {
     )
     let last_max = max(last_entries)
     let last_index = last_entries.indexOf(last_max)
+    if (this.props.solo_mode) last_index = 0
     let last_group = this.props.factories_strategies[last_index]
     let last = last_group[last_group.length - 1]
     let last_name = this.props.factory_names[last_index]

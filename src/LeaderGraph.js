@@ -17,7 +17,9 @@ class LeaderGraph extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.ctx && this.props.counter !== prevProps.counter) {
+    if (prevProps.width !== this.props.width) {
+      this.ctx.scale(2, 2)
+    } else if (this.ctx) {
       let { factory_profits } = this.props
       let ctx = this.ctx
       let steps = profit_array_length
@@ -30,6 +32,10 @@ class LeaderGraph extends Component {
       }
       let minned = min(mins)
       let maxed = max(maxes)
+      if (this.props.solo_mode) {
+        minned = mins[0]
+        maxed = maxes[0]
+      }
       let additional = Math.max(Math.abs(minned * 0.1), Math.abs(maxed * 0.1))
       let range = [minned - additional, maxed + additional]
 
@@ -58,8 +64,10 @@ class LeaderGraph extends Component {
       }
 
       ctx.lineWidth = 2
-      for (let i = 0; i < factory_profits.length; i++) {
-        let ri = factory_profits.length - 1 - i
+      let length_work = factory_profits.length
+      if (this.props.solo_mode) length_work = 1
+      for (let i = 0; i < length_work; i++) {
+        let ri = length_work - 1 - i
         ctx.strokeStyle = factory_colors[ri]
         ctx.beginPath()
         for (let j = 0; j < factory_profits[0].length; j++) {
@@ -105,7 +113,7 @@ class LeaderGraph extends Component {
       }
       ctx.strokeStyle = 'black'
       ctx.lineWidth = 1
-      ctx.strokeRect(1, 1, this.props.width - 2, this.props.height - 2)
+      ctx.strokeRect(0.5, 0.5, this.props.width - 1, this.props.height - 1)
     }
   }
 

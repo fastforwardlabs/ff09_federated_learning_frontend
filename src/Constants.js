@@ -26,10 +26,10 @@ export let selected_features = [
   'W32',
 ]
 
-export let cycle_profit = 200
+export let cycle_profit = 250
 let engine_profit = cycle_profit * 4
 export let maitained_penalty = 10000
-export let exploded_penalty = 50000
+export let exploded_penalty = 60000
 
 export function calculateProfit([cycles, maintained, failed]) {
   return (
@@ -82,9 +82,9 @@ export function mCheck(rev, strategy_name, failure_mean) {
     case strategy_names[1]:
       return rev[strategies[strategy_name]] >= preventative_threshold
     case strategy_names[2]:
-      return rev[strategies[strategy_name]] <= predictive_threshold
+      return rev[strategies[strategy_name]] < predictive_threshold
     case strategy_names[3]:
-      return rev[strategies[strategy_name]] <= predictive_threshold
+      return rev[strategies[strategy_name]] < predictive_threshold
   }
 }
 
@@ -212,4 +212,11 @@ export let requirement_strings = [
 
 export let profit_array_length = 300
 
-export let finish = 2000
+export let finish = 3000
+
+export let strategy_descriptions = [
+  'turbofans are repaired when they fail',
+  `maintenance is performed when engines reach ${preventative_threshold} cycles`,
+  `maintenance is performed when the local model predicts remaining life is below 10`,
+  `maintenance is performed when the federated model predicts remaining life is below 10`,
+]

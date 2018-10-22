@@ -10,6 +10,7 @@ import {
   repair_color,
 } from './Constants'
 import { scale } from './Utilties'
+let smaller_font = '13px'
 
 let steps = 50
 let x_padding = 14
@@ -17,7 +18,7 @@ let y_padding = 6
 let rows = 2
 let columns = selected_features.length / rows
 let text_height = 20
-let predict_width = 200
+let predict_width = 400
 let cycle_max = 525
 
 class Dial extends Component {
@@ -33,6 +34,7 @@ class Dial extends Component {
     )
 
     this.getCtx = this.getCtx.bind(this)
+    this.predict_width = predict_width
   }
 
   getCtx(canvas) {
@@ -41,9 +43,32 @@ class Dial extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.ctx && this.props.counter !== prevProps.counter) {
-      let { ranges, keys } = this.props
-      let predict_x_step = predict_width / 225
+    if (prevProps.width !== this.props.width) {
+      this.ctx.scale(2, 2)
+    } else if (this.ctx) {
+      let { ranges, keys, engine } = this.props
+      this.ctx.lineWidth = 1
+      let this_height =
+        (this.props.height -
+          y_padding * (rows - 1) -
+          rows * text_height -
+          text_height -
+          2) /
+        rows
+      // check predict width with squares
+      let width_check =
+        this.props.width -
+        x_padding * (columns - 1) -
+        x_padding -
+        2 -
+        columns * this_height
+      if (width_check >= 400) {
+        this.predict_width = 400
+      } else {
+        this.predict_width = width_check
+      }
+      predict_width = this.predict_width
+      let predict_x_step = 1
       let this_time = this.props.this_time
       let cycles = this.props.engine[this_time].time
       let this_width =
@@ -53,13 +78,6 @@ class Dial extends Component {
           x_padding -
           2) /
         columns
-      let this_height =
-        (this.props.height -
-          y_padding * (rows - 1) -
-          rows * text_height -
-          text_height -
-          2) /
-        rows
       // let x_step = this_width / steps
       let x_step = predict_x_step
       let steps = Math.floor(this_width / x_step)
@@ -76,7 +94,12 @@ class Dial extends Component {
           (this_height + y_padding) * Math.floor(i / columns) +
           1
         ctx.fillText(selector, x_offset, y_offset - 6)
-        ctx.strokeRect(x_offset, y_offset, this_width, this_height)
+        ctx.strokeRect(
+          x_offset - 0.5,
+          y_offset - 0.5,
+          this_width + 1,
+          this_height + 1
+        )
         for (let j = 0; j < timer; j++) {
           let adjusted = this_time - timer + j + 1
           ctx.fillRect(
@@ -118,9 +141,8 @@ class Dial extends Component {
         this.props.height + 1 - 6
       )
 
-      let timer = Math.min(cycles, 225)
+      let timer = Math.min(cycles, Math.round(predict_width))
       let adjusted_base = this_time - timer + 1
-      let cycling = timer === 190
       let predict_height = this.props.height - text_height * 2 - 2
       let predict_x = this.props.width - predict_width - 1
       let predict_y = 1 + text_height
@@ -133,7 +155,12 @@ class Dial extends Component {
         ctx.fillRect(predict_x, predict_y, predict_width, predict_height)
         ctx.fillStyle = 'black'
       }
-      ctx.strokeRect(predict_x, predict_y, predict_width, predict_height)
+      ctx.strokeRect(
+        predict_x - 0.5,
+        predict_y - 0.5,
+        predict_width + 1,
+        predict_height + 1
+      )
       let predict_y_set = n => this.props.height / 2
       let threshold_check = () => false
       if (this.props.strategy === strategy_names[1]) {
@@ -180,7 +207,13 @@ class Dial extends Component {
         ctx.lineTo(predict_x + predict_width, y)
         ctx.stroke()
         ctx.setLineDash([])
-        ctx.strokeStyle = '#aaa'
+        if (this.props.maintaining) {
+          ctx.strokeStyle = '#d0cc59'
+        } else if (this.props.repairing) {
+          ctx.strokeStyle = '#d36e6e'
+        } else {
+          ctx.strokeStyle = '#aaa'
+        }
         let y0 = predict_y + predict_height - scale(0, range) * predict_height
         ctx.beginPath()
         ctx.moveTo(predict_x, y0)
@@ -189,6 +222,7 @@ class Dial extends Component {
         ctx.strokeStyle = 'black'
       }
       ctx.setLineDash([])
+      let first_maint = false
       for (let i = 0; i < timer; i++) {
         let adjusted = adjusted_base + i
         let this_cycles = this.props.engine[adjusted].time
@@ -196,17 +230,26 @@ class Dial extends Component {
         let y = predict_y_set(adjusted)
         let size = [1, 1]
         if (
+          !first_maint &&
           threshold_check(
             this_cycles,
             this.props.engine[adjusted][strategies[this.props.strategy]]
           )
         ) {
-          x -= 2
-          y -= 2
-          size = [4, 4]
+          ctx.beginPath()
+          ctx.ellipse(x, y, 4, 4, 0, 0, 2 * Math.PI)
+          ctx.stroke()
+          first_maint = true
+        } else if (engine.length - 1 === adjusted) {
+          ctx.beginPath()
+          ctx.moveTo(x - 3.5, y - 3.5)
+          ctx.lineTo(x + 4.5, y + 4.5)
+          ctx.moveTo(x + 4.5, y - 3.5)
+          ctx.lineTo(x - 3.5, y + 4.5)
+          ctx.stroke()
         }
         if (y >= predict_y && y <= predict_y + predict_height) {
-          ctx.fillRect(x, y, size[0], size[1])
+          ctx.fillRect(x, y, 1, 1)
         }
       }
     }
@@ -215,6 +258,17 @@ class Dial extends Component {
   render() {
     return (
       <div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `1fr ${predict_width + 2}px`,
+            fontSize: smaller_font,
+            textTransform: 'uppercase',
+          }}
+        >
+          <div>sensors:</div>
+          <div>strategy:</div>
+        </div>
         <Canvas
           width={this.props.width}
           height={this.props.height}
