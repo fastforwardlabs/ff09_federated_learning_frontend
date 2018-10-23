@@ -849,9 +849,7 @@ class Paperclips extends Component {
         modal_content = (
           <div>
             <div style={modal_title_styling}>
-              <div>
-                Welcome to <em>TURBOFAN Tycoon</em>
-              </div>
+              <div>Welcome to TURBOFAN Tycoon</div>
               {close_button}
             </div>
             <div style={modal_body_styling}>
@@ -871,10 +869,10 @@ class Paperclips extends Component {
                 <a href="#">our blog post</a>.
               </div>
               <p>
-                In <em>TURBOFAN Tycoon</em>, you play as the proud operator of a
-                factory containing four turbofans. Every time one of your
-                turbofans completes a cycle you make ${cycle_profit} profit.
-                Sounds like a pretty sweet deal, right?
+                In TURBOFAN Tycoon, you play as the proud operator of a factory
+                containing four turbofans. Every time one of your turbofans
+                completes a cycle you make ${cycle_profit}. Sounds like a pretty
+                sweet deal, right?
               </p>
               <p>
                 The problem is, turbofans don't run forever. A broken turbofan
