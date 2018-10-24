@@ -1565,10 +1565,9 @@ class Paperclips extends Component {
               width: '100%',
               background: 'rgba(0,0,0,0.2)',
               display: 'grid',
-              justifyContent: 'center',
-              gridTemplateRows: '1fr auto 1fr',
+              alignItems: 'center',
               overflow: 'auto',
-              padding: '10px 0',
+              justifyContent: 'center',
             }}
             onClick={() => {
               {
@@ -1580,20 +1579,22 @@ class Paperclips extends Component {
               }
             }}
           >
-            {this.state.modal_display ? (
-              <div
-                style={{
-                  background: 'white',
-                  width: '600px',
-                  border: 'solid 1px black',
-                }}
-                onClick={e => {
-                  e.stopPropagation()
-                }}
-              >
-                {modal_content}
-              </div>
-            ) : null}
+            <div style={{ padding: '10px 0' }}>
+              {this.state.modal_display ? (
+                <div
+                  style={{
+                    background: 'white',
+                    width: '600px',
+                    border: 'solid 1px black',
+                  }}
+                  onClick={e => {
+                    e.stopPropagation()
+                  }}
+                >
+                  {modal_content}
+                </div>
+              ) : null}
+            </div>
           </div>
         ) : null}
       </div>
