@@ -9,6 +9,7 @@ import {
   repair_color,
   maintain_color,
   makeName,
+  makeNames,
   requirement_strings,
   factory_colors,
   profit_array_length,
@@ -66,6 +67,8 @@ function color_span(bg) {
   }
 }
 
+let right_side_width = 700
+
 class Paperclips extends Component {
   constructor(props) {
     super(props)
@@ -74,6 +77,7 @@ class Paperclips extends Component {
       playing: true,
       modal: false,
       modal_state: null,
+      modal_display: false,
       your_strategy: strategy_names[0],
       engine_rerender: 0,
     }
@@ -87,10 +91,7 @@ class Paperclips extends Component {
     this.factories = [...Array(factory_number)]
     // cycles, maintained, failed
     this.factories_state = this.factories.map(n => [0, 0, 0])
-    this.factory_names = [
-      'Your Factory',
-      ...[...Array(factory_number - 1)].map(n => makeName()),
-    ]
+    this.factory_names = ['Your Factory', ...makeNames(3)]
     this.factories_strategies = this.factories.map((n, i) => {
       return [[strategy_names[0], 0]]
     })
@@ -138,6 +139,9 @@ class Paperclips extends Component {
   openModal() {
     this.modal_close_play = this.state.playing
     this.setState({ modal: true })
+    setTimeout(() => {
+      this.setState({ modal_display: true })
+    }, 100)
   }
 
   openInfo(info_index) {
@@ -151,10 +155,13 @@ class Paperclips extends Component {
   }
 
   closeModal() {
-    this.setState({ modal: false, playing: this.modal_close_play })
-    if (this.modal_close_play) {
-      this.play()
-    }
+    this.setState({ modal_display: false })
+    setTimeout(() => {
+      this.setState({ modal: false })
+      if (this.modal_close_play) {
+        this.play()
+      }
+    }, 100)
   }
 
   keepPlaying() {
@@ -527,9 +534,16 @@ class Paperclips extends Component {
                   <div style={{ color: color }}>
                     <strong>{this.factories_strategies[fi][ri][0]}</strong>
                     {current
-                      ? ''
-                      : ` for ${this.factories_strategies[fi][ri + 1][1] -
-                          this.factories_strategies[fi][ri][1]} cycles`}
+                      ? this.state.modal || !this.state.playing
+                        ? ` for ${commas(
+                            this.state.counter -
+                              this.factories_strategies[fi][ri][1]
+                          )} cycles`
+                        : ''
+                      : ` for ${commas(
+                          this.factories_strategies[fi][ri + 1][1] -
+                            this.factories_strategies[fi][ri][1]
+                        )} cycles`}
                   </div>
                 )
               })}
@@ -752,7 +766,8 @@ class Paperclips extends Component {
       upgrade_content = (
         <div>
           <p>
-            Now that your factory has experienced four engine failures you have
+            The bad news is your factory has experienced four engine failures.
+            The good news is, using the data from those failures, you now have
             the option to upgrade to a <strong>preventative</strong> maintenance
             strategy.
           </p>
@@ -1182,7 +1197,7 @@ class Paperclips extends Component {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: `1fr 1fr`,
                 padding: 10,
                 gridColumnGap: 10,
                 background: '#fff',
@@ -1210,10 +1225,8 @@ class Paperclips extends Component {
                       >
                         {this.factory_names[fi]}
                       </div>
-                      <div style={{ padding: 10 }}>
-                        <div
-                          style={{ marginBottom: 10, fontSize: larger_font }}
-                        >
+                      <div style={{ padding: '5px 10px 10px' }}>
+                        <div style={{ marginBottom: 5, fontSize: larger_font }}>
                           ${commas(last(this.factory_profits[fi]))}{' '}
                           {last(this.factory_profits[fi]) >= 0
                             ? 'profit'
@@ -1221,12 +1234,24 @@ class Paperclips extends Component {
                         </div>
                         <div
                           style={{
-                            marginBottom: 5,
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
                             fontSize: smaller_font,
                             textTransform: 'uppercase',
+                            marginBottom: 10,
                           }}
                         >
-                          TURBOFANS:
+                          <div>maintained: {factory_state[1]}</div>
+                          <div>failed: {factory_state[2]}</div>
+                        </div>
+                        <div
+                          style={{
+                            textTransform: 'uppercase',
+                            fontSize: smaller_font,
+                            marginBottom: 5,
+                          }}
+                        >
+                          Your Turbofans:
                         </div>
                         {!this.ffing
                           ? this.factory_engines_empty.map((n, ei) => {
@@ -1259,14 +1284,15 @@ class Paperclips extends Component {
                                   <div
                                     style={{
                                       fontSize: smaller_font,
-                                      background: background,
                                       textTransform: 'uppercase',
                                       padding: '5px 10px 5px',
                                       display: 'grid',
+                                      background: background,
                                       gridTemplateColumns: '1fr 1fr',
                                     }}
                                   >
-                                    <div>active cycles: {rev.time}</div>
+                                    <div>cycles: {rev.time}</div>
+
                                     <div>
                                       {maintaining
                                         ? `maintaining: ${
@@ -1280,7 +1306,7 @@ class Paperclips extends Component {
                                         : null}
                                     </div>
                                   </div>
-                                  <div style={{ padding: '0 10px 10px' }}>
+                                  <div style={{ padding: '0 10px 15px' }}>
                                     <div style={{ padding: '5px 0 0' }}>
                                       <Dials
                                         your_strateg={this.state.your_strategy}
@@ -1293,7 +1319,7 @@ class Paperclips extends Component {
                                           this.engine_strategies[engine_flat_i]
                                         }
                                         width={this.props.ww / 2 - 60 - 1}
-                                        height={150}
+                                        height={130}
                                         maintaining={maintaining}
                                         repairing={repairing}
                                         engine_rerender={
@@ -1301,34 +1327,11 @@ class Paperclips extends Component {
                                         }
                                       />
                                     </div>
-                                    <div
-                                      style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr 1fr',
-                                        fontSize: smaller_font,
-                                        textTransform: 'uppercase',
-                                        display: 'none',
-                                      }}
-                                    >
-                                      <div>maintained: {engine_state[1]}</div>
-                                      <div>failed: {engine_state[2]}</div>
-                                    </div>
                                   </div>
                                 </div>
                               )
                             })
                           : null}
-                        <div
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            fontSize: smaller_font,
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          <div>maintained: {factory_state[1]}</div>
-                          <div>failed: {factory_state[2]}</div>
-                        </div>
                       </div>
                     </div>
                   )
@@ -1371,6 +1374,7 @@ class Paperclips extends Component {
                       <input
                         type="checkbox"
                         checked={this.props.auto_upgrade}
+                        title="Autmatically upgrade to best available strategy"
                       />{' '}
                       auto upgrade
                     </div>
@@ -1576,20 +1580,20 @@ class Paperclips extends Component {
               }
             }}
           >
-            <div />
-            <div
-              style={{
-                background: 'white',
-                width: '600px',
-                border: 'solid 1px black',
-              }}
-              onClick={e => {
-                e.stopPropagation()
-              }}
-            >
-              {modal_content}
-            </div>
-            <div />
+            {this.state.modal_display ? (
+              <div
+                style={{
+                  background: 'white',
+                  width: '600px',
+                  border: 'solid 1px black',
+                }}
+                onClick={e => {
+                  e.stopPropagation()
+                }}
+              >
+                {modal_content}
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>

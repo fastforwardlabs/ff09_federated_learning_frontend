@@ -203,6 +203,25 @@ export function makeName() {
   return sample(corpora_greek_flattened) + ' ' + sample(endings)
 }
 
+export function makeNames(number) {
+  let names = []
+  function getCandidate(selected) {
+    let candidate = sample(corpora_greek_flattened)
+    if (!selected.includes(candidate)) {
+      return sample(corpora_greek_flattened)
+    } else {
+      return getCandidate(selected)
+    }
+  }
+  let selected = []
+  for (let i = 0; i < number; i++) {
+    let candidate = getCandidate(selected)
+    selected.push(candidate)
+    names.push(candidate + ' ' + sample(endings))
+  }
+  return names
+}
+
 export let requirement_strings = [
   null,
   'four turbofan failures for data',
