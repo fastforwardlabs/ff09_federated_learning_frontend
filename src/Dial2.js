@@ -13,8 +13,8 @@ import { scale } from './Utilties'
 let smaller_font = '13px'
 
 let steps = 50
-let x_padding = 14
-let y_padding = 6
+let x_padding = 12
+let y_padding = 4
 let rows = 2
 let columns = selected_features.length / rows
 let text_height = 20
@@ -254,6 +254,7 @@ class Dial extends Component {
         let y = predict_y_set(adjusted)
         ctx.lineWidth = 1
         ctx.strokeStyle = 'black'
+        ctx.fillStyle = '#444'
         if (
           !first_maint &&
           threshold_check(
@@ -274,7 +275,10 @@ class Dial extends Component {
           ctx.stroke()
         }
         if (y >= predict_y && y <= predict_y + predict_height) {
-          ctx.fillRect(x, y, 1, 1)
+          ctx.fillRect(x - 0.5, y - 0.5, 1, 1)
+          ctx.fillRect(x - 0.5, y + 0.5, 1, 1)
+          ctx.fillRect(x + 0.5, y + 0.5, 1, 1)
+          ctx.fillRect(x - 0.5, y + 0.5, 1, 1)
         }
         ctx.lineWidth = 1
       }
@@ -289,11 +293,10 @@ class Dial extends Component {
             display: 'grid',
             gridTemplateColumns: `1fr ${predict_width + 4}px`,
             fontSize: smaller_font,
-            textTransform: 'uppercase',
           }}
         >
-          <div>sensors:</div>
-          <div>strategy:</div>
+          <div>Sensors:</div>
+          <div>Strategy:</div>
         </div>
         <Canvas
           width={this.props.width}

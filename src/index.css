@@ -140,6 +140,10 @@ img {
   max-width: 100%;
 }
 
+.img_holder {
+  height: 161px;
+}
+
 .strat_image {
   display: block;
   max-height: 161px;

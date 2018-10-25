@@ -36,8 +36,8 @@ let larger_font = '18px'
 
 let factory_number = 4
 let engine_number = 4
-let data_scientist_pause = 500
-let federation_offer_pause = 500
+let data_scientist_pause = 500 - 1
+let federation_offer_pause = 500 - 1
 
 let speed_bound = 10
 
@@ -600,7 +600,9 @@ class Paperclips extends Component {
               <div style={{ fontSize: smaller_font, padding: '10px 10px 0' }}>
                 STRATEGY:
               </div>
-              <img className="strat_image" src={corr_img} alt="" />
+              <div className="img_holder">
+                <img className="strat_image" src={corr_img} alt="" />
+              </div>
             </div>
           </p>
           <p>
@@ -864,7 +866,7 @@ class Paperclips extends Component {
         modal_content = (
           <div>
             <div style={modal_title_styling}>
-              <div>Welcome to TURBOFAN Tycoon</div>
+              <div>Welcome to Turbofan Tycoon</div>
               {close_button}
             </div>
             <div style={modal_body_styling}>
@@ -876,7 +878,7 @@ class Paperclips extends Component {
                   marginBottom: 15,
                 }}
               >
-                TURBOFAN Tycoon is a research prototype by{' '}
+                Turbofan Tycoon is a research prototype by{' '}
                 <a href="#">Cloudera Fast Forward Labs</a> built to accompany
                 our report on Federated Learning. It uses real turbofan data to
                 show the benefites of using a federative predictive model. You
@@ -884,7 +886,7 @@ class Paperclips extends Component {
                 <a href="#">our blog post</a>.
               </div>
               <p>
-                In TURBOFAN Tycoon, you play as the proud operator of a factory
+                In Turbofan Tycoon, you play as the proud operator of a factory
                 containing four turbofans. Every time one of your turbofans
                 completes a cycle you make ${cycle_profit}. Sounds like a pretty
                 sweet deal, right?
@@ -903,12 +905,9 @@ class Paperclips extends Component {
                 strategies as you gain experience: moving from an initial
                 repair-it-when-it-breaks <strong>corrective</strong> approach
                 all the way up to a <strong>federated predictive</strong> model.
-                Use the{' '}
-                <span style={{ ...color_span(factory_colors[0]) }}>
-                  Your Strategy
-                </span>{' '}
-                controls to upgrade your strategy as new methods become
-                available. We'll guide you through the first round of upgrades.
+                Use the Your Strategy controls to upgrade your strategy as new
+                methods become available. We'll guide you through the first
+                round of upgrades.
               </p>
               <p>
                 Under{' '}
@@ -1067,15 +1066,17 @@ class Paperclips extends Component {
                 alignContent: 'center',
               }}
             >
-              <Turbofan
-                width={22}
-                height={22}
-                counter={this.state.counter}
-                speed={this.props.speed}
-                speed_bound={speed_bound}
-              />
-              <div style={{ height: 24, lineHeight: '24px' }}>
-                TURBOFAN Tycoon
+              {false ? (
+                <Turbofan
+                  width={22}
+                  height={22}
+                  counter={this.state.counter}
+                  speed={this.props.speed}
+                  speed_bound={speed_bound}
+                />
+              ) : null}
+              <div style={{ height: 24, lineHeight: '24px', paddingLeft: 3 }}>
+                Turbofan Tycoon
               </div>
             </div>
           </div>
@@ -1225,7 +1226,7 @@ class Paperclips extends Component {
                       >
                         {this.factory_names[fi]}
                       </div>
-                      <div style={{ padding: '5px 10px 10px' }}>
+                      <div style={{ padding: '5px 10px 0' }}>
                         <div style={{ marginBottom: 5, fontSize: larger_font }}>
                           ${commas(last(this.factory_profits[fi]))}{' '}
                           {last(this.factory_profits[fi]) >= 0
@@ -1246,8 +1247,6 @@ class Paperclips extends Component {
                         </div>
                         <div
                           style={{
-                            textTransform: 'uppercase',
-                            fontSize: smaller_font,
                             marginBottom: 5,
                           }}
                         >
@@ -1279,6 +1278,10 @@ class Paperclips extends Component {
                                   style={{
                                     marginBottom: 10,
                                     border: 'solid 1px black',
+                                    borderRadius: '10px',
+                                    borderTopRightRadius: '30px',
+                                    borderBottomRightRadius: '30px',
+                                    overflow: 'hidden',
                                   }}
                                 >
                                   <div
@@ -1292,7 +1295,6 @@ class Paperclips extends Component {
                                     }}
                                   >
                                     <div>cycles: {rev.time}</div>
-
                                     <div>
                                       {maintaining
                                         ? `maintaining: ${
@@ -1341,163 +1343,194 @@ class Paperclips extends Component {
                 <div
                   style={{
                     border: 'solid 1px black',
-                    borderBottom: 'none',
                     marginBottom: 10,
                     position: 'relative',
+                    padding: 1,
                   }}
                 >
                   <div
                     style={{
-                      position: 'absolute',
-                      display: 'none',
-                      left: -12,
-                      top: '50%',
-                      width: '12px',
-                      height: '1px',
-                      background: 'black',
-                    }}
-                  />
-                  <div
-                    style={{
-                      padding: '5px 10px 5px',
-                      background: factory_colors[0],
-                      color: 'white',
-                      display: 'flex',
-                      justifyContent: 'space-between',
+                      padding: '10px 10px 10px',
+                      background: 'white',
                     }}
                   >
-                    <div>Your Strategy</div>
                     <div
-                      style={{ fontSize: smaller_font, cursor: 'pointer' }}
-                      onClick={this.props.toggleAuto}
+                      style={{
+                        position: 'absolute',
+                        left: -12,
+                        top: '50%',
+                        width: '12px',
+                        height: '1px',
+                        background: 'black',
+                      }}
+                    />
+                    <div
+                      style={{
+                        padding: '0 0 10px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        position: 'relative',
+                        alignItems: 'baseline',
+                      }}
                     >
-                      <input
-                        type="checkbox"
-                        checked={this.props.auto_upgrade}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: -12,
+                          top: 15,
+                          height: '1px',
+                          background: 'black',
+                          width: 12,
+                          display: 'none',
+                        }}
+                      />
+                      <div>Your Strategy</div>
+                      <div
+                        style={{
+                          fontSize: smaller_font,
+                          cursor: 'pointer',
+                          paddingRight: 2,
+                        }}
+                        onClick={this.props.toggleAuto}
                         title="Autmatically upgrade to best available strategy"
-                      />{' '}
-                      auto upgrade
+                      >
+                        <input
+                          type="checkbox"
+                          checked={this.props.auto_upgrade}
+                        />{' '}
+                        auto upgrade
+                      </div>
                     </div>
-                  </div>
-                  <div style={{}}>
-                    {strategy_names.map((n, i) => {
-                      let checked = n === last(this.factories_strategies[0])[0]
-                      let available = true
-                      let requirement_info
-                      if (i === 1) {
-                        available = this.requirements[0][0] !== null
-                        requirement_info =
-                          ': ' + this.factories_state[0][2] + '/4'
-                      } else if (i === 2) {
-                        available = this.requirements[0][1] !== null
-                        requirement_info = ': none available yet'
-                      } else if (i === 3) {
-                        available = this.requirements[0][2] !== null
-                        requirement_info = ': no offer yet'
-                      }
-                      let requirement_string = requirement_strings[i]
-                      let additional_classes = ''
-                      if (checked) additional_classes += ' selected'
-                      if (!available) additional_classes += ' disabled'
-                      return (
-                        <div
-                          className={additional_classes}
-                          title={
-                            available
-                              ? null
-                              : 'This strategy is not unlocked yet.'
+                    <div style={{}}>
+                      <div
+                        style={{
+                          border: 'solid 1px black',
+                          borderRadius: '2px',
+                          overflow: 'hidden',
+                          borderBottom: 'none',
+                        }}
+                      >
+                        {strategy_names.map((n, i) => {
+                          let checked =
+                            n === last(this.factories_strategies[0])[0]
+                          let available = true
+                          let requirement_info
+                          if (i === 1) {
+                            available = this.requirements[0][0] !== null
+                            requirement_info =
+                              ': ' + this.factories_state[0][2] + '/4'
+                          } else if (i === 2) {
+                            available = this.requirements[0][1] !== null
+                            requirement_info = ': none available yet'
+                          } else if (i === 3) {
+                            available = this.requirements[0][2] !== null
+                            requirement_info = ': no offer yet'
                           }
-                          style={{
-                            background: available ? 'white' : '#ddd',
-                            color: available ? 'black' : '#777',
-                            padding: '7px 10px',
-                            borderBottom: 'solid 1px black',
-                          }}
-                        >
-                          {requirement_string !== null ? (
+                          let requirement_string = requirement_strings[i]
+                          let additional_classes = ''
+                          if (checked) additional_classes += ' selected'
+                          if (!available) additional_classes += ' disabled'
+                          return (
                             <div
-                              style={{
-                                fontSize: small_font,
-                                paddingBottom: '2px',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: '11px',
-                                  textTransform: 'uppercase',
-                                }}
-                              >
-                                requirement
-                              </span>{' '}
-                              {available ? '✓' : '☐'} {requirement_string}
-                              {available ? null : requirement_info}
-                            </div>
-                          ) : null}
-                          <div style={{ position: 'relative' }}>
-                            <div
-                              style={{
-                                position: 'absolute',
-                                right: 0,
-                                top: 0,
-                                fontSize: smaller_font,
-                                color: '#000',
-                              }}
-                            >
-                              <button
-                                style={{
-                                  background: '#fff',
-                                  padding: '2px 6px',
-                                  border: 'solid 1px #999',
-                                }}
-                                onClick={() => {
-                                  this.openInfo(i)
-                                }}
-                                className="unbutton button-hover"
-                              >
-                                info
-                              </button>
-                            </div>
-                            <span
-                              className="hoverinner"
-                              style={{
-                                cursor: available ? 'pointer' : 'default',
-                              }}
-                              onClick={this.setYourStrategy.bind(
-                                this,
-                                n,
+                              className={additional_classes}
+                              title={
                                 available
-                              )}
+                                  ? null
+                                  : 'This strategy is not unlocked yet.'
+                              }
+                              style={{
+                                background: available ? 'white' : '#ddd',
+                                color: available ? 'black' : '#777',
+                                padding: '7px 10px',
+                                borderBottom: 'solid 1px black',
+                              }}
                             >
-                              <input
-                                type="radio"
-                                checked={checked}
-                                disabled={!available}
-                                style={{
-                                  position: 'relative',
-                                  top: '-1px',
-                                  marginRight: '2px',
-                                }}
-                              />{' '}
-                              <span
-                                className="hoverinner-target"
-                                style={{
-                                  fontWeight: checked || true ? 700 : 400,
-                                }}
-                              >
-                                {n}
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
+                              {requirement_string !== null ? (
+                                <div
+                                  style={{
+                                    fontSize: small_font,
+                                    paddingBottom: '2px',
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: '11px',
+                                      textTransform: 'uppercase',
+                                    }}
+                                  >
+                                    requirement
+                                  </span>{' '}
+                                  {available ? '✓' : '☐'} {requirement_string}
+                                  {available ? null : requirement_info}
+                                </div>
+                              ) : null}
+                              <div style={{ position: 'relative' }}>
+                                <div
+                                  style={{
+                                    position: 'absolute',
+                                    right: 0,
+                                    top: 0,
+                                    fontSize: smaller_font,
+                                    color: '#000',
+                                  }}
+                                >
+                                  <button
+                                    style={{
+                                      background: '#fff',
+                                      padding: '2px 6px',
+                                      border: 'solid 1px #999',
+                                    }}
+                                    onClick={() => {
+                                      this.openInfo(i)
+                                    }}
+                                    className="unbutton button-hover"
+                                  >
+                                    info
+                                  </button>
+                                </div>
+                                <span
+                                  className="hoverinner"
+                                  style={{
+                                    cursor: available ? 'pointer' : 'default',
+                                  }}
+                                  onClick={this.setYourStrategy.bind(
+                                    this,
+                                    n,
+                                    available
+                                  )}
+                                >
+                                  <input
+                                    type="radio"
+                                    checked={checked}
+                                    disabled={!available}
+                                    style={{
+                                      position: 'relative',
+                                      top: '-1px',
+                                      marginRight: '2px',
+                                    }}
+                                  />{' '}
+                                  <span
+                                    className="hoverinner-target"
+                                    style={{
+                                      fontWeight: checked || true ? 700 : 400,
+                                    }}
+                                  >
+                                    {n}
+                                  </span>
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div
                   style={{
                     border: 'solid 1px black',
                     background: 'white',
-                    padding: 10,
+                    padding: '10px 10px 0',
                   }}
                 >
                   <div
@@ -1505,6 +1538,7 @@ class Paperclips extends Component {
                       marginBottom: 10,
                       display: 'flex',
                       justifyContent: 'space-between',
+                      alignItems: 'baseline',
                     }}
                   >
                     <div>Factory Scoreboard</div>
@@ -1544,12 +1578,12 @@ class Paperclips extends Component {
             </div>
             <div
               style={{
-                borderTop: 'solid 1px black',
                 padding: '10px',
                 textAlign: 'center',
+                borderTop: 'solid 1px black',
               }}
             >
-              TURBOFAN Tycoon is a federated learning research prototype by{' '}
+              Turbofan Tycoon is a federated learning research prototype by{' '}
               <a href="#">Cloudera Fast Forward Labs</a>
             </div>
           </div>

@@ -23,7 +23,7 @@ class LeaderGraph extends Component {
       let { factory_profits } = this.props
       let ctx = this.ctx
       let steps = profit_array_length
-      let x_step = this.props.width / (steps + steps * 0.25)
+      let x_step = this.props.width / (steps + steps * 0.1)
       let mins = []
       let maxes = []
       for (let i = 0; i < factory_profits.length; i++) {

@@ -7,7 +7,7 @@ import Paperclips2 from './Paperclips2'
 import { debounce } from 'lodash'
 
 let speed_bound = 10
-let speeds = [80, 40, 20, 10, 4, 2, 1]
+let speeds = [80, 40, 20, 10, 4, 3, 2, 1]
 
 class App extends Component {
   constructor(props) {
