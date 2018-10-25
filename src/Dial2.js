@@ -278,7 +278,7 @@ class Dial extends Component {
           ctx.fillRect(x - 0.5, y - 0.5, 1, 1)
           ctx.fillRect(x - 0.5, y + 0.5, 1, 1)
           ctx.fillRect(x + 0.5, y + 0.5, 1, 1)
-          ctx.fillRect(x - 0.5, y + 0.5, 1, 1)
+          ctx.fillRect(x + 0.5, y - 0.5, 1, 1)
         }
         ctx.lineWidth = 1
       }
