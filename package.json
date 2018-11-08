@@ -1,7 +1,7 @@
 {
   "name": "usl",
   "version": "0.1.0",
-  "homepage": "https://fastforwardlabs.github.io/ff09_federated_learning_frontend",
+  "homepage": "//turbofan.fastforwardlabs.com",
   "private": true,
   "dependencies": {
     "animate-css-grid": "^1.0.4",
