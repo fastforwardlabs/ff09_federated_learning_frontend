@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import Canvas from './Canvas'
 import { scale, commas } from './Utilties'
 import { min, max } from 'lodash'
-import { profit_array_length, factory_colors, finish } from './Constants'
+import {
+  profit_array_length,
+  factory_colors,
+  finish,
+  money_finish,
+} from './Constants'
 
 class LeaderGraph extends Component {
   constructor(props) {
@@ -31,13 +36,15 @@ class LeaderGraph extends Component {
         maxes.push(max(factory_profits[i]))
       }
       let minned = min(mins)
-      let maxed = max(maxes)
+      let maxed = max([...maxes, 500000])
       if (this.props.solo_mode) {
         minned = mins[0]
         maxed = maxes[0]
       }
       let additional = Math.max(Math.abs(minned * 0.1), Math.abs(maxed * 0.1))
       let range = [minned - additional, maxed + additional]
+
+      ctx.font = '11px IBM Plex Mono'
 
       ctx.lineWidth = 1
       ctx.clearRect(0, 0, this.props.width, this.props.height)
@@ -53,15 +60,26 @@ class LeaderGraph extends Component {
       let offset = this.props.counter - adjusted
       let far_x = offset + Math.floor(this.props.width / x_step)
 
-      if (finish < far_x) {
+      if (range[1] > money_finish) {
         ctx.setLineDash([2, 2])
-        let x = (finish - offset) * x_step
         ctx.beginPath()
-        ctx.moveTo(x, 1)
-        ctx.lineTo(x, this.props.height - 2)
+        let y =
+          this.props.height - scale(money_finish, range) * this.props.height
+        ctx.moveTo(1, y)
+        ctx.lineTo(this.props.width - 2, y)
         ctx.stroke()
         ctx.setLineDash([])
       }
+
+      // if (finish < far_x) {
+      //   ctx.setLineDash([2, 2])
+      //   let x = (finish - offset) * x_step
+      //   ctx.beginPath()
+      //   ctx.moveTo(x, 1)
+      //   ctx.lineTo(x, this.props.height - 2)
+      //   ctx.stroke()
+      //   ctx.setLineDash([])
+      // }
 
       ctx.lineWidth = 2
       let length_work = factory_profits.length
@@ -70,18 +88,24 @@ class LeaderGraph extends Component {
         let ri = length_work - 1 - i
         ctx.strokeStyle = factory_colors[ri]
         ctx.beginPath()
+
+        ctx.moveTo(0, this.props.height)
         for (let j = 0; j < factory_profits[0].length; j++) {
           let x = x_step * j
           let y =
             this.props.height -
             scale(factory_profits[ri][j], range) * this.props.height
           if (j == 0) {
-            ctx.moveTo(x, y)
+            ctx.lineTo(x, y)
           } else {
             ctx.lineTo(x, y)
           }
         }
+        ctx.lineTo(x_step * factory_profits[0].length, this.props.height)
+        ctx.lineTo(0, this.props.height)
         ctx.stroke()
+        ctx.fillStyle = '#aaa'
+        ctx.fill()
 
         ctx.fillStyle = factory_colors[ri]
         let last_profit = factory_profits[ri][factory_profits[ri].length - 1]

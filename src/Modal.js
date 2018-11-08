@@ -1,43 +1,29 @@
 import React, { Component } from 'react'
-import { strategy_names, factory_colors } from './Constants'
+import {
+  strategy_names,
+  mCheck,
+  maintained_delay,
+  exploded_delay,
+  calculateProfit,
+  repair_color,
+  maintain_color,
+  makeName,
+  makeNames,
+  requirement_strings,
+  factory_colors,
+  profit_array_length,
+  finish,
+  strategy_descriptions,
+  cycle_profit,
+  exploded_penalty,
+  maitained_penalty,
+} from './Constants'
+import { commas, compare } from './Utilties'
 
-let width = 600
-
-let descriptions = [
-  'You now have data from four engine failures. Using that data you can upgrade your maintenance strategy to preventative. The preventative strategy performs automatic maintenance at ten cycles before the average engine fail time.',
-]
-
-let offers = [
-  'Upgrade to preventative strategy?',
-  'Upgrade to local predictive strategy?',
-  'Upgrade to federated predictive strategy?',
-  null,
-]
+let line_height = 21
 
 class Modal extends Component {
-  constructor(props) {
-    super(props)
-  }
-
-  upgrade() {
-    let index = strategy_names.indexOf(this.props.strategy)
-    this.props.setDecision(index)
-    this.props.setYourStrategy(strategy_names[index + 1])
-    this.props.setYourHistory([
-      strategy_names[index + 1],
-      this.props.counter - 1,
-    ])
-    this.props.closeOffer()
-  }
-
-  stick() {
-    let index = strategy_names.indexOf(this.props.strategy)
-    this.props.setDecision(index)
-    this.props.closeOffer()
-  }
-
   render() {
-    let index = strategy_names.indexOf(this.props.strategy)
     return (
       <div
         style={{
@@ -46,9 +32,6 @@ class Modal extends Component {
           top: 0,
           width: '100%',
           height: '100vh',
-          background: 'rgba(0,0,0,0.2)',
-          padding: '2px',
-          border: 'solid 1px black',
           display: 'grid',
           justifyContent: 'center',
           alignContent: 'center',
@@ -56,37 +39,56 @@ class Modal extends Component {
       >
         <div
           style={{
-            border: 'solid 1px black',
+            border: 'solid 2px black',
             background: 'white',
-            maxWidth: 600,
-            padding: '2px',
+            width: 600,
+            padding: 2,
           }}
         >
-          <div style={{ border: 'solid 1px black' }}>
+          <div
+            style={{
+              border: 'solid 4px black',
+            }}
+          >
             <div
-              style={{
-                padding: '5px 10px',
-                borderBottom: 'solid 1px black',
-              }}
+              style={{ background: '#000', color: 'white', padding: '0 4px' }}
             >
-              Strategy upgrade available
+              Modal
             </div>
-            <div
-              style={{
-                padding: '10px 10px 15px',
-              }}
-            >
-              <div style={{ marginBottom: 10 }}>{descriptions[index]}</div>
-              <div style={{ marginBottom: 10 }}>{offers[index]}</div>
-              <div>
-                <button
-                  style={{ marginRight: 5 }}
-                  onClick={this.upgrade.bind(this)}
-                >
-                  Yes
-                </button>
-                <button onClick={this.stick.bind(this)}>No</button>
-              </div>
+            <div style={{ padding: '0 4px' }}>
+              {' '}
+              <p style={{ fontStyle: 'italic' }}>
+                Turbofan Tycoon is a research prototype by{' '}
+                <a href="#">Cloudera Fast Forward Labs</a> built to accompany
+                our report on Federated Learning. It uses realistic turbofan
+                data to show the benefites of using a federative predictive
+                model. For more background, <a href="#">read our blog post</a>.
+              </p>
+              <p>
+                In Turbofan Tycoon, you play as the proud operator of a factory
+                containing four turbofans. Every hour a turbofan runs you make $
+                {cycle_profit}. With four running turbofans, that means Your
+                Factory is bringing in ${cycle_profit * 4} an hour. Not bad,
+                right?{' '}
+              </p>
+              <p>
+                The problem is, turbofans don't run forever. A broken turbofan
+                costs ${commas(exploded_penalty)} to repair, and it takes{' '}
+                {exploded_delay} hours to get it running again. If you catch it
+                before it breaks, turbofan maintenance costs $
+                {commas(maitained_penalty)} and takes {maintained_delay} hours
+                to perform.
+              </p>
+              <p>
+                You need to pick a good maintenance strategy, but for that you
+                need data and expertise. You can unlock new maintenance
+                strategies as you gain experience: moving from an initial
+                repair-it-when-it-breaks <strong>corrective</strong> approach
+                all the way up to a <strong>federated predictive</strong> model.
+                Use the Your Strategy controls to upgrade your strategy as new
+                methods become available. We'll guide you through the first
+                round of upgrades.
+              </p>
             </div>
           </div>
         </div>

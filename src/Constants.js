@@ -26,7 +26,7 @@ export let selected_features = [
   'W32',
 ]
 
-export let cycle_profit = 250
+export let cycle_profit = 300
 let engine_profit = cycle_profit * 4
 export let maitained_penalty = 10000
 export let exploded_penalty = 60000
@@ -232,6 +232,7 @@ export let requirement_strings = [
 export let profit_array_length = 300
 
 export let finish = 3000
+export let money_finish = 2000000
 
 export let strategy_descriptions = [
   'turbofans are repaired when they fail',

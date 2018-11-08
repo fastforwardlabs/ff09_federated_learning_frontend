@@ -4,6 +4,8 @@ import * as queryString from 'qs'
 import { default_state, default_state_string, filterState } from './State'
 import Paperclips from './Paperclips'
 import Paperclips2 from './Paperclips2'
+import Paperclips3 from './Paperclips3'
+import Paperclips4 from './Paperclips4'
 import { debounce } from 'lodash'
 
 let speed_bound = 10
@@ -15,9 +17,9 @@ class App extends Component {
     this.state = {
       ww: window.innerWidth,
       reset_key: 0,
-      speed: 4,
-      show_intro: true,
-      auto_upgrade: false,
+      speed: 5,
+      show_intro: false,
+      auto_upgrade: true,
       solo_mode: false,
     }
     this.adjustSpeed = this.adjustSpeed.bind(this)
@@ -96,7 +98,7 @@ class App extends Component {
     return (
       <div>
         {this.props.engines_loaded ? (
-          <Paperclips2
+          <Paperclips4
             key={this.state.reset_key}
             {...this.props}
             ww={this.state.ww}

@@ -13,7 +13,7 @@ import { scale } from './Utilties'
 let smaller_font = '13px'
 
 let steps = 50
-let x_padding = 12
+let x_padding = 8
 let y_padding = 4
 let rows = 2
 let columns = selected_features.length / rows
@@ -51,6 +51,10 @@ class Dial extends Component {
       this.ctx
     ) {
       let { ranges, keys, engine } = this.props
+
+      this.ctx.fillStyle = 'white'
+      this.ctx.fillRect(0, 0, this.props.width, this.props.height)
+
       this.ctx.lineWidth = 1
       let this_height =
         (this.props.height - y_padding * (rows - 1) - rows * text_height - 2) /
@@ -84,7 +88,7 @@ class Dial extends Component {
       let x_step = predict_x_step
       let steps = Math.floor(this_width / x_step)
       let ctx = this.ctx
-      ctx.font = '11px sans-serif'
+      ctx.font = '11px IBM Plex Mono'
       ctx.clearRect(0, 0, this.props.width, this.props.height)
       for (let i = 0; i < selected_features.length; i++) {
         let selector = selected_features[i]
@@ -95,36 +99,73 @@ class Dial extends Component {
           text_height * (Math.floor(i / columns) + 1) +
           (this_height + y_padding) * Math.floor(i / columns) +
           1
+        ctx.fillStyle = '#777'
         ctx.fillText(selector, x_offset, y_offset - 6)
-        ctx.strokeRect(
+        // ctx.strokeRect(
+        //   x_offset - 0.5,
+        //   y_offset - 0.5,
+        //   this_width + 1,
+        //   this_height + 1
+        // )
+        ctx.fillStyle = 'white'
+        ctx.fillRect(
           x_offset - 0.5,
           y_offset - 0.5,
           this_width + 1,
           this_height + 1
         )
+
+        ctx.lineWidth = 1
+        ctx.fillStyle = 'transparent'
+        ctx.strokeStyle = '#777'
+        ctx.beginPath()
         for (let j = 0; j < timer; j++) {
           let adjusted = this_time - timer + j + 1
-          ctx.fillRect(
-            x_step * j + x_offset,
-            this_height -
-              scale(this.props.engine[adjusted][selector], range) *
-                this_height +
-              y_offset,
-            1,
-            1
-          )
+          // ctx.fillRect(
+          //   x_step * j + x_offset,
+          //   this_height -
+          //     scale(this.props.engine[adjusted][selector], range) *
+          //       this_height +
+          //     y_offset -
+          //     0.5,
+          //   1,
+          //   2
+          // )
+          if (j === 0) {
+            ctx.moveTo(
+              x_step * j + x_offset,
+              this_height -
+                scale(this.props.engine[adjusted][selector], range) *
+                  this_height +
+                y_offset -
+                0.5
+            )
+          } else {
+            ctx.lineTo(
+              x_step * j + x_offset,
+              this_height -
+                scale(this.props.engine[adjusted][selector], range) *
+                  this_height +
+                y_offset -
+                0.5
+            )
+          }
         }
+        ctx.stroke()
+        ctx.fillStyle = 'white'
       }
 
       // predict graph
+      ctx.lineWidth = 1
+      ctx.fillStyle = '#777'
       if (this.props.strategy) {
-        ctx.font = 'bold 11px sans-serif'
+        ctx.font = 'bold 11px IBM Plex Mono'
         ctx.fillText(
           this.props.strategy,
           this.props.width - predict_width - 1,
           text_height + 1 - 6
         )
-        ctx.font = '10px sans-serif'
+        ctx.font = '10px IBM Plex Mono'
       }
       let label_text
       if (
@@ -139,6 +180,7 @@ class Dial extends Component {
         value = Math.round(value)
         label_text = 'PREDICTED REMAINING: ' + value
       }
+      ctx.fillStyle = '#777'
       ctx.fillText(
         label_text,
         this.props.width - predict_width - 1,
@@ -164,15 +206,24 @@ class Dial extends Component {
       }
 
       if (
+        true ||
         this.props.strategy === strategy_names[2] ||
         this.props.strategy === strategy_names[3]
       ) {
-        ctx.strokeRect(
+        // ctx.strokeRect(
+        //   predict_x - 0.5,
+        //   predict_y - 0.5,
+        //   predict_width + 1,
+        //   predict_height + 1
+        // )
+        ctx.fillStyle = 'white'
+        ctx.fillRect(
           predict_x - 0.5,
           predict_y - 0.5,
           predict_width + 1,
           predict_height + 1
         )
+        ctx.fillStyle = 'black'
       } else {
         if (this.props.maintaining) {
           ctx.strokeStyle = '#d0cc59'
@@ -197,10 +248,12 @@ class Dial extends Component {
           predict_x +
           predict_x_step * preventative_threshold -
           1
+        ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(x, predict_y_set() - 10)
         ctx.lineTo(x, predict_y_set() + 10)
         ctx.stroke()
+        ctx.lineWidth = 1
       }
       if (
         this.props.strategy === strategy_names[2] ||
@@ -239,11 +292,13 @@ class Dial extends Component {
           ctx.strokeStyle = '#aaa'
         }
         let y0 = predict_y + predict_height - scale(0, range) * predict_height
+        ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(predict_x, y0)
         ctx.lineTo(predict_x + predict_width, y0)
         ctx.stroke()
         ctx.strokeStyle = 'black'
+        ctx.lineWidth = 1
       }
       ctx.setLineDash([])
       let first_maint = false
@@ -252,9 +307,8 @@ class Dial extends Component {
         let this_cycles = this.props.engine[adjusted].time
         let x = predict_x + predict_x_step * i
         let y = predict_y_set(adjusted)
-        ctx.lineWidth = 1
         ctx.strokeStyle = 'black'
-        ctx.fillStyle = '#444'
+        ctx.fillStyle = 'white'
         if (
           !first_maint &&
           threshold_check(
@@ -263,25 +317,39 @@ class Dial extends Component {
           )
         ) {
           ctx.beginPath()
-          ctx.ellipse(x, y, 4, 4, 0, 0, 2 * Math.PI)
+          ctx.ellipse(x, y, 5, 5, 0, 0, 2 * Math.PI)
           ctx.stroke()
           first_maint = true
         } else if (engine.length - 1 === adjusted) {
           ctx.beginPath()
-          ctx.moveTo(x - 3.5, y - 3.5)
-          ctx.lineTo(x + 4.5, y + 4.5)
-          ctx.moveTo(x + 4.5, y - 3.5)
-          ctx.lineTo(x - 3.5, y + 4.5)
+          ctx.moveTo(x - 4.5, y - 4.5)
+          ctx.lineTo(x + 5.5, y + 5.5)
+          ctx.moveTo(x + 5.5, y - 4.5)
+          ctx.lineTo(x - 4.5, y + 5.5)
           ctx.stroke()
         }
-        if (y >= predict_y && y <= predict_y + predict_height) {
-          ctx.fillRect(x - 0.5, y - 0.5, 1, 1)
-          ctx.fillRect(x - 0.5, y + 0.5, 1, 1)
-          ctx.fillRect(x + 0.5, y + 0.5, 1, 1)
-          ctx.fillRect(x + 0.5, y - 0.5, 1, 1)
-        }
-        ctx.lineWidth = 1
+        // if (y >= predict_y && y <= predict_y + predict_height) {
+        //   ctx.fillRect(x, y - 0.5, 1, 2)
+        // }
       }
+
+      ctx.lineWidth = 1
+      ctx.fillStyle = 'transparent'
+      ctx.strokeStyle = '#aaa'
+      ctx.beginPath()
+      for (let i = 0; i < timer; i++) {
+        let adjusted = adjusted_base + i
+        let x = predict_x + predict_x_step * i
+        let y = predict_y_set(adjusted)
+        if (i === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+      ctx.stroke()
+      ctx.lineWidth = 1
+      ctx.fillStyle = 'black'
     }
   }
 
@@ -292,7 +360,6 @@ class Dial extends Component {
           style={{
             display: 'grid',
             gridTemplateColumns: `1fr ${predict_width + 4}px`,
-            fontSize: smaller_font,
           }}
         >
           <div>Sensors:</div>

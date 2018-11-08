@@ -16,24 +16,16 @@ class LatestEvent extends Component {
     let last_name = this.props.factory_names[last_index]
     let last_color = factory_colors[last_index]
     return (
-      <div style={{ marginBottom: 10 }}>
-        <span
-          style={{
-            fontSize: '12px',
-            textTransform: 'uppercase',
-          }}
-        >
-          latest event:{' '}
-        </span>
+      <div style={{ fontSize: '14px', padding: '0 4px' }}>
+        <span>Latest event: </span>
         {last[1] === 0 ? (
           <span>Simulation started.</span>
         ) : (
           <span style={{}}>
             <span
               style={{
-                background: last_color,
-                color: 'white',
-                padding: '0 3px',
+                color: last_color,
+                fontWeight: 'bold',
               }}
             >
               {last_name}

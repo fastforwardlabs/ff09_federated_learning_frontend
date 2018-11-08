@@ -1,3 +1,28 @@
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('./fonts/IBMPlexMono-Regular.woff2') format('woff2'),
+    url('./fonts/IBMPlexMono-Regular.woff') format('woff');
+}
+@font-face {
+  font-weight: 700;
+  font-family: 'IBM Plex Mono';
+  src: url('./fonts/IBMPlexMono-Bold.woff2') format('woff2'),
+    url('./fonts/IBMPlexMono-Bold.woff') format('woff');
+}
+@font-face {
+  font-style: italic;
+  font-family: 'IBM Plex Mono';
+  src: url('./fonts/IBMPlexMono-Italic.woff2') format('woff2'),
+    url('./fonts/IBMPlexMono-Italic.woff') format('woff');
+}
+@font-face {
+  font-weight: 700;
+  font-style: italic;
+  font-family: 'IBM Plex Mono';
+  src: url('./fonts/IBMPlexMono-BoldItalic.woff2') format('woff2'),
+    url('./fonts/IBMPlexMono-BoldItalic.woff') format('woff');
+}
+
 html {
   overflow: hidden;
 }
@@ -6,9 +31,9 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  font-size: 15px;
-  line-height: 1.45;
-  font-feature-settings: 'tnum';
+  font-size: 14px;
+  font-family: 'IBM Plex Mono';
+  line-height: 1.5;
   background: '#efefef';
 }
 
@@ -30,6 +55,7 @@ textarea {
   font-size: 100%; /* 1 */
   line-height: 1.15; /* 1 */
   margin: 0; /* 2 */
+  font-family: 'IBM Plex Mono';
 }
 
 /**
@@ -173,8 +199,9 @@ img {
   border-radius: 2px;
   text-shadow: #cccccc 0 1px 0;
   color: #000000;
-  font-size: 14px;
+  font-size: 15px;
   font-family: sans-serif;
+  font-family: 'IBM Plex Mono';
   text-decoration: none;
   vertical-align: middle;
   outline: none;
@@ -202,4 +229,50 @@ img {
 }
 .closebutton:hover {
   color: #ddd;
+}
+
+.h-border {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: black;
+}
+
+.hb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: black;
+}
+
+.v-border {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: black;
+}
+
+.newbutton {
+  border: solid 1px black;
+  background: red;
+  padding: 0 2px;
+  border-radius: 3px;
+  text-decoration: none;
+  background: -webkit-linear-gradient(top, #ffffff, #bbb);
+  background: -moz-linear-gradient(top, #ffffff, #888888);
+  background: -ms-linear-gradient(top, #ffffff, #888888);
+  background: -o-linear-gradient(top, #ffffff, #888888);
+  background-image: -ms-linear-gradient(top, #ffffff 0%, #888888 100%);
+}
+
+.fade {
+  transition: background 0.25s linear;
+}
+
+.newbutton:disabled {
+  opacity: 0.6;
+  border: 1px solid #aaa;
 }

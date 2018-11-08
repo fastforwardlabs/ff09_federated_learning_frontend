@@ -538,12 +538,12 @@ class Paperclips extends Component {
                         ? ` for ${commas(
                             this.state.counter -
                               this.factories_strategies[fi][ri][1]
-                          )} cycles`
+                          )} hours`
                         : ''
                       : ` for ${commas(
                           this.factories_strategies[fi][ri + 1][1] -
                             this.factories_strategies[fi][ri][1]
-                        )} cycles`}
+                        )} hours`}
                   </div>
                 )
               })}
@@ -608,7 +608,7 @@ class Paperclips extends Component {
           <p>
             You can see this approach applied to each of your turbofans in the
             strategy section. For the <strong>corrective</strong> strategy, it's
-            just a line counting the number of cycles the engine has ran. This
+            just a line counting the number of hours the engine has ran. This
             section gets more intersting once you get into the other strategies.
           </p>
         </div>
@@ -635,7 +635,7 @@ class Paperclips extends Component {
             A <strong>preventative</strong> maintenance strategy averages data
             about when engines failed in the past to choose a fixed time to
             perform maintenance. In this case engine maintenance is performed
-            when an engine reaches 193 cycles.
+            when an engine reaches 193 hours.
           </p>
           <p style={{ overflow: 'hidden' }}>
             <div
@@ -653,7 +653,7 @@ class Paperclips extends Component {
           </p>
           <p>
             You can see this approach applied to each of your turbofans in the
-            strategy section. When the number of cycles reaches the scheduled
+            strategy section. When the number of hours reaches the scheduled
             time (shown as a dotted line) maintenance is performed. Some engines
             will fail before reaching the scheduled maintenance point.
           </p>
@@ -675,7 +675,7 @@ class Paperclips extends Component {
             >
               This strategy will be unlocked when you have hired a data
               scientist. Data scientists become available about{' '}
-              {data_scientist_pause} cycles after you've satisfied the
+              {data_scientist_pause} hours after you've satisfied the
               preventative strategy requirement.
             </div>
           ) : null}
@@ -687,7 +687,7 @@ class Paperclips extends Component {
             however, it uses the sensor data to make a more sophisticated guess
             about when the engine will fail. Maintenance is performed when the
             model's predicted remaining life for the engine drops below ten
-            cycles.
+            hours.
           </p>
           <p style={{ overflow: 'hidden' }}>
             <div
@@ -727,7 +727,7 @@ class Paperclips extends Component {
             >
               This strategy will be unlocked when you have received a federation
               offer. A federation offer generally comes about{' '}
-              {data_scientist_pause} cycles after you've satisfied the local
+              {data_scientist_pause} hours after you've satisfied the local
               predictive requirement.
             </div>
           ) : null}
@@ -737,7 +737,7 @@ class Paperclips extends Component {
             engine failures. Through federated learning, it's been trained on
             data from all the factories in the federation. Maintenance is
             performed when the model's predicted remaining life for the engine
-            drops below ten cycles.
+            drops below ten hours.
           </p>
           <p style={{ overflow: 'hidden' }}>
             <div
@@ -894,9 +894,9 @@ class Paperclips extends Component {
               <p>
                 The problem is, turbofans don't run forever. A broken turbofan
                 costs ${commas(exploded_penalty)} to repair, and it takes{' '}
-                {exploded_delay} cycles to get it running again. If you catch it
+                {exploded_delay} hours to get it running again. If you catch it
                 before it breaks, turbofan maintenance costs $
-                {commas(maitained_penalty)} and takes {maintained_delay} cycles
+                {commas(maitained_penalty)} and takes {maintained_delay} hours
                 to perform.
               </p>
               <p>
@@ -932,10 +932,10 @@ class Paperclips extends Component {
                 upgrading their strategies as well, so you'll need to move fast.
               </p>
               <p>
-                The finish line is at 3,000 cycles, though you'll have the
-                option to continue playing after that. You can control the speed
-                of the cycles and pause at anytime using the controls in the top
-                right. Happy turbofanning!
+                The finish line is at 3,000 hours, though you'll have the option
+                to continue playing after that. You can control the speed of the
+                hours and pause at anytime using the controls in the top right.
+                Happy turbofanning!
               </p>
               <div style={{ padding: '5px 0' }}>
                 <button className="button2 highlight" onClick={this.closeModal}>
@@ -1170,14 +1170,13 @@ class Paperclips extends Component {
                 height: '22px',
               }}
             >
-              {commas(render_counter + 1)} CYCLES
+              {commas(render_counter + 1)} HOURS
             </div>
             <button
               style={{
                 position: 'relative',
                 background: '#fff',
                 padding: '2px 6px',
-                border: 'solid 1px #999',
                 marginLeft: '5px',
                 marginRight: '5px',
               }}
@@ -1212,7 +1211,7 @@ class Paperclips extends Component {
                       key={`factory_${fi}`}
                       style={{
                         marginBottom: 20,
-                        border: 'solid 1px black',
+                        border: 'solid 2px black',
                         background: 'white',
                       }}
                     >
@@ -1239,18 +1238,10 @@ class Paperclips extends Component {
                             gridTemplateColumns: '1fr 1fr',
                             fontSize: smaller_font,
                             textTransform: 'uppercase',
-                            marginBottom: 10,
                           }}
                         >
                           <div>maintained: {factory_state[1]}</div>
                           <div>failed: {factory_state[2]}</div>
-                        </div>
-                        <div
-                          style={{
-                            marginBottom: 5,
-                          }}
-                        >
-                          Your Turbofans:
                         </div>
                         {!this.ffing
                           ? this.factory_engines_empty.map((n, ei) => {
@@ -1269,32 +1260,42 @@ class Paperclips extends Component {
                                 this.engine_delays[engine_flat_i][0] > 0
                               let repairing =
                                 this.engine_delays[engine_flat_i][1] > 0
-                              let background = 'white'
+                              let background = '#222'
                               if (maintaining) background = maintain_color
                               if (repairing) background = repair_color
                               return (
                                 <div
                                   key={`engine_${engine_flat_i}`}
                                   style={{
-                                    marginBottom: 10,
                                     border: 'solid 1px black',
+                                    border: 'none',
                                     borderRadius: '10px',
                                     borderTopRightRadius: '30px',
                                     borderBottomRightRadius: '30px',
+                                    borderRadius: '0',
+                                    borderTopRightRadius: '10px',
+                                    borderBottomRightRadius: '10px',
+                                    borderRadius: '10px',
                                     overflow: 'hidden',
+                                    background: '#222',
+                                    color: '#999',
+                                    marginBottom: 5,
                                   }}
                                 >
+                                  <div style={{ padding: '0 10px' }}>
+                                    Turbofan {ei + 1}
+                                  </div>
                                   <div
                                     style={{
                                       fontSize: smaller_font,
                                       textTransform: 'uppercase',
-                                      padding: '5px 10px 5px',
+                                      padding: '0 10px 0',
                                       display: 'grid',
                                       background: background,
                                       gridTemplateColumns: '1fr 1fr',
                                     }}
                                   >
-                                    <div>cycles: {rev.time}</div>
+                                    <div>running: {rev.time} hours</div>
                                     <div>
                                       {maintaining
                                         ? `maintaining: ${
@@ -1317,6 +1318,7 @@ class Paperclips extends Component {
                                         keys={this.props.keys}
                                         ranges={this.props.ranges}
                                         engine={engine}
+                                        ei={ei}
                                         strategy={
                                           this.engine_strategies[engine_flat_i]
                                         }
@@ -1342,7 +1344,6 @@ class Paperclips extends Component {
               <div>
                 <div
                   style={{
-                    border: 'solid 1px black',
                     marginBottom: 10,
                     position: 'relative',
                     padding: 1,
@@ -1350,7 +1351,6 @@ class Paperclips extends Component {
                 >
                   <div
                     style={{
-                      padding: '10px 10px 10px',
                       background: 'white',
                     }}
                   >
@@ -1404,7 +1404,7 @@ class Paperclips extends Component {
                     <div style={{}}>
                       <div
                         style={{
-                          border: 'solid 1px black',
+                          border: 'solid 2px black',
                           borderRadius: '2px',
                           overflow: 'hidden',
                           borderBottom: 'none',
@@ -1478,7 +1478,6 @@ class Paperclips extends Component {
                                     style={{
                                       background: '#fff',
                                       padding: '2px 6px',
-                                      border: 'solid 1px #999',
                                     }}
                                     onClick={() => {
                                       this.openInfo(i)
@@ -1526,9 +1525,56 @@ class Paperclips extends Component {
                     </div>
                   </div>
                 </div>
+                <div>
+                  {false &&
+                  last(this.factories_strategies[0])[0] ===
+                    'federated predictive' ? (
+                    <div
+                      style={{
+                        padding: '7.5px 10px',
+                        background: '#333',
+                        color: 'white',
+                        border: 'solid 1px #333',
+                        marginBottom: 10,
+                        position: 'relative',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '50%',
+                          width: '1px',
+                          top: '-10px',
+                          background: 'black',
+                          height: '10px',
+                        }}
+                      />
+                      Federated Model{' '}
+                      <button
+                        style={{
+                          position: 'relative',
+                          background: '#444',
+                          padding: '2px 6px',
+                          border: 'solid 1px #777',
+                          marginLeft: '5px',
+                          marginRight: '5px',
+                          color: '#aaa',
+                        }}
+                        onClick={() => {
+                          this.setModalState('intro')
+                          this.openModal()
+                        }}
+                        className="unbutton"
+                      >
+                        info
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
                 <div
                   style={{
-                    border: 'solid 1px black',
+                    border: 'solid 2px black',
                     background: 'white',
                     padding: '10px 10px 0',
                   }}
