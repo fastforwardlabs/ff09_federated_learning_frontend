@@ -1,7 +1,7 @@
 {
   "name": "usl",
   "version": "0.1.0",
-  "homepage": "//turbofan.fastforwardlabs.com",
+  "homepage": "http://turbofan.fastforwardlabs.com",
   "private": true,
   "dependencies": {
     "animate-css-grid": "^1.0.4",
