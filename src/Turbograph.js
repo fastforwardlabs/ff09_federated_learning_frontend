@@ -50,7 +50,7 @@ class LeaderGraph extends Component {
         maxed = maxes[0]
       }
       maxed = Math.max(maxed, 500000)
-      let additional = Math.max(Math.abs(minned * 0.1), Math.abs(maxed * 0.1))
+      let additional = Math.max(Math.abs(minned * 0.3), Math.abs(maxed * 0.3))
       let range = [minned - additional, maxed + additional]
 
       let intervals = 250000
@@ -73,7 +73,7 @@ class LeaderGraph extends Component {
 
       ctx.font = '11px IBM Plex Mono'
 
-      if (max_rounded > money_finish) {
+      if (range[1] > money_finish) {
         // Always try and draw money finish
         ctx.lineWidth = 1
         ctx.strokeStyle = '#999'
@@ -82,13 +82,19 @@ class LeaderGraph extends Component {
         ctx.moveTo(0, y)
         ctx.lineTo(adj_width + 0, y)
         ctx.stroke()
-        ctx.fillStyle = '#bbb'
+        ctx.fillStyle = 'black'
         let text = 'Finish line: $' + commas(money_finish)
         let width = ctx.measureText(text).width
-        ctx.fillStyle = 'white'
-        ctx.fillRect(0, y - 1, width + 8, 2)
+        ctx.fillText(text, this.props.width - (width + 4), y + 4 + 8)
+      } else {
+        ctx.fillStyle = '#bbb'
+        let text = '↑ Finish line: $' + commas(money_finish)
+        let width = ctx.measureText(text).width
+        ctx.fillStyle = '#ddd'
+        ctx.fillRect(this.props.width - (width + 8), 0 - 1, width + 8, 4 + 12)
+        ctx.fill()
         ctx.fillStyle = '#777'
-        ctx.fillText(text, 4, y + 4)
+        ctx.fillText(text, this.props.width - (width + 4), 4 + 8 - 1)
       }
 
       ctx.lineWidth = 1
