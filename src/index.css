@@ -280,6 +280,19 @@ img {
   border: 1px solid #aaa;
 }
 
+.newbutton:focus,
+.newbutton:active,
+.unbutton:focus,
+.unbutton:active,
+input[type='range']:focus {
+  outline: solid 1px black;
+}
+
+.newbutton:focus,
+.newbutton:active {
+  outline-offset: 1px;
+}
+
 .modal-content p {
   margin: 0;
   margin-bottom: 10.5px;

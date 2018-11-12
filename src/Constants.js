@@ -26,6 +26,14 @@ export let selected_features = [
   'W32',
 ]
 
+export let engine_keys = [
+  'engine_no',
+  ...selected_features,
+  'time',
+  'RUL_local',
+  'RUL_federated',
+]
+
 export let cycle_profit = 300
 let engine_profit = cycle_profit * 4
 export let maitained_penalty = 10000
@@ -81,11 +89,11 @@ export function mCheck(rev, strategy_name, failure_mean) {
     case strategy_names[0]:
       return false
     case strategy_names[1]:
-      return rev[strategies[strategy_name]] >= preventative_threshold
+      return getKey(rev, strategies[strategy_name]) >= preventative_threshold
     case strategy_names[2]:
-      return rev[strategies[strategy_name]] < predictive_threshold
+      return getKey(rev, strategies[strategy_name]) < predictive_threshold
     case strategy_names[3]:
-      return rev[strategies[strategy_name]] < predictive_threshold
+      return getKey(rev, strategies[strategy_name]) < predictive_threshold
   }
 }
 
@@ -242,3 +250,8 @@ export let strategy_descriptions = [
   `maintenance is performed when the local model predicts remaining life is below 10`,
   `maintenance is performed when the federated model predicts remaining life is below 10`,
 ]
+
+export function getKey(engine_row, key) {
+  let index = engine_keys.indexOf(key)
+  return engine_row[index]
+}

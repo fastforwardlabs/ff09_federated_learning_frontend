@@ -17,10 +17,13 @@ class App extends Component {
     this.state = {
       ww: window.innerWidth,
       reset_key: 0,
-      speed: 5,
+      solo_mode: false,
+      show_intro: false,
+      auto_upgrade: true,
+      speed: 7,
       show_intro: true,
       auto_upgrade: false,
-      solo_mode: false,
+      speed: 5,
     }
     this.adjustSpeed = this.adjustSpeed.bind(this)
     this.introShown = this.introShown.bind(this)

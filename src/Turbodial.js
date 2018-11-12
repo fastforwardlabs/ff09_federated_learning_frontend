@@ -12,6 +12,7 @@ import {
   exploded_delay,
   factory_colors,
   profit_color,
+  getKey,
 } from './Constants'
 import { scale } from './Utilties'
 
@@ -161,9 +162,10 @@ class Dial extends Component {
         let timer = Math.min(this_time, column_space - 12)
         for (let j = 0; j < timer; j++) {
           let adjusted = this_time - timer + j + 1
+
           let yer =
             line_height * 1.25 -
-            scale(this.props.engine[adjusted][selector], range) *
+            scale(getKey(this.props.engine[adjusted], selector), range) *
               (line_height * 1.25) +
             y -
             line_height
@@ -178,7 +180,7 @@ class Dial extends Component {
         ctx.fillStyle = sensor_color
         let yer =
           line_height * 1.25 -
-          scale(this.props.engine[this_time][selector], range) *
+          scale(getKey(this.props.engine[this_time], selector), range) *
             (line_height * 1.25) +
           y -
           line_height
@@ -218,11 +220,14 @@ class Dial extends Component {
           this.props.strategy === 'preventative' ||
           this.props.strategy === 'corrective'
         ) {
-          label_text = 'Hours: ' + this.props.engine[this.props.this_time].time
+          label_text =
+            'Hours: ' + getKey(this.props.engine[this.props.this_time], 'time')
         } else {
-          let value = this.props.engine[this.props.this_time][
+          let value = getKey(
+            this.props.engine[this.props.this_time],
             strategies[this.props.strategy]
-          ]
+          )
+
           value = Math.round(value)
           label_text = 'Predicted remaining: ' + value + ' hours'
         }
@@ -248,10 +253,13 @@ class Dial extends Component {
           predict_y_set = index => {
             return (
               graph_height -
-              scale(this.props.engine[index][strategies[this.props.strategy]], [
-                range[0],
-                range[1],
-              ]) *
+              scale(
+                getKey(
+                  this.props.engine[index],
+                  strategies[this.props.strategy]
+                ),
+                [range[0], range[1]]
+              ) *
                 graph_height
             )
           }
