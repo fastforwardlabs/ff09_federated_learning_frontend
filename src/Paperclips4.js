@@ -71,6 +71,7 @@ class Paperclips extends Component {
       modal_display: false,
       your_strategy: strategy_names[0],
       engine_rerender: 0,
+      harmless_render: 0,
     }
     this.initialize.bind(this)
     this.initialize()
@@ -540,7 +541,6 @@ class Paperclips extends Component {
           }
         }
       }
-
       let max_last_profit = max(this.factory_profits.map(p => last(p)))
       if (
         max_last_profit >= money_finish &&

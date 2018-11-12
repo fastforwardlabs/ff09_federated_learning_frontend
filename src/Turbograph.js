@@ -25,7 +25,13 @@ class LeaderGraph extends Component {
     let new_profit_array_length = this.props.new_profit_array_length
     if (prevProps.width !== this.props.width) {
       this.ctx.scale(2, 2)
-    } else if (this.ctx) {
+    }
+    if (
+      (prevProps.width !== this.props.width ||
+        prevProps.counter !== this.props.counter ||
+        prevProps.strategy !== this.props.strategy) &&
+      this.ctx
+    ) {
       let { factory_profits } = this.props
       let ctx = this.ctx
 

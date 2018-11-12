@@ -49,8 +49,10 @@ class Dial extends Component {
     let this_time = this.props.this_time
     if (prevProps.width !== this.props.width) {
       ctx.scale(2, 2)
-    } else if (
-      (prevProps.counter !== this.props.counter ||
+    }
+    if (
+      (prevProps.width !== this.props.width ||
+        prevProps.counter !== this.props.counter ||
         prevProps.strategy !== this.props.strategy) &&
       ctx
     ) {

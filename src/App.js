@@ -80,6 +80,7 @@ class App extends Component {
   }
 
   updateDimensions() {
+    console.log('update dimensions')
     this.setState({ ww: window.innerWidth })
   }
 
