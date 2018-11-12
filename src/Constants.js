@@ -242,7 +242,7 @@ export let profit_array_length = 300
 
 export let finish = 3000
 export let money_finish = 3 * 1000 * 1000
-money_finish = 1000000
+// money_finish = 200000
 
 export let strategy_descriptions = [
   'turbofans are repaired when they fail',

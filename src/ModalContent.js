@@ -473,6 +473,7 @@ export class Finish extends Component {
     let losers_prof = prof_map.slice(1)
     let prepo = winner_prof[1] === 0 ? 'Your' : 'Their'
     let prepo2 = winner_prof[1] === 0 ? 'you' : 'they'
+    let prepo3 = winner_prof[1] === 0 ? 'You' : 'They'
 
     let winner_long_strat =
       strategy_time[winner_prof[1]][longest_strats[winner_prof[1]]]
@@ -507,35 +508,56 @@ export class Finish extends Component {
     let content = (
       <React.Fragment>
         {winning_message}
-        <p>
-          <span style={{ ...span_color('#777') }}>Final Standings:</span>
-        </p>
-        <p>
-          <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>
-            {factory_names[winner_prof[1]]}
-          </span>{' '}
-          is the winner with a profit of ${commas(winner_prof[0])}. {prepo}{' '}
-          primary strategy was <strong>{winner_long_strat[0]}</strong>, which{' '}
-          {prepo2} used {Math.round((winner_long_strat[1] / counter) * 100)}% of
-          the time.
-        </p>
-        {losers_prof.map((loser_prof, i) => {
-          let loser_long_strat =
-            strategy_time[loser_prof[1]][longest_strats[loser_prof[1]]]
-          let prepo = loser_prof[1] === 0 ? 'Your' : 'Their'
-          let prepo2 = loser_prof[1] === 0 ? 'you' : 'they'
-          return (
-            <p>
-              <span style={{ ...span_color(factory_colors[loser_prof[1]]) }}>
-                {factory_names[loser_prof[1]]}
-              </span>{' '}
-              {loser_strings[i]} with a profit of ${commas(loser_prof[0])}.{' '}
-              {prepo} primary strategy was{' '}
-              <strong>{loser_long_strat[0]}</strong>, which {prepo2} used{' '}
-              {Math.round((loser_long_strat[1] / counter) * 100)}% of the time.
-            </p>
-          )
-        })}
+        <div style={{ marginBottom: '10.5px' }}>
+          <div style={{ ...span_color('#777') }}>Final Standings</div>
+          <div>
+            1.{' '}
+            <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>
+              {factory_names[winner_prof[1]]}
+            </span>{' '}
+            is the winner with a profit of ${commas(winner_prof[0])}. {prepo}{' '}
+            primary strategy was <strong>{winner_long_strat[0]}</strong>, which{' '}
+            {prepo2} used {Math.round((winner_long_strat[1] / counter) * 100)}%
+            of the time. {prepo3}{' '}
+            <span style={{}}>
+              performed maintenance {factories_state[winner_prof[1]][1]} times
+            </span>{' '}
+            and{' '}
+            <span style={{}}>
+              had {factories_state[winner_prof[1]][2]} failures
+            </span>
+            .
+          </div>
+          {losers_prof.map((loser_prof, i) => {
+            let loser_long_strat =
+              strategy_time[loser_prof[1]][longest_strats[loser_prof[1]]]
+            let prepo = loser_prof[1] === 0 ? 'Your' : 'Their'
+            let prepo2 = loser_prof[1] === 0 ? 'you' : 'they'
+            let prepo3 = loser_prof[1] === 0 ? 'You' : 'They'
+            return (
+              <div>
+                {i + 2}.{' '}
+                <span style={{ ...span_color(factory_colors[loser_prof[1]]) }}>
+                  {factory_names[loser_prof[1]]}
+                </span>{' '}
+                {loser_strings[i]} with a profit of ${commas(loser_prof[0])}.{' '}
+                {prepo} primary strategy was{' '}
+                <strong>{loser_long_strat[0]}</strong>, which {prepo2} used{' '}
+                {Math.round((loser_long_strat[1] / counter) * 100)}% of the
+                time. {prepo3}{' '}
+                <span style={{}}>
+                  performed maintenance {factories_state[loser_prof[1]][1]}{' '}
+                  times
+                </span>{' '}
+                and{' '}
+                <span style={{}}>
+                  had {factories_state[loser_prof[1]][2]} failures
+                </span>
+                .
+              </div>
+            )
+          })}
+        </div>
         <p
           style={{
             background: '#ddd',
