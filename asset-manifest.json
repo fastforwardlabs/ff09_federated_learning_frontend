@@ -1,8 +1,18 @@
 {
-  "main.css": "static/css/main.91315a28.css",
-  "main.css.map": "static/css/main.91315a28.css.map",
-  "main.js": "static/js/main.bc19a82c.js",
-  "main.js.map": "static/js/main.bc19a82c.js.map",
+  "main.css": "static/css/main.84970eab.css",
+  "main.css.map": "static/css/main.84970eab.css.map",
+  "main.js": "static/js/main.289b81b7.js",
+  "main.js.map": "static/js/main.289b81b7.js.map",
+  "static/media/IBMPlexMono-Bold.woff": "static/media/IBMPlexMono-Bold.e497c7d8.woff",
+  "static/media/IBMPlexMono-Bold.woff2": "static/media/IBMPlexMono-Bold.0fe304ab.woff2",
+  "static/media/IBMPlexMono-BoldItalic.woff": "static/media/IBMPlexMono-BoldItalic.0cc0d044.woff",
+  "static/media/IBMPlexMono-BoldItalic.woff2": "static/media/IBMPlexMono-BoldItalic.4289aa97.woff2",
+  "static/media/IBMPlexMono-Italic.woff": "static/media/IBMPlexMono-Italic.cb143f14.woff",
+  "static/media/IBMPlexMono-Italic.woff2": "static/media/IBMPlexMono-Italic.e013d7fb.woff2",
+  "static/media/IBMPlexMono-Regular.woff": "static/media/IBMPlexMono-Regular.3bbb37eb.woff",
+  "static/media/IBMPlexMono-Regular.woff2": "static/media/IBMPlexMono-Regular.c7832ed5.woff2",
   "static/media/fed.png": "static/media/fed.280a881f.png",
-  "static/media/loc.png": "static/media/loc.1fa4344e.png"
+  "static/media/federated_predictive.png": "static/media/federated_predictive.3ba272f6.png",
+  "static/media/loc.png": "static/media/loc.1fa4344e.png",
+  "static/media/local_predictive.png": "static/media/local_predictive.577b0b81.png"
 }
