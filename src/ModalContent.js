@@ -16,6 +16,7 @@ import corrective_png from './images/corrective.png'
 import preventative_png from './images/preventative.png'
 import local_predictive_png from './images/local_predictive.png'
 import federated_predictive_png from './images/federated_predictive.png'
+import turbofan_png from './images/turbofan.png'
 import { commas, compare, span_color } from './Utilties'
 import { max } from 'lodash'
 
@@ -524,6 +525,61 @@ export function Finish({
         >
           Keep playing
         </button>
+      </p>
+    </React.Fragment>
+  )
+  return <Modalify title={title} content={content} />
+}
+
+export function TurbofanModal({}) {
+  let title = `Turbofan view info`
+  let content = (
+    <React.Fragment>
+      <p>
+        The factory turbofan view shows you the status of each of your
+        turbofans. The top strip shows the turbofan status over time.{' '}
+        <span style={{ ...span_color('#ddd'), color: 'black' }}>
+          Normal productive hours are shown in gray
+        </span>
+        ,{' '}
+        <span style={{ ...span_color(maintain_color), color: 'black' }}>
+          hours spent in maintenance in yellow
+        </span>
+        , and{' '}
+        <span style={{ ...span_color(repair_color), color: 'black' }}>
+          hours spent in failure repair in red
+        </span>
+        . A factory strategy change is marked with a{' '}
+        <span style={{ color: '#777' }}>●</span> dot. Because it shows
+        maintenance and failures, the status strip is a good way to get a quick
+        overview of how your maintenance strategy has been doing lately.
+      </p>
+      <div
+        style={{
+          border: 'solid 1px black',
+          marginBottom: 10.5,
+        }}
+      >
+        <img src={turbofan_png} alt="" />
+      </div>
+      <p>
+        On the left are graphs of data from the turbofan. This data include
+        operational settings, temperatures, pressures, and fan rotation speeds
+        for various components of the turbofan. All data is from the{' '}
+        <a
+          href="https://ti.arc.nasa.gov/tech/dash/groups/pcoe/prognostic-data-repository/"
+          target="_blank"
+        >
+          Turbofan Engine Degradation Simulation Data Set
+        </a>
+        .
+      </p>
+      <p>
+        On the right is a graph showing your strategy for maintenance applied to
+        the turbofan. You can read about more about the different strategies
+        using the info button under the{' '}
+        <span style={{ ...span_color(factory_colors[0]) }}>Your Strategy</span>{' '}
+        section.
       </p>
     </React.Fragment>
   )

@@ -126,6 +126,7 @@ class Paperclips extends Component {
     this.openInfo = this.openInfo.bind(this)
     this.info_index = null
     this.setModalState = this.setModalState.bind(this)
+    this.openTurbofanInfo = this.openTurbofanInfo.bind(this)
   }
 
   upgradeYourStrat(strat) {
@@ -144,6 +145,11 @@ class Paperclips extends Component {
   openInfo(info_index) {
     this.setModalState('strategy_info')
     this.info_index = info_index
+    this.openModal()
+  }
+
+  openTurbofanInfo() {
+    this.setModalState('turbofan')
     this.openModal()
   }
 
@@ -795,6 +801,7 @@ class Paperclips extends Component {
                             your_factories_strategies={
                               this.factories_strategies[0]
                             }
+                            openTurbofanInfo={this.openTurbofanInfo}
                           />
                           <div className="hb" style={{ top: -0.5 }} />
                         </div>

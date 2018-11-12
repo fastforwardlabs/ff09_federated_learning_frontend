@@ -1,6 +1,12 @@
 import React, { Component } from 'react'
 import { commas, compare } from './Utilties'
-import { Welcome, Upgrade, StrategyInfo, Finish } from './ModalContent'
+import {
+  Welcome,
+  Upgrade,
+  StrategyInfo,
+  TurbofanModal,
+  Finish,
+} from './ModalContent'
 
 let line_height = 21
 
@@ -52,6 +58,9 @@ class Modal extends Component {
             requirements={this.props.requirements}
           />
         )
+        break
+      case 'turbofan':
+        content = <TurbofanModal closeModal={this.props.closeModal} />
         break
       case 'finish':
         content = (
