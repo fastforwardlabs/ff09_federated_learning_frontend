@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import {
   maintained_delay,
   exploded_delay,
@@ -22,84 +22,102 @@ import { max } from 'lodash'
 
 let data_scientist_pause = 500 - 1
 
-export function Welcome({ factory_names, closeModal, counter }) {
-  let title = `Welcome to Turbofan Tycoon`
-  let content = (
-    <React.Fragment>
-      <p
-        style={{
-          fontStyle: 'italic',
-          margin: '0 -4px 10.5px',
-          padding: '0 4px',
-        }}
-      >
-        Turbofan Tycoon is a research prototype by{' '}
-        <a href="#">Cloudera Fast Forward Labs</a> built to accompany our report
-        on Federated Learning. It uses realistic turbofan data to show the
-        benefites of using a federative predictive model. For more background,{' '}
-        <a href="#">read our blog post</a>.
-      </p>
-      <p>
-        In Turbofan Tycoon, you play as the proud operator of a factory
-        containing four turbofans. Every hour a turbofan runs you make $
-        {cycle_profit}. With four running turbofans, that means{' '}
-        <span style={{ ...span_color(factory_colors[0]) }}>Your Factory</span>{' '}
-        is banking ${commas(cycle_profit * 4)} an hour. Not bad, right?
-      </p>
-      <p>
-        The problem is, turbofans don't run forever.{' '}
-        <span style={{ ...span_color(repair_color), color: 'black' }}>
-          A broken turbofan costs ${commas(exploded_penalty)} to repair, and it
-          takes {exploded_delay} hours to get it running again.
-        </span>{' '}
-        If you catch it before it breaks,{' '}
-        <span style={{ ...span_color(maintain_color), color: 'black' }}>
-          turbofan maintenance costs ${commas(maitained_penalty)} and takes{' '}
-          {maintained_delay} hours to perform.
-        </span>{' '}
-      </p>
-      <p>
-        You need to pick a good maintenance strategy, but for that you need data
-        and expertise. You unlock new maintenance strategies as you progress:
-        ranging from an initial repair-it-when-it-breaks{' '}
-        <strong>corrective</strong> approach all the way up to a{' '}
-        <strong>federated predictive</strong> model. Use the controls under{' '}
-        <span style={{ ...span_color(factory_colors[0]) }}>Your Strategy</span>{' '}
-        to upgrade your strategy as new strategies become available. We'll guide
-        you through the first round of upgrades.
-      </p>
-      <p>
-        Under{' '}
-        <span style={{ ...span_color(factory_colors[0]) }}>Your Factory</span>{' '}
-        you can see the state of each of your turbofans: including the sensor
-        data and current maintenance strategy. You'll be competing against three
-        other aspiring tycoons:{' '}
-        <span style={{ ...span_color(factory_colors[1]) }}>
-          {factory_names[1]}
-        </span>
-        ,{' '}
-        <span style={{ ...span_color(factory_colors[2]) }}>
-          {factory_names[2]}
-        </span>{' '}
-        and{' '}
-        <span style={{ ...span_color(factory_colors[3]) }}>
-          {factory_names[3]}
-        </span>
-        , to reach $3,000,000 profit. You can see your relative progress on the{' '}
-        <span style={{ ...span_color('#777') }}>Factory Leaderboard</span>. Your
-        competitors will be upgrading their strategies as well, so you'll have
-        to move fast. You can control the speed of the simulation using the{' '}
-        <span style={{ ...span_color('#777') }}>Simulation controls</span> at
-        the bottom.
-      </p>
-      <div style={{ textAlign: 'right' }}>
-        <button class="newbutton" onClick={closeModal}>
-          {counter === 0 ? 'start' : 'keep'} playing
-        </button>
-      </div>
-    </React.Fragment>
-  )
-  return <Modalify title={title} content={content} />
+export class Welcome extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+    this.primary_button = React.createRef()
+  }
+  componentDidMount() {
+    this.primary_button.current.focus()
+  }
+  render() {
+    let { factory_names, closeModal, counter } = this.props
+    let title = `Welcome to Turbofan Tycoon`
+    let content = (
+      <React.Fragment>
+        <p
+          style={{
+            fontStyle: 'italic',
+            margin: '0 -4px 10.5px',
+            padding: '0 4px',
+          }}
+        >
+          Turbofan Tycoon is a research prototype by{' '}
+          <a href="#">Cloudera Fast Forward Labs</a> built to accompany our
+          report on Federated Learning. It uses realistic turbofan data to show
+          the benefites of using a federative predictive model. For more
+          background, <a href="#">read our blog post</a>.
+        </p>
+        <p>
+          In Turbofan Tycoon, you play as the proud operator of a factory
+          containing four turbofans. Every hour a turbofan runs you make $
+          {cycle_profit}. With four running turbofans, that means{' '}
+          <span style={{ ...span_color(factory_colors[0]) }}>Your Factory</span>{' '}
+          is banking ${commas(cycle_profit * 4)} an hour. Not bad, right?
+        </p>
+        <p>
+          The problem is, turbofans don't run forever.{' '}
+          <span style={{ ...span_color(repair_color), color: 'black' }}>
+            A broken turbofan costs ${commas(exploded_penalty)} to repair, and
+            it takes {exploded_delay} hours to get it running again.
+          </span>{' '}
+          If you catch it before it breaks,{' '}
+          <span style={{ ...span_color(maintain_color), color: 'black' }}>
+            turbofan maintenance costs ${commas(maitained_penalty)} and takes{' '}
+            {maintained_delay} hours to perform.
+          </span>{' '}
+        </p>
+        <p>
+          You need to pick a good maintenance strategy, but for that you need
+          data and expertise. You unlock new maintenance strategies as you
+          progress: ranging from an initial repair-it-when-it-breaks{' '}
+          <strong>corrective</strong> approach all the way up to a{' '}
+          <strong>federated predictive</strong> model. Use the controls under{' '}
+          <span style={{ ...span_color(factory_colors[0]) }}>
+            Your Strategy
+          </span>{' '}
+          to upgrade your strategy as new strategies become available. We'll
+          guide you through the first round of upgrades.
+        </p>
+        <p>
+          Under{' '}
+          <span style={{ ...span_color(factory_colors[0]) }}>Your Factory</span>{' '}
+          you can see the state of each of your turbofans: including the sensor
+          data and current maintenance strategy. You'll be competing against
+          three other aspiring tycoons:{' '}
+          <span style={{ ...span_color(factory_colors[1]) }}>
+            {factory_names[1]}
+          </span>
+          ,{' '}
+          <span style={{ ...span_color(factory_colors[2]) }}>
+            {factory_names[2]}
+          </span>{' '}
+          and{' '}
+          <span style={{ ...span_color(factory_colors[3]) }}>
+            {factory_names[3]}
+          </span>
+          , to reach $3,000,000 profit. You can see your relative progress on
+          the <span style={{ ...span_color('#777') }}>Factory Leaderboard</span>
+          . Your competitors will be upgrading their strategies as well, so
+          you'll have to move fast. You can control the speed of the simulation
+          using the{' '}
+          <span style={{ ...span_color('#777') }}>Simulation controls</span> at
+          the bottom.
+        </p>
+        <div style={{ textAlign: 'right' }}>
+          <button
+            ref={this.primary_button}
+            class="newbutton"
+            onClick={closeModal}
+          >
+            {counter === 0 ? 'start' : 'keep'} playing
+          </button>
+        </div>
+      </React.Fragment>
+    )
+    return <Modalify title={title} content={content} />
+  }
 }
 
 function correctiveInfo() {
@@ -306,229 +324,255 @@ export function StrategyInfo({ info_index, requirements, closeModal }) {
   return <Modalify title={title} content={content} />
 }
 
-export function Upgrade({ upgrade, upgradeYourStrat, closeModal }) {
-  let trigger
-  let advice
-  let strategy_info
-  switch (upgrade) {
-    case 'preventative':
-      trigger = (
-        <span>
-          The bad news is your factory{' '}
-          <span style={{ ...span_color(repair_color), color: 'black' }}>
-            has experienced four turbofan failures
+export class Upgrade extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+    this.primary_button = React.createRef()
+  }
+  componentDidMount() {
+    this.primary_button.current.focus()
+  }
+
+  render() {
+    let { upgrade, upgradeYourStrat, closeModal } = this.props
+    let trigger
+    let advice
+    let strategy_info
+    switch (upgrade) {
+      case 'preventative':
+        trigger = (
+          <span>
+            The bad news is your factory{' '}
+            <span style={{ ...span_color(repair_color), color: 'black' }}>
+              has experienced four turbofan failures
+            </span>
+            . The good news is, using the data from those failures, you now have
+            the option to upgrade to a <strong>preventative</strong> maintenance
+            strategy.
           </span>
-          . The good news is, using the data from those failures, you now have
-          the option to upgrade to a <strong>preventative</strong> maintenance
-          strategy.
-        </span>
-      )
-      advice = `Our advice: though not particularly sophisticated, a preventative
+        )
+        advice = `Our advice: though not particularly sophisticated, a preventative
             strategy is definitely a step up from just waiting for your engines
             to fail. We highly recommend this upgrade.`
-      strategy_info = preventativeInfo()
-      break
-    case 'local predictive':
-      trigger = (
-        <span>
-          After a long search, your factory has been able to hire a data
-          scientist, unlocking the possibility of using a{' '}
-          <strong>local predictive</strong> model for your maintenance strategy.
-        </span>
-      )
-      advice = `Our advice: Now we're cooking with data science! Upgrade strongly
+        strategy_info = preventativeInfo()
+        break
+      case 'local predictive':
+        trigger = (
+          <span>
+            After a long search, your factory has been able to hire a data
+            scientist, unlocking the possibility of using a{' '}
+            <strong>local predictive</strong> model for your maintenance
+            strategy.
+          </span>
+        )
+        advice = `Our advice: Now we're cooking with data science! Upgrade strongly
       recommended.`
-      strategy_info = localPredictiveInfo()
-      break
-    case 'federated predictive':
-      trigger = (
-        <span>
-          A group of factory owners have approached you with the opportunity to
-          participate in their <strong>federated predictive</strong> model.
-        </span>
-      )
-      advice = `Our advice: with access to more data the predictive model strategy
+        strategy_info = localPredictiveInfo()
+        break
+      case 'federated predictive':
+        trigger = (
+          <span>
+            A group of factory owners have approached you with the opportunity
+            to participate in their <strong>federated predictive</strong> model.
+          </span>
+        )
+        advice = `Our advice: with access to more data the predictive model strategy
       becomes even more powerful. Upgrade for the ultimate in efficient
       maintenance.`
-      strategy_info = federatedPredictiveInfo()
-      break
-  }
+        strategy_info = federatedPredictiveInfo()
+        break
+    }
 
-  let title = `Strategy upgrade available`
-  let content = (
-    <React.Fragment>
-      <p
-        style={{
-          fontStyle: 'italic',
-          padding: '0 4px',
-          margin: '0 -4px 10.5px',
-        }}
-      >
-        {trigger}
-      </p>
-      {strategy_info}
-      <p
-        style={{
-          background: '#ddd',
-          color: 'black',
-          padding: '0 4px',
-          margin: '0 -4px 10.5px',
-          fontStyle: 'italic',
-        }}
-      >
-        {advice}
-      </p>
-      <p>
-        Upgrade to <strong>{upgrade}</strong>?
-      </p>
-      <p style={{ textAlign: 'right' }}>
-        <button className="newbutton" onClick={closeModal}>
-          No
-        </button>{' '}
-        <button
-          className="newbutton"
-          onClick={() => {
-            upgradeYourStrat(upgrade)
-            closeModal()
+    let title = `Strategy upgrade available`
+    let content = (
+      <React.Fragment>
+        <p
+          style={{
+            fontStyle: 'italic',
+            padding: '0 4px',
+            margin: '0 -4px 10.5px',
           }}
         >
-          Upgrade to {upgrade}
-        </button>
-      </p>
-    </React.Fragment>
-  )
-  return <Modalify title={title} content={content} />
+          {trigger}
+        </p>
+        {strategy_info}
+        <p
+          style={{
+            background: '#ddd',
+            color: 'black',
+            padding: '0 4px',
+            margin: '0 -4px 10.5px',
+            fontStyle: 'italic',
+          }}
+        >
+          {advice}
+        </p>
+        <p>
+          Upgrade to <strong>{upgrade}</strong>?
+        </p>
+        <p style={{ textAlign: 'right' }}>
+          <button className="newbutton" onClick={closeModal}>
+            No
+          </button>{' '}
+          <button
+            ref={this.primary_button}
+            className="newbutton"
+            onClick={() => {
+              upgradeYourStrat(upgrade)
+              closeModal()
+            }}
+          >
+            Upgrade to {upgrade}
+          </button>
+        </p>
+      </React.Fragment>
+    )
+    return <Modalify title={title} content={content} />
+  }
 }
 
-export function Finish({
-  keepPlaying,
-  closeModal,
-  factories_strategies,
-  factories_state,
-  factory_names,
-  prof_map,
-  counter,
-}) {
-  let strategy_time = factories_strategies.map(fact => {
-    return fact.map((double, i) => {
-      let time
-      if (i === fact.length - 1) {
-        time = counter - double[1]
-      } else {
-        time = fact[i + 1][1] - double[1]
-      }
-      return [double[0], time]
-    })
-  })
-  let longest_strats = strategy_time.map(fact => {
-    let just_time = fact.map(d => d[1])
-    let max_time = max(just_time)
-    let maxi = just_time.indexOf(max_time)
-    return maxi
-  })
-
-  let winner_prof = prof_map[0]
-  let losers_prof = prof_map.slice(1)
-  let prepo = winner_prof[1] === 0 ? 'Your' : 'Their'
-  let prepo2 = winner_prof[1] === 0 ? 'you' : 'they'
-
-  let winner_long_strat =
-    strategy_time[winner_prof[1]][longest_strats[winner_prof[1]]]
-
-  let loser_strings = ['came in second', 'got third', 'came in last']
-
-  let you_won = winner_prof[1] === 0 ? true : false
-  let winning_message
-  if (you_won) {
-    winning_message = (
-      <p>
-        Congratulations!{' '}
-        <span style={{ ...span_color(factory_colors[0]) }}>Your Factory</span>{' '}
-        was the first to reach ${commas(money_finish)} profit. You are a real
-        turbofan tycoon in the making.
-      </p>
-    )
-  } else {
-    winning_message = (
-      <p>
-        Bummer!{' '}
-        <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>
-          {factory_names[winner_prof[1]]}
-        </span>{' '}
-        reached ${commas(money_finish)} profit before you. There's always next
-        time!
-      </p>
-    )
+export class Finish extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+    this.primary_button = React.createRef()
   }
+  componentDidMount() {
+    this.primary_button.current.focus()
+  }
+  render() {
+    let {
+      keepPlaying,
+      closeModal,
+      factories_strategies,
+      factories_state,
+      factory_names,
+      prof_map,
+      counter,
+    } = this.props
+    let strategy_time = factories_strategies.map(fact => {
+      return fact.map((double, i) => {
+        let time
+        if (i === fact.length - 1) {
+          time = counter - double[1]
+        } else {
+          time = fact[i + 1][1] - double[1]
+        }
+        return [double[0], time]
+      })
+    })
+    let longest_strats = strategy_time.map(fact => {
+      let just_time = fact.map(d => d[1])
+      let max_time = max(just_time)
+      let maxi = just_time.indexOf(max_time)
+      return maxi
+    })
 
-  let title = `Finish line`
-  let content = (
-    <React.Fragment>
-      {winning_message}
-      <p>
-        <span style={{ ...span_color('#777') }}>Final Standings:</span>
-      </p>
-      <p>
-        <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>
-          {factory_names[winner_prof[1]]}
-        </span>{' '}
-        is the winner with a profit of ${commas(winner_prof[0])}. {prepo}{' '}
-        primary strategy was <strong>{winner_long_strat[0]}</strong>, which{' '}
-        {prepo2} used {Math.round((winner_long_strat[1] / counter) * 100)}% of
-        the time.
-      </p>
-      {losers_prof.map((loser_prof, i) => {
-        let loser_long_strat =
-          strategy_time[loser_prof[1]][longest_strats[loser_prof[1]]]
-        let prepo = loser_prof[1] === 0 ? 'Your' : 'Their'
-        let prepo2 = loser_prof[1] === 0 ? 'you' : 'they'
-        return (
-          <p>
-            <span style={{ ...span_color(factory_colors[loser_prof[1]]) }}>
-              {factory_names[loser_prof[1]]}
-            </span>{' '}
-            {loser_strings[i]} with a profit of ${commas(loser_prof[0])}.{' '}
-            {prepo} primary strategy was <strong>{loser_long_strat[0]}</strong>,
-            which {prepo2} used{' '}
-            {Math.round((loser_long_strat[1] / counter) * 100)}% of the time.
-          </p>
-        )
-      })}
-      <p
-        style={{
-          background: '#ddd',
-          color: 'black',
-          padding: '0 4px',
-          margin: '0 -4px 10.5px',
-          fontStyle: 'italic',
-        }}
-      >
-        For more information on the making of this prototype and Cloudera Fast
-        Forward Lab's work on federated learning. Check out our{' '}
-        <a href="#">blog post</a>.
-      </p>
+    let winner_prof = prof_map[0]
+    let losers_prof = prof_map.slice(1)
+    let prepo = winner_prof[1] === 0 ? 'Your' : 'Their'
+    let prepo2 = winner_prof[1] === 0 ? 'you' : 'they'
 
-      <p>
-        You are welcome to continue the simulation. Remember, you can control
-        the speed of the simulation using the controls at the bottom. There will
-        now be a "skip 1,000" button that lets you fast forward 1,000 hours at a
-        time. By switching strategies and fast forwarding a few times you can
-        see the strategy's effect over time.
-      </p>
-      <p style={{ textAlign: 'right' }}>
-        <button
-          className="newbutton"
-          onClick={() => {
-            keepPlaying()
-            closeModal()
+    let winner_long_strat =
+      strategy_time[winner_prof[1]][longest_strats[winner_prof[1]]]
+
+    let loser_strings = ['came in second', 'got third', 'came in last']
+
+    let you_won = winner_prof[1] === 0 ? true : false
+    let winning_message
+    if (you_won) {
+      winning_message = (
+        <p>
+          Congratulations!{' '}
+          <span style={{ ...span_color(factory_colors[0]) }}>Your Factory</span>{' '}
+          was the first to reach ${commas(money_finish)} profit. You are a real
+          turbofan tycoon in the making.
+        </p>
+      )
+    } else {
+      winning_message = (
+        <p>
+          Bummer!{' '}
+          <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>
+            {factory_names[winner_prof[1]]}
+          </span>{' '}
+          reached ${commas(money_finish)} profit before you. There's always next
+          time!
+        </p>
+      )
+    }
+
+    let title = `Finish line`
+    let content = (
+      <React.Fragment>
+        {winning_message}
+        <p>
+          <span style={{ ...span_color('#777') }}>Final Standings:</span>
+        </p>
+        <p>
+          <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>
+            {factory_names[winner_prof[1]]}
+          </span>{' '}
+          is the winner with a profit of ${commas(winner_prof[0])}. {prepo}{' '}
+          primary strategy was <strong>{winner_long_strat[0]}</strong>, which{' '}
+          {prepo2} used {Math.round((winner_long_strat[1] / counter) * 100)}% of
+          the time.
+        </p>
+        {losers_prof.map((loser_prof, i) => {
+          let loser_long_strat =
+            strategy_time[loser_prof[1]][longest_strats[loser_prof[1]]]
+          let prepo = loser_prof[1] === 0 ? 'Your' : 'Their'
+          let prepo2 = loser_prof[1] === 0 ? 'you' : 'they'
+          return (
+            <p>
+              <span style={{ ...span_color(factory_colors[loser_prof[1]]) }}>
+                {factory_names[loser_prof[1]]}
+              </span>{' '}
+              {loser_strings[i]} with a profit of ${commas(loser_prof[0])}.{' '}
+              {prepo} primary strategy was{' '}
+              <strong>{loser_long_strat[0]}</strong>, which {prepo2} used{' '}
+              {Math.round((loser_long_strat[1] / counter) * 100)}% of the time.
+            </p>
+          )
+        })}
+        <p
+          style={{
+            background: '#ddd',
+            color: 'black',
+            padding: '0 4px',
+            margin: '0 -4px 10.5px',
+            fontStyle: 'italic',
           }}
         >
-          Keep playing
-        </button>
-      </p>
-    </React.Fragment>
-  )
-  return <Modalify title={title} content={content} />
+          For more information on the making of this prototype and Cloudera Fast
+          Forward Lab's work on federated learning. Check out our{' '}
+          <a href="#">blog post</a>.
+        </p>
+
+        <p>
+          You are welcome to continue the simulation. Remember, you can control
+          the speed of the simulation using the controls at the bottom. There
+          will now be a "skip 1,000" button that lets you fast forward 1,000
+          hours at a time. By switching strategies and fast forwarding a few
+          times you can see the strategy's effect over time.
+        </p>
+        <p style={{ textAlign: 'right' }}>
+          <button
+            ref={this.primary_button}
+            className="newbutton"
+            onClick={() => {
+              keepPlaying()
+              closeModal()
+            }}
+          >
+            Keep playing
+          </button>
+        </p>
+      </React.Fragment>
+    )
+    return <Modalify title={title} content={content} />
+  }
 }
 
 export function TurbofanModal({}) {

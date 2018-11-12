@@ -258,7 +258,19 @@ class Paperclips extends Component {
     this.props.reset()
   }
 
+  keyCheck(e) {
+    if (e.keyCode === 27) {
+      //Do whatever when esc is pressed
+      this.closeModal()
+    } else if (e.keyCode === 32) {
+      if (!this.state.modal_display) {
+        this.togglePlay()
+      }
+    }
+  }
+
   componentDidMount() {
+    document.addEventListener('keydown', this.keyCheck.bind(this), false)
     this.setState(
       {
         counter: 0,
@@ -267,6 +279,10 @@ class Paperclips extends Component {
         this.play()
       }
     )
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.keyCheck, false)
   }
 
   play() {
