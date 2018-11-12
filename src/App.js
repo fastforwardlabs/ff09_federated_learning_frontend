@@ -7,6 +7,7 @@ import Paperclips2 from './Paperclips2'
 import Paperclips3 from './Paperclips3'
 import Paperclips4 from './Paperclips4'
 import { debounce } from 'lodash'
+import Turbofan from './Turbofan'
 
 let speed_bound = 10
 let speeds = [80, 40, 20, 10, 4, 3, 2, 1]
@@ -117,9 +118,23 @@ class App extends Component {
             toggleSolo={this.toggleSolo}
           />
         ) : (
-          <div>
-            loading
-            <span style={{ fontStyle: 'italic' }}>...</span>
+          <div
+            style={{
+              display: 'grid',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh',
+            }}
+          >
+            <div>
+              <div style={{ width: 42, margin: '0 auto 10.5px' }}>
+                <Turbofan width={42} height={42} />
+              </div>
+              <div>
+                Loading turbofans
+                <span style={{ fontStyle: 'italic' }}>...</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

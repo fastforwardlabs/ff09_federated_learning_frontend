@@ -47,7 +47,7 @@ export class Welcome extends Component {
           Turbofan Tycoon is a research prototype by{' '}
           <a href="#">Cloudera Fast Forward Labs</a> built to accompany our
           report on Federated Learning. It uses realistic turbofan data to show
-          the benefites of using a federative predictive model. For more
+          the benefites of using a federated predictive model. For more
           background, <a href="#">read our blog post</a>.
         </p>
         <p>
