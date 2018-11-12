@@ -39,3 +39,11 @@ export function compare(a, b) {
   }
   return 0
 }
+
+export let span_color = color => {
+  return {
+    color: 'white',
+    background: color,
+    boxShadow: `-4px 0 0 ${color}, 4px 0 0 ${color}`,
+  }
+}

@@ -60,6 +60,7 @@ export let factory_colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a']
 
 export let maintain_color = '#fffa71'
 export let repair_color = '#ff8282'
+export let profit_color = 'rgb(206, 255, 211)'
 
 export function maitenanceCheck(rev, strategy_name, failure_mean) {
   switch (strategy_name) {
@@ -232,7 +233,8 @@ export let requirement_strings = [
 export let profit_array_length = 300
 
 export let finish = 3000
-export let money_finish = 2000000
+export let money_finish = 3 * 1000 * 1000
+// money_finish = 400000
 
 export let strategy_descriptions = [
   'turbofans are repaired when they fail',

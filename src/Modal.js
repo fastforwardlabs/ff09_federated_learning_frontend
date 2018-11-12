@@ -1,29 +1,73 @@
 import React, { Component } from 'react'
-import {
-  strategy_names,
-  mCheck,
-  maintained_delay,
-  exploded_delay,
-  calculateProfit,
-  repair_color,
-  maintain_color,
-  makeName,
-  makeNames,
-  requirement_strings,
-  factory_colors,
-  profit_array_length,
-  finish,
-  strategy_descriptions,
-  cycle_profit,
-  exploded_penalty,
-  maitained_penalty,
-} from './Constants'
 import { commas, compare } from './Utilties'
+import { Welcome, Upgrade, StrategyInfo, Finish } from './ModalContent'
 
 let line_height = 21
 
 class Modal extends Component {
   render() {
+    let content = null
+    switch (this.props.modal_state) {
+      case 'intro':
+        content = (
+          <Welcome
+            factory_names={this.props.factory_names}
+            closeModal={this.props.closeModal}
+            counter={this.props.counter}
+          />
+        )
+        break
+      case 'preventative':
+        content = (
+          <Upgrade
+            closeModal={this.props.closeModal}
+            upgradeYourStrat={this.props.upgradeYourStrat}
+            upgrade="preventative"
+          />
+        )
+        break
+      case 'local predictive':
+        content = (
+          <Upgrade
+            closeModal={this.props.closeModal}
+            upgradeYourStrat={this.props.upgradeYourStrat}
+            upgrade="local predictive"
+          />
+        )
+        break
+      case 'federated predictive':
+        content = (
+          <Upgrade
+            closeModal={this.props.closeModal}
+            upgradeYourStrat={this.props.upgradeYourStrat}
+            upgrade="federated predictive"
+          />
+        )
+        break
+      case 'strategy_info':
+        content = (
+          <StrategyInfo
+            closeModal={this.props.closeModal}
+            info_index={this.props.info_index}
+            requirements={this.props.requirements}
+          />
+        )
+        break
+      case 'finish':
+        content = (
+          <Finish
+            closeModal={this.props.closeModal}
+            keepPlaying={this.props.keepPlaying}
+            factories_strategies={this.props.factories_strategies}
+            factories_state={this.props.factories_state}
+            prof_map={this.props.prof_map}
+            factory_names={this.props.factory_names}
+            counter={this.props.counter}
+          />
+        )
+        break
+    }
+
     return (
       <div
         style={{
@@ -33,65 +77,57 @@ class Modal extends Component {
           width: '100%',
           height: '100vh',
           display: 'grid',
-          justifyContent: 'center',
-          alignContent: 'center',
+          gridTemplateRows: '10.5px auto 10.5px',
+          background: 'rgba(0, 0, 0, 0.1)',
+          zIndex: 9,
+          overflow: 'auto',
         }}
       >
-        <div
-          style={{
-            border: 'solid 2px black',
-            background: 'white',
-            width: 600,
-            padding: 2,
-          }}
-        >
+        <div />
+        {content ? (
           <div
             style={{
-              border: 'solid 4px black',
+              display: 'grid',
+              justifyContent: 'center',
+              alignItems: 'start',
             }}
           >
             <div
-              style={{ background: '#000', color: 'white', padding: '0 4px' }}
+              style={{
+                border: 'solid 2px black',
+                background: 'white',
+                width: '100%',
+                maxWidth: 600,
+                padding: 2,
+                position: 'relative',
+              }}
             >
-              Modal
-            </div>
-            <div style={{ padding: '0 4px' }}>
-              {' '}
-              <p style={{ fontStyle: 'italic' }}>
-                Turbofan Tycoon is a research prototype by{' '}
-                <a href="#">Cloudera Fast Forward Labs</a> built to accompany
-                our report on Federated Learning. It uses realistic turbofan
-                data to show the benefites of using a federative predictive
-                model. For more background, <a href="#">read our blog post</a>.
-              </p>
-              <p>
-                In Turbofan Tycoon, you play as the proud operator of a factory
-                containing four turbofans. Every hour a turbofan runs you make $
-                {cycle_profit}. With four running turbofans, that means Your
-                Factory is bringing in ${cycle_profit * 4} an hour. Not bad,
-                right?{' '}
-              </p>
-              <p>
-                The problem is, turbofans don't run forever. A broken turbofan
-                costs ${commas(exploded_penalty)} to repair, and it takes{' '}
-                {exploded_delay} hours to get it running again. If you catch it
-                before it breaks, turbofan maintenance costs $
-                {commas(maitained_penalty)} and takes {maintained_delay} hours
-                to perform.
-              </p>
-              <p>
-                You need to pick a good maintenance strategy, but for that you
-                need data and expertise. You can unlock new maintenance
-                strategies as you gain experience: moving from an initial
-                repair-it-when-it-breaks <strong>corrective</strong> approach
-                all the way up to a <strong>federated predictive</strong> model.
-                Use the Your Strategy controls to upgrade your strategy as new
-                methods become available. We'll guide you through the first
-                round of upgrades.
-              </p>
+              <div
+                style={{
+                  position: 'absolute',
+                  right: -2,
+                  top: -2,
+                  color: 'white',
+                  paddingTop: 1,
+                }}
+              >
+                <button
+                  onClick={() => {
+                    if (this.props.modal_state === 'finish') {
+                      this.props.keepPlaying()
+                    } else {
+                      this.props.closeModal()
+                    }
+                  }}
+                  className="unbutton closebutton"
+                >
+                  X
+                </button>
+              </div>
+              {content}
             </div>
           </div>
-        </div>
+        ) : null}
       </div>
     )
   }

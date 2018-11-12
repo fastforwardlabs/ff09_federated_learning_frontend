@@ -1,0 +1,10 @@
+import React, { Component } from 'react'
+import Canvas from './Canvas'
+
+class Dial extends Component {
+  render() {
+    return <div>test</div>
+  }
+}
+
+export default Dial

@@ -172,7 +172,7 @@ img {
 
 .strat_image {
   display: block;
-  max-height: 161px;
+  max-height: 128px;
   float: left;
 }
 
@@ -224,11 +224,14 @@ img {
 .closebutton {
   position: relative;
   top: -1px;
-  padding: 0 5px;
+  padding: 4px 12px 0 0;
   text-decoration: none;
+  height: 27px;
+  width: 40px;
+  text-align: right;
 }
 .closebutton:hover {
-  color: #ddd;
+  text-decoration: underline;
 }
 
 .h-border {
@@ -258,7 +261,7 @@ img {
 .newbutton {
   border: solid 1px black;
   background: red;
-  padding: 0 2px;
+  padding: 0 8px;
   border-radius: 3px;
   text-decoration: none;
   background: -webkit-linear-gradient(top, #ffffff, #bbb);
@@ -275,4 +278,13 @@ img {
 .newbutton:disabled {
   opacity: 0.6;
   border: 1px solid #aaa;
+}
+
+.modal-content p {
+  margin: 0;
+  margin-bottom: 10.5px;
+}
+
+.modal-content p:last-child {
+  margin-bottom: 0;
 }

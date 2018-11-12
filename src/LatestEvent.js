@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { max } from 'lodash'
 import { factory_colors } from './Constants'
-import { commas } from './Utilties'
+import { commas, span_color } from './Utilties'
 
 class LatestEvent extends Component {
   render() {
@@ -22,10 +22,10 @@ class LatestEvent extends Component {
           <span>Simulation started.</span>
         ) : (
           <span style={{}}>
+            <span style={{ color: last_color }}>●</span>{' '}
             <span
               style={{
-                color: last_color,
-                fontWeight: 'bold',
+                ...span_color(last_color),
               }}
             >
               {last_name}

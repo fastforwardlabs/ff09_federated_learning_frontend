@@ -18,8 +18,8 @@ class App extends Component {
       ww: window.innerWidth,
       reset_key: 0,
       speed: 5,
-      show_intro: false,
-      auto_upgrade: true,
+      show_intro: true,
+      auto_upgrade: false,
       solo_mode: false,
     }
     this.adjustSpeed = this.adjustSpeed.bind(this)
@@ -114,7 +114,10 @@ class App extends Component {
             toggleSolo={this.toggleSolo}
           />
         ) : (
-          'loading...'
+          <div>
+            loading
+            <span style={{ fontStyle: 'italic' }}>...</span>
+          </div>
         )}
       </div>
     )
