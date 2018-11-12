@@ -20,6 +20,7 @@ import turbofan_png from './images/turbofan.png'
 import { commas, compare, span_color } from './Utilties'
 import { max } from 'lodash'
 
+let line_height = 21
 let data_scientist_pause = 500 - 1
 
 export class Welcome extends Component {
@@ -207,9 +208,11 @@ function localPredictiveInfo() {
       <p>
         You can see how this strategy is applied in each turbofan's strategy
         section. The graph plots the model's prediction of when the turbofan
-        will fail (y-axis) by the hours run (x-axis). The dotted line shows the
-        ten-hour threshold – when the prediction drops below that maintenance is
-        performed.
+        will fail (y-axis) by the hours run (x-axis).{' '}
+        <span style={{ ...span_color(maintain_color), color: 'black' }}>
+          The dotted line shows the ten-hour threshold – when the prediction
+          drops below that maintenance is performed.
+        </span>
       </p>
     </React.Fragment>
   )
@@ -242,9 +245,11 @@ function federatedPredictiveInfo() {
       <p>
         You can see how this strategy is applied in each turbofan's strategy
         section. The graph plots the model's prediction of when the turbofan
-        will fail (y-axis) by the hours run (x-axis). The dotted line shows the
-        ten-hour threshold – when the prediction drops below that maintenance is
-        performed.
+        will fail (y-axis) by the hours run (x-axis).{' '}
+        <span style={{ ...span_color(maintain_color), color: 'black' }}>
+          The dotted line shows the ten-hour threshold – when the prediction
+          drops below that maintenance is performed.
+        </span>
       </p>
     </React.Fragment>
   )
@@ -387,6 +392,25 @@ export class Upgrade extends Component {
     let title = `Strategy upgrade available`
     let content = (
       <React.Fragment>
+        <div
+          style={{
+            background: maintain_color,
+            height: line_height * 5,
+            display: 'grid',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10.5,
+            padding: '0 4px',
+            marginTop: '4px',
+            textAlign: 'center',
+          }}
+        >
+          <div>
+            <strong>{upgrade}</strong>
+            <br />
+            strategy now available
+          </div>
+        </div>
         <p
           style={{
             fontStyle: 'italic',
@@ -507,9 +531,25 @@ export class Finish extends Component {
     let title = `Finish line`
     let content = (
       <React.Fragment>
+        <div
+          style={{
+            background: factory_colors[winner_prof[1]],
+            color: 'white',
+            height: line_height * 5,
+            display: 'grid',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10.5,
+            padding: '0 4px',
+            marginTop: '4px',
+            textAlign: 'center',
+          }}
+        >
+          {factory_names[winner_prof[1]]} wins!
+        </div>
         {winning_message}
         <div style={{ marginBottom: '10.5px' }}>
-          <div style={{ ...span_color('#777') }}>Final Standings</div>
+          <div>Final Standings</div>
           <div>
             1.{' '}
             <span style={{ ...span_color(factory_colors[winner_prof[1]]) }}>

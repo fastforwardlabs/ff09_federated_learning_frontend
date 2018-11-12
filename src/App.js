@@ -21,9 +21,9 @@ class App extends Component {
       show_intro: false,
       auto_upgrade: true,
       speed: 7,
-      show_intro: true,
-      auto_upgrade: false,
-      speed: 5,
+      // show_intro: true,
+      // auto_upgrade: false,
+      // speed: 5,
     }
     this.adjustSpeed = this.adjustSpeed.bind(this)
     this.introShown = this.introShown.bind(this)
