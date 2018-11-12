@@ -55,6 +55,8 @@ class Dial extends Component {
       ctx
     ) {
       ctx.clearRect(0, 0, this.props.width, height)
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0, 0, this.props.width, height)
 
       // if (this.props.maintaining) {
       //   ctx.fillStyle = maintain_color

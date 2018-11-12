@@ -30,6 +30,8 @@ class LeaderGraph extends Component {
       let ctx = this.ctx
 
       ctx.clearRect(0, 0, this.props.width, this.props.height)
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0, 0, this.props.width, this.props.height)
 
       // ctx.fillStyle = '#eee'
       // ctx.fillRect(0, 0, this.props.width, this.props.height)

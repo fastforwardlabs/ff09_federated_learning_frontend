@@ -44,6 +44,7 @@ export let span_color = color => {
   return {
     color: 'white',
     background: color,
+    padding: '1px 0 1px',
     boxShadow: `-4px 0 0 ${color}, 4px 0 0 ${color}`,
   }
 }
