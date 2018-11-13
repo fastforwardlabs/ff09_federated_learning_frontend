@@ -57,10 +57,16 @@ export class Welcome extends Component {
           }}
         >
           Turbofan Tycoon is a research prototype by{' '}
-          <a href="#">Cloudera Fast Forward Labs</a> built to accompany our
-          report on Federated Learning. It uses realistic turbofan data to show
-          the benefites of using a federated predictive model. For more
-          background, <a href="#">read our blog post</a>.
+          <a href="http://www.fastforwardlabs.com">
+            Cloudera Fast Forward Labs
+          </a>{' '}
+          built to accompany our report on Federated Learning. It uses realistic
+          turbofan data to show the benefites of using a federated predictive
+          model. For more background,{' '}
+          <a href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html">
+            read our blog post
+          </a>
+          .
         </p>
         <p>
           In Turbofan Tycoon, you play as the proud operator of a factory
@@ -234,8 +240,9 @@ function federatedPredictiveInfo() {
         Like the local predictive model, the{' '}
         <strong>federated predictive</strong> model is trained using sensor data
         from past turbofan failures. Through{' '}
-        <a href="#" target="_blank">
-          federated learning
+        <a href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html">
+          {' '}
+          target="_blank"> federated learning
         </a>
         , the model has the advantage of being trained not just on local data,
         but on the data of all the factories participating in the federation.
@@ -626,7 +633,10 @@ export class Finish extends Component {
         >
           For more information on the making of this prototype and Cloudera Fast
           Forward Lab's work on federated learning. Check out our{' '}
-          <a href="#">blog post</a>.
+          <a href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html">
+            blog post
+          </a>
+          .
         </p>
 
         <p>
