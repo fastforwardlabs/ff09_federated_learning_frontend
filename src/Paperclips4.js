@@ -696,7 +696,7 @@ class Paperclips extends Component {
           overflow: stack ? 'initial' : 'hidden',
           gridTemplateColumns: '1fr 1fr',
           gridTemplateRows: `${line_height}px calc(100vh - ${line_height *
-            2}px) ${line_height * 1}px`,
+            2}px) ${line_height}px`,
         }}
       >
         <div style={{ gridColumn: '1/3', padding: '0 4px' }}>
@@ -905,7 +905,7 @@ class Paperclips extends Component {
                 position: 'relative',
                 display: stack ? 'block' : 'grid',
                 gridTemplateRows: `${line_height *
-                  10}px calc(100vh - ${line_height * (10 + 11)}px)`,
+                  10}px calc(100vh - ${line_height * (10 + 11)}px - 1px)`,
               }}
             >
               <div style={{ position: 'relative' }}>
@@ -956,13 +956,18 @@ class Paperclips extends Component {
             gridColumn: '1/3',
             padding: '0 4px',
             display: stack ? 'block' : 'flex',
+            position: stack ? 'fixed' : 'relative',
+            bottom: stack ? 0 : 'auto',
+            width: '100%',
             justifyContent: 'space-between',
             background: '#777',
             color: '#fff',
           }}
         >
           <div style={{ display: stack ? 'block' : 'flex' }}>
-            <div style={{}}>Simulation controls:</div>
+            <div style={{ display: stack ? 'none' : 'block' }}>
+              Simulation controls:
+            </div>
             <div
               style={{
                 display: 'grid',
@@ -972,6 +977,8 @@ class Paperclips extends Component {
                 justifyContent: 'left',
                 paddingRight: stack ? 0 : 5,
                 paddingLeft: stack ? 0 : 8,
+                paddingTop: stack ? 4 : 0,
+                paddingBottom: stack ? 4 : 0,
               }}
             >
               <div style={{}}>Speed:</div>
@@ -993,6 +1000,7 @@ class Paperclips extends Component {
               display: 'flex',
               textAlign: 'right',
               alignContent: 'center',
+              paddingBottom: stack ? 5 : 0,
             }}
           >
             <div style={{ marginLeft: stack ? 0 : 5 }}>
