@@ -1036,40 +1036,42 @@ class Paperclips extends Component {
           </div>
         </div>
 
-        {stack
-          ? null
-          : [
-              <div
-                style={{
-                  position: 'fixed',
-                  top: line_height - 1,
-                  height: '2px',
-                  background: 'black',
-                  left: 0,
-                  right: 0,
-                }}
-              />,
-              <div
-                style={{
-                  position: 'fixed',
-                  bottom: line_height * 1 - 1,
-                  height: '2px',
-                  background: 'black',
-                  left: 0,
-                  right: 0,
-                }}
-              />,
-              <div
-                style={{
-                  position: 'fixed',
-                  top: line_height - 1,
-                  bottom: line_height * 1 - 1,
-                  width: '3px',
-                  background: 'black',
-                  left: 'calc(50% - 1.5px)',
-                }}
-              />,
-            ]}
+        {stack ? (
+          <div style={{ height: 55, width: '100%' }} />
+        ) : (
+          [
+            <div
+              style={{
+                position: 'fixed',
+                top: line_height - 1,
+                height: '2px',
+                background: 'black',
+                left: 0,
+                right: 0,
+              }}
+            />,
+            <div
+              style={{
+                position: 'fixed',
+                bottom: line_height * 1 - 1,
+                height: '2px',
+                background: 'black',
+                left: 0,
+                right: 0,
+              }}
+            />,
+            <div
+              style={{
+                position: 'fixed',
+                top: line_height - 1,
+                bottom: line_height * 1 - 1,
+                width: '3px',
+                background: 'black',
+                left: 'calc(50% - 1.5px)',
+              }}
+            />,
+          ]
+        )}
 
         {this.state.modal_display ? (
           <Modal
