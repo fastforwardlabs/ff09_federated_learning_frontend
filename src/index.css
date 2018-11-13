@@ -24,7 +24,7 @@
 }
 
 html {
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 body {
@@ -300,4 +300,17 @@ input[type='range']:focus {
 
 .modal-content p:last-child {
   margin-bottom: 0;
+}
+
+.info_image {
+  float: right;
+  margin-left: 8px;
+}
+@media screen and (max-width: 600px) {
+  .info_image {
+    float: none;
+    margin-left: 0;
+    overflow: hidden;
+    margin-bottom: 10.5px;
+  }
 }

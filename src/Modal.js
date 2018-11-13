@@ -20,6 +20,7 @@ class Modal extends Component {
             factory_names={this.props.factory_names}
             closeModal={this.props.closeModal}
             counter={this.props.counter}
+            stack={this.props.stack}
           />
         )
         break
@@ -29,6 +30,7 @@ class Modal extends Component {
             closeModal={this.props.closeModal}
             upgradeYourStrat={this.props.upgradeYourStrat}
             upgrade="preventative"
+            stack={this.props.stack}
           />
         )
         break
@@ -38,6 +40,7 @@ class Modal extends Component {
             closeModal={this.props.closeModal}
             upgradeYourStrat={this.props.upgradeYourStrat}
             upgrade="local predictive"
+            stack={this.props.stack}
           />
         )
         break
@@ -47,6 +50,7 @@ class Modal extends Component {
             closeModal={this.props.closeModal}
             upgradeYourStrat={this.props.upgradeYourStrat}
             upgrade="federated predictive"
+            stack={this.props.stack}
           />
         )
         break
@@ -56,6 +60,7 @@ class Modal extends Component {
             closeModal={this.props.closeModal}
             info_index={this.props.info_index}
             requirements={this.props.requirements}
+            stack={this.props.stack}
           />
         )
         break
@@ -72,6 +77,7 @@ class Modal extends Component {
             prof_map={this.props.prof_map}
             factory_names={this.props.factory_names}
             counter={this.props.counter}
+            stack={this.props.stack}
           />
         )
         break
@@ -89,6 +95,7 @@ class Modal extends Component {
           gridTemplateRows: '10.5px auto 10.5px',
           background: 'rgba(0, 0, 0, 0.1)',
           zIndex: 9,
+          padding: 3,
           overflow: 'auto',
         }}
       >

@@ -136,6 +136,7 @@ class Paperclips extends Component {
   }
 
   openModal() {
+    document.body.style.overflow = 'hidden'
     this.modal_close_play = this.state.playing
     this.setState({ modal: true })
     setTimeout(() => {
@@ -159,6 +160,7 @@ class Paperclips extends Component {
   }
 
   closeModal() {
+    document.body.style.overflow = 'initial'
     this.setState({ modal_display: false })
     setTimeout(() => {
       this.setState({ modal: false })
@@ -316,6 +318,9 @@ class Paperclips extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    let stack = false
+    if (this.props.ww < 940) stack = true
+
     if (this.props.show_intro && this.state.counter === 0) {
       this.setState({ modal_state: 'intro' }, () => {
         this.openModal()
@@ -410,7 +415,9 @@ class Paperclips extends Component {
             }
 
             if (fi === 0) {
-              let max_array = Math.floor(this.props.ww / 2 - 12)
+              let max_array = Math.floor(
+                stack ? this.props.ww - 12 : this.props.ww / 2 - 12
+              )
               if (this.your_factory_ribbon[ei].length > max_array)
                 this.your_factory_ribbon[ei].shift()
               this.your_factory_ribbon[ei].push(engine_state_ribbon)
@@ -439,7 +446,9 @@ class Paperclips extends Component {
           }
 
           let factory_profit = calculateProfit(factory_state)
-          let new_profit_array_length = this.props.ww / 2 - graph_offset
+          let new_profit_array_length = stack
+            ? this.props.ww - graph_offset
+            : this.props.ww / 2 - graph_offset
           if (this.factory_profits[fi].length > new_profit_array_length) {
             this.factory_profits[fi].shift()
           }
@@ -554,6 +563,10 @@ class Paperclips extends Component {
   }
 
   render() {
+    let grid_thresh = 940
+    let stack = false
+    if (this.props.ww < 940) stack = true
+
     let render_counter = this.state.counter
 
     let profits = this.factory_profits.map((p, i) => [last(p), i])
@@ -679,10 +692,11 @@ class Paperclips extends Component {
     let to_render = (
       <div
         style={{
-          display: 'grid',
+          display: stack ? 'block' : 'grid',
+          overflow: stack ? 'initial' : 'hidden',
           gridTemplateColumns: '1fr 1fr',
           gridTemplateRows: `${line_height}px calc(100vh - ${line_height *
-            2.5}) ${line_height * 1}px`,
+            2}px) ${line_height * 1}px`,
         }}
       >
         <div style={{ gridColumn: '1/3', padding: '0 4px' }}>
@@ -713,9 +727,11 @@ class Paperclips extends Component {
         </div>
         <div
           style={{
+            position: 'relative',
             gridColumn: '1/2',
           }}
         >
+          {stack ? <div className="h-border" style={{ top: -0.5 }} /> : null}
           {this.factories.slice(0, 1).map((n, fi) => {
             let factory_state = this.factories_state[fi]
             let factory_events = this.factory_events[fi]
@@ -723,7 +739,7 @@ class Paperclips extends Component {
               <div
                 key={`factory_${fi}`}
                 style={{
-                  display: 'grid',
+                  display: stack ? 'block' : 'grid',
                   gridTemplateRows: `${line_height}px calc(100vh - ${line_height *
                     3}px)`,
                 }}
@@ -740,7 +756,12 @@ class Paperclips extends Component {
                 >
                   <div>{this.factory_names[fi]}</div>
                 </div>
-                <div style={{ position: 'relative', overflow: 'auto' }}>
+                <div
+                  style={{
+                    position: 'relative',
+                    overflow: stack ? false : 'auto',
+                  }}
+                >
                   <div style={{ position: 'relative' }}>
                     <div
                       style={{
@@ -807,7 +828,7 @@ class Paperclips extends Component {
                             engine={engine}
                             ei={ei}
                             strategy={this.engine_strategies[engine_flat_i]}
-                            width={this.props.ww / 2}
+                            width={stack ? this.props.ww : this.props.ww / 2}
                             maintaining={maintaining}
                             repairing={repairing}
                             engine_rerender={this.state.engine_rerender}
@@ -833,6 +854,7 @@ class Paperclips extends Component {
         <div
           style={{
             gridColumn: '2/3',
+            position: 'relative',
           }}
         >
           <YourStrategy
@@ -847,8 +869,7 @@ class Paperclips extends Component {
           <div
             style={{
               position: 'relative',
-              display: 'grid',
-              display: 'grid',
+              display: stack ? 'block' : 'grid',
               gridTemplateRows: `${line_height}px calc(100vh - ${line_height *
                 11}px)`,
             }}
@@ -866,25 +887,35 @@ class Paperclips extends Component {
               <div className="h-border" style={{ top: -1 }} />
               <div>Factory Leaderboard</div>
               <div
-                style={{ cursor: 'pointer' }}
+                style={{
+                  cursor: 'pointer',
+                  display: 'grid',
+                  gridTemplateColumns: 'auto auto',
+                  gridColumnGap: 5,
+                  alignItems: 'center',
+                }}
                 onClick={this.props.toggleSolo}
               >
-                <input type="checkbox" checked={this.props.solo_mode} /> solo
-                view
+                <input type="checkbox" checked={this.props.solo_mode} />
+                <div>solo view</div>
               </div>
             </div>
             <div
               style={{
                 position: 'relative',
-                display: 'grid',
+                display: stack ? 'block' : 'grid',
                 gridTemplateRows: `${line_height *
                   10}px calc(100vh - ${line_height * (10 + 11)}px)`,
               }}
             >
               <div style={{ position: 'relative' }}>
                 <TurboGraph
-                  width={this.props.ww / 2}
-                  new_profit_array_length={this.props.ww / 2 - graph_offset}
+                  width={stack ? this.props.ww : this.props.ww / 2}
+                  new_profit_array_length={
+                    stack
+                      ? this.props.ww - graph_offset
+                      : this.props.ww / 2 - graph_offset
+                  }
                   height={line_height * 10}
                   counter={render_counter}
                   factory_profits={this.factory_profits}
@@ -892,7 +923,12 @@ class Paperclips extends Component {
                   solo_mode={this.props.solo_mode}
                 />
               </div>
-              <div style={{ position: 'relative', overflow: 'auto' }}>
+              <div
+                style={{
+                  position: 'relative',
+                  overflow: stack ? false : 'auto',
+                }}
+              >
                 <div style={{ position: 'relative' }}>
                   <LatestEvent
                     factories_strategies={this.factories_strategies}
@@ -913,27 +949,29 @@ class Paperclips extends Component {
               <div className="hb" style={{ top: line_height * 10 + 'px' }} />
             </div>
           </div>
+          {stack ? <div className="h-border" style={{ top: -0.5 }} /> : null}
         </div>
         <div
           style={{
             gridColumn: '1/3',
             padding: '0 4px',
-            display: 'flex',
+            display: stack ? 'block' : 'flex',
             justifyContent: 'space-between',
             background: '#777',
             color: '#fff',
           }}
         >
-          <div style={{ display: 'flex' }}>
-            <div>Simulation controls:</div>
+          <div style={{ display: stack ? 'block' : 'flex' }}>
+            <div style={{}}>Simulation controls:</div>
             <div
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'auto auto',
                 alignItems: 'center',
                 gridColumnGap: 5,
-                paddingRight: 5,
-                paddingLeft: 8,
+                justifyContent: 'left',
+                paddingRight: stack ? 0 : 5,
+                paddingLeft: stack ? 0 : 8,
               }}
             >
               <div style={{}}>Speed:</div>
@@ -957,7 +995,7 @@ class Paperclips extends Component {
               alignContent: 'center',
             }}
           >
-            <div style={{ marginLeft: 5 }}>
+            <div style={{ marginLeft: stack ? 0 : 5 }}>
               <button
                 className="newbutton"
                 onClick={this.togglePlay}
@@ -990,36 +1028,40 @@ class Paperclips extends Component {
           </div>
         </div>
 
-        <div
-          style={{
-            position: 'fixed',
-            top: line_height - 1,
-            height: '2px',
-            background: 'black',
-            left: 0,
-            right: 0,
-          }}
-        />
-        <div
-          style={{
-            position: 'fixed',
-            bottom: line_height * 1 - 1,
-            height: '2px',
-            background: 'black',
-            left: 0,
-            right: 0,
-          }}
-        />
-        <div
-          style={{
-            position: 'fixed',
-            top: line_height - 1,
-            bottom: line_height * 1 - 1,
-            width: '3px',
-            background: 'black',
-            left: 'calc(50% - 1.5px)',
-          }}
-        />
+        {stack
+          ? null
+          : [
+              <div
+                style={{
+                  position: 'fixed',
+                  top: line_height - 1,
+                  height: '2px',
+                  background: 'black',
+                  left: 0,
+                  right: 0,
+                }}
+              />,
+              <div
+                style={{
+                  position: 'fixed',
+                  bottom: line_height * 1 - 1,
+                  height: '2px',
+                  background: 'black',
+                  left: 0,
+                  right: 0,
+                }}
+              />,
+              <div
+                style={{
+                  position: 'fixed',
+                  top: line_height - 1,
+                  bottom: line_height * 1 - 1,
+                  width: '3px',
+                  background: 'black',
+                  left: 'calc(50% - 1.5px)',
+                }}
+              />,
+            ]}
 
         {this.state.modal_display ? (
           <Modal
@@ -1035,6 +1077,7 @@ class Paperclips extends Component {
             factories_strategies={this.factories_strategies}
             factories_state={this.factories_state}
             factory_names={this.factory_names}
+            stack={stack}
           />
         ) : null}
       </div>

@@ -19,8 +19,8 @@ import { scale } from './Utilties'
 let x_offset = 4
 let line_offset = -5
 let line_height = 21
-let height = line_height * 8
-let predict_width = 260
+let reg_height = line_height * 8
+let stack_height = line_height * 14.5
 
 class Dial extends Component {
   constructor(props) {
@@ -33,7 +33,9 @@ class Dial extends Component {
       props.ranges[props.keys.indexOf(strategies[strategy_names[2]])][1],
       props.ranges[props.keys.indexOf(strategies[strategy_names[3]])][1]
     )
-
+    this.state = {
+      height: line_height * 8,
+    }
     this.getCtx = this.getCtx.bind(this)
   }
 
@@ -42,31 +44,55 @@ class Dial extends Component {
     this.ctx.scale(2, 2)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
+    let width = this.props.width
+    let stack = false
+    let height = this.state.height
+    let predict_width = 250
+    let column_space_check = Math.floor((width - predict_width - 8) / 4)
+    if (column_space_check > 60) {
+      if (this.state.height !== reg_height) {
+        this.setState({
+          height: reg_height,
+        })
+      }
+      if (column_space_check > 150) {
+        predict_width = width - (150 * 4 + 8)
+      }
+    } else {
+      stack = true
+      if (this.state.height !== stack_height) {
+        this.setState({
+          height: stack_height,
+        })
+      }
+    }
+    let predict_y_offset = 0
+    let predict_x_adjust = 0
+    if (stack) {
+      predict_y_offset = line_height * 6.5
+      predict_width = width
+    }
+
     let ctx = this.ctx
     let ribbon = this.props.ribbon
-    let width = this.props.width
     let this_time = this.props.this_time
-    if (prevProps.width !== this.props.width) {
+    if (
+      prevProps.width !== this.props.width ||
+      this.state.height !== prevState.height
+    ) {
       ctx.scale(2, 2)
     }
     if (
       (prevProps.width !== this.props.width ||
         prevProps.counter !== this.props.counter ||
+        this.state.height !== prevState.height ||
         prevProps.strategy !== this.props.strategy) &&
       ctx
     ) {
       ctx.clearRect(0, 0, this.props.width, height)
       ctx.fillStyle = 'white'
       ctx.fillRect(0, 0, this.props.width, height)
-
-      // if (this.props.maintaining) {
-      //   ctx.fillStyle = maintain_color
-      //   ctx.fillRect(0, 0, this.props.width, line_height / 2)
-      // } else if (this.props.repairing) {
-      //   ctx.fillStyle = repair_color
-      //   ctx.fillRect(0, 0, this.props.width, line_height / 2)
-      // }
 
       let last = 0
       for (let i = 0; i < ribbon.length; i++) {
@@ -80,17 +106,11 @@ class Dial extends Component {
       for (let j = 0; j < this.props.your_factories_strategies.length; j++) {
         let occured = this.props.your_factories_strategies[j][1]
         if (occured >= this.props.counter - (ribbon.length - 1)) {
-          // ctx.fillStyle = '#aaa'
           ctx.fillStyle = '#999'
-          // ctx.fillStyle = factory_colors[0]
           ctx.strokeStyle = 'transparent'
           ctx.beginPath()
           let x = occured - (this.props.counter - (ribbon.length - 1))
           let y = 0 + line_height / 2
-          // ctx.moveTo(x - 6, y)
-          // ctx.lineTo(x, y - 6)
-          // ctx.lineTo(x + 6, y)
-          // ctx.lineTo(x, y + 6)
           ctx.arc(x, y, 5, 0, 2 * Math.PI)
           ctx.fill()
           ctx.stroke()
@@ -108,10 +128,6 @@ class Dial extends Component {
       }
 
       let last_text = ''
-      // if (last === 1 && last !== ribbon[ribbon.length - 1])
-      //   last_text = ' since maintenance'
-      // if (last === 2 && last !== ribbon[ribbon.length - 1])
-      // last_text = ' since failure'
 
       ctx.font = '14px IBM Plex Mono'
 
@@ -137,7 +153,7 @@ class Dial extends Component {
       ctx.fillText(
         'Strategy:',
         x_offset + (this.props.width - predict_width),
-        line_height * 3 + line_offset
+        line_height * 3 + line_offset + predict_y_offset
       )
 
       for (let i = 0; i < selected_features.length; i++) {
@@ -149,6 +165,7 @@ class Dial extends Component {
         let column_space = Math.floor(
           (this.props.width - predict_width - 8) / 4
         )
+        if (stack) column_space = Math.floor(this.props.width / 4)
         let x = x_offset + column_space * column
         let y = line_height * 4 + line_height * 1.25 * row
         ctx.fillStyle = '#ddd'
@@ -210,14 +227,19 @@ class Dial extends Component {
         ctx.fillText(
           this.props.strategy,
           x_offset + this.props.width - predict_width + strategy_text_width + 8,
-          line_height * 3 + line_offset
+          line_height * 3 + line_offset + predict_y_offset
         )
         ctx.font = '12px IBM Plex Mono'
 
         let graph_start_x = x_offset + this.props.width - predict_width
-        let graph_start_y = line_height * 3
+        let graph_start_y = line_height * 3 + predict_y_offset
         let graph_height = line_height * 1.25 * 3
         let adj_predict_width = predict_width - 16
+
+        if (stack) {
+          ctx.fillStyle = '#aaa'
+          ctx.fillRect(4, line_height * 8.25, adj_predict_width, 0.5)
+        }
 
         let label_text
         if (
@@ -242,6 +264,8 @@ class Dial extends Component {
 
         let threshold_check = () => false
 
+        let engine = this.props.engine
+
         if (this.props.strategy === strategy_names[1]) {
           threshold_check = (x, y) => {
             return x >= preventative_threshold
@@ -255,16 +279,15 @@ class Dial extends Component {
           }
           let range = [0, this.predict_max]
           predict_y_set = index => {
+            let row = engine[index]
+            let value
+            if (row) {
+              value = getKey(row, strategies[this.props.strategy])
+            } else {
+              value = 0
+            }
             return (
-              graph_height -
-              scale(
-                getKey(
-                  this.props.engine[index],
-                  strategies[this.props.strategy]
-                ),
-                [range[0], range[1]]
-              ) *
-                graph_height
+              graph_height - scale(value, [range[0], range[1]]) * graph_height
             )
           }
         }
@@ -376,7 +399,10 @@ class Dial extends Component {
         ctx.fillText(
           label_text,
           x_offset + this.props.width - predict_width,
-          line_height * 4 + line_height * 1.25 * 3 + line_offset
+          line_height * 4 +
+            line_height * 1.25 * 3 +
+            line_offset +
+            predict_y_offset
         )
       }
     }
@@ -390,7 +416,11 @@ class Dial extends Component {
             info
           </button>
         </div>
-        <Canvas width={this.props.width} height={height} getCtx={this.getCtx} />
+        <Canvas
+          width={this.props.width}
+          height={this.state.height}
+          getCtx={this.getCtx}
+        />
       </div>
     )
   }

@@ -20,6 +20,15 @@ import turbofan_png from './images/turbofan.png'
 import { commas, compare, span_color } from './Utilties'
 import { max } from 'lodash'
 
+function checkVisible(elm) {
+  var rect = elm.getBoundingClientRect()
+  var viewHeight = Math.max(
+    document.documentElement.clientHeight,
+    window.innerHeight
+  )
+  return !(rect.bottom < 0 || rect.top - viewHeight >= 0)
+}
+
 let line_height = 21
 let data_scientist_pause = 500 - 1
 
@@ -30,7 +39,10 @@ export class Welcome extends Component {
     this.primary_button = React.createRef()
   }
   componentDidMount() {
-    this.primary_button.current.focus()
+    let but = this.primary_button.current
+    if (checkVisible(but)) {
+      but.focus()
+    }
   }
   render() {
     let { factory_names, closeModal, counter } = this.props
@@ -109,7 +121,7 @@ export class Welcome extends Component {
         <div style={{ textAlign: 'right' }}>
           <button
             ref={this.primary_button}
-            class="newbutton"
+            className="newbutton"
             onClick={closeModal}
           >
             {counter === 0 ? 'start' : 'keep'} playing
@@ -129,10 +141,9 @@ function correctiveInfo() {
         a strategy. It simply waits for an turbofan to fail to repair it.
       </p>
       <div
+        className="info_image"
         style={{
-          float: 'right',
           border: 'solid 1px black',
-          marginLeft: 8,
         }}
       >
         <div style={{}}>Turbofan</div>
@@ -161,10 +172,9 @@ function preventativeInfo() {
         maintenance. In this case maintenance is performed after 193 hours.
       </p>
       <div
+        className="info_image"
         style={{
-          float: 'right',
           border: 'solid 1px black',
-          marginLeft: 8,
         }}
       >
         <div style={{ padding: '0 4px' }}>Turbofan</div>
@@ -196,10 +206,9 @@ function localPredictiveInfo() {
         the turbofan drops below ten.
       </p>
       <div
+        className="info_image"
         style={{
-          float: 'right',
           border: 'solid 1px black',
-          marginLeft: 8,
         }}
       >
         <div style={{ padding: '0 4px' }}>Turbofan</div>
@@ -233,10 +242,9 @@ function federatedPredictiveInfo() {
         The additional training data makes for more accurate predictions.
       </p>
       <div
+        className="info_image"
         style={{
-          float: 'right',
           border: 'solid 1px black',
-          marginLeft: 8,
         }}
       >
         <div style={{ padding: '0 4px' }}>Turbofan</div>
@@ -324,6 +332,11 @@ export function StrategyInfo({ info_index, requirements, closeModal }) {
     <React.Fragment>
       {requirement}
       {strategy_info}
+      <p>
+        <button className="unbutton" onClick={closeModal}>
+          Close
+        </button>
+      </p>
     </React.Fragment>
   )
   return <Modalify title={title} content={content} />
@@ -336,7 +349,10 @@ export class Upgrade extends Component {
     this.primary_button = React.createRef()
   }
   componentDidMount() {
-    this.primary_button.current.focus()
+    let but = this.primary_button.current
+    if (checkVisible(but)) {
+      but.focus()
+    }
   }
 
   render() {
@@ -423,7 +439,6 @@ export class Upgrade extends Component {
         {strategy_info}
         <p
           style={{
-            background: '#ddd',
             color: 'black',
             padding: '0 4px',
             margin: '0 -4px 10.5px',
@@ -463,7 +478,10 @@ export class Finish extends Component {
     this.primary_button = React.createRef()
   }
   componentDidMount() {
-    this.primary_button.current.focus()
+    let but = this.primary_button.current
+    if (checkVisible(but)) {
+      but.focus()
+    }
   }
   render() {
     let {
@@ -637,7 +655,7 @@ export class Finish extends Component {
   }
 }
 
-export function TurbofanModal({}) {
+export function TurbofanModal({ closeModal }) {
   let title = `Turbofan view info`
   let content = (
     <React.Fragment>
@@ -686,6 +704,11 @@ export function TurbofanModal({}) {
         using the info button under the{' '}
         <span style={{ ...span_color(factory_colors[0]) }}>Your Strategy</span>{' '}
         section.
+      </p>
+      <p>
+        <button className="unbutton" onClick={closeModal}>
+          Close
+        </button>
       </p>
     </React.Fragment>
   )

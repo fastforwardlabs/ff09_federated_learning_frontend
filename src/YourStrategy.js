@@ -46,6 +46,11 @@ class YourStrategy extends Component {
           <div
             style={{
               cursor: 'pointer',
+              cursor: 'pointer',
+              display: 'grid',
+              gridTemplateColumns: 'auto auto',
+              gridColumnGap: 5,
+              alignItems: 'center',
             }}
             onClick={this.props.toggleAuto}
             title="Automatically upgrade to best available strategy"
@@ -54,8 +59,8 @@ class YourStrategy extends Component {
               type="checkbox"
               readOnly={true}
               checked={this.props.auto_upgrade}
-            />{' '}
-            auto upgrade
+            />
+            <div>auto upgrade</div>
           </div>
         </div>
         <div style={{ position: 'relative' }}>
@@ -106,6 +111,37 @@ class YourStrategy extends Component {
                   ) : null}
                   <div style={{ position: 'relative', padding: '0 4px' }}>
                     <div
+                      className="hoverinner"
+                      style={{
+                        cursor: available ? 'pointer' : 'default',
+                        cursor: 'pointer',
+                        display: 'grid',
+                        gridTemplateColumns: 'auto 1fr',
+                        gridColumnGap: 5,
+                        alignItems: 'center',
+                      }}
+                      onClick={() => {
+                        setYourStrategy(n, available)
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        checked={checked}
+                        disabled={!available}
+                        style={{
+                          position: 'relative',
+                        }}
+                      />
+                      <div
+                        className="hoverinner-target"
+                        style={{
+                          fontWeight: checked || true ? 700 : 400,
+                        }}
+                      >
+                        {n}
+                      </div>
+                    </div>
+                    <div
                       style={{
                         position: 'absolute',
                         right: 4,
@@ -123,35 +159,6 @@ class YourStrategy extends Component {
                         info
                       </button>
                     </div>
-                    <span
-                      className="hoverinner"
-                      style={{
-                        cursor: available ? 'pointer' : 'default',
-                      }}
-                      onClick={() => {
-                        setYourStrategy(n, available)
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        checked={checked}
-                        disabled={!available}
-                        style={{
-                          position: 'relative',
-                          top: '-1px',
-                          marginRight: '6px',
-                          marginLeft: '2px',
-                        }}
-                      />
-                      <span
-                        className="hoverinner-target"
-                        style={{
-                          fontWeight: checked || true ? 700 : 400,
-                        }}
-                      >
-                        {n}
-                      </span>
-                    </span>
                   </div>
                   {false ? <div className="hb" style={{ top: -0.5 }} /> : null}
                 </div>

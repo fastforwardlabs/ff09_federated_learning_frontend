@@ -80,7 +80,6 @@ class App extends Component {
   }
 
   updateDimensions() {
-    console.log('update dimensions')
     this.setState({ ww: window.innerWidth })
   }
 
@@ -132,7 +131,7 @@ class App extends Component {
                 <Turbofan width={42} height={42} />
               </div>
               <div>
-                Loading turbofans
+                Loading the turbofans
                 <span style={{ fontStyle: 'italic' }}>...</span>
               </div>
             </div>
