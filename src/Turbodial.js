@@ -411,8 +411,12 @@ class Dial extends Component {
   render() {
     return (
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', right: 6, top: line_height }}>
-          <button onClick={this.props.openTurbofanInfo} className="unbutton">
+        <div style={{ position: 'absolute', right: 6, top: line_height + 2 }}>
+          <button
+            onClick={this.props.openTurbofanInfo}
+            className="unbutton"
+            style={{ background: 'white' }}
+          >
             info
           </button>
         </div>

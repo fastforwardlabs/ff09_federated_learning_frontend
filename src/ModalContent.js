@@ -411,7 +411,7 @@ export class Upgrade extends Component {
         <div
           style={{
             background: maintain_color,
-            height: line_height * 5,
+            height: line_height * 3,
             display: 'grid',
             alignItems: 'center',
             justifyContent: 'center',
@@ -553,7 +553,7 @@ export class Finish extends Component {
           style={{
             background: factory_colors[winner_prof[1]],
             color: 'white',
-            height: line_height * 5,
+            height: line_height * 3,
             display: 'grid',
             alignItems: 'center',
             justifyContent: 'center',
@@ -618,7 +618,6 @@ export class Finish extends Component {
         </div>
         <p
           style={{
-            background: '#ddd',
             color: 'black',
             padding: '0 4px',
             margin: '0 -4px 10.5px',
