@@ -36,10 +36,11 @@ class YourStrategy extends Component {
             display: 'flex',
             justifyContent: 'space-between',
             position: 'relative',
-            alignItems: 'baseline',
+            alignItems: 'center',
             padding: '0 4px',
             background: factory_colors[0],
             color: '#fff',
+            height: 21,
           }}
         >
           <div>Your Strategy</div>
@@ -97,7 +98,7 @@ class YourStrategy extends Component {
                   }}
                 >
                   {requirement_string !== null ? (
-                    <div style={{ padding: '0 4px' }}>
+                    <div style={{ padding: '0 6px' }}>
                       <span
                         style={{
                           textTransform: 'uppercase',
@@ -119,6 +120,7 @@ class YourStrategy extends Component {
                         gridTemplateColumns: 'auto 1fr',
                         gridColumnGap: 5,
                         alignItems: 'center',
+                        paddingLeft: '3px',
                       }}
                       onClick={() => {
                         setYourStrategy(n, available)

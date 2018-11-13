@@ -750,8 +750,9 @@ class Paperclips extends Component {
                     color: 'white',
                     fontSmoothing: 'antialiased',
                     padding: '0 6px 0 4px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
+                    display: 'grid',
+                    alignItems: 'center',
+                    height: 21,
                   }}
                 >
                   <div>{this.factory_names[fi]}</div>
@@ -878,7 +879,7 @@ class Paperclips extends Component {
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'baseline',
+                alignItems: 'center',
                 padding: '0 4px',
                 background: '#777',
                 color: '#fff',
