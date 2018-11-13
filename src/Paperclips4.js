@@ -343,6 +343,15 @@ class Paperclips extends Component {
         this.setState({ engine_rerender: this.state.engine_rerender + 1 })
       }
       if (prevState.counter !== this.state.counter) {
+        let max_last_profit = max(this.factory_profits.map(p => last(p)))
+        if (
+          max_last_profit >= money_finish &&
+          !this.keep_playing &&
+          this.state.modal === false
+        ) {
+          this.setModalState('finish')
+          this.openModal()
+        }
         for (let fi = 0; fi < factory_number; fi++) {
           let factory_state = this.factories_state[fi]
           let factory_strategy = last(this.factories_strategies[fi])[0]
@@ -549,15 +558,6 @@ class Paperclips extends Component {
             }
           }
         }
-      }
-      let max_last_profit = max(this.factory_profits.map(p => last(p)))
-      if (
-        max_last_profit >= money_finish &&
-        !this.keep_playing &&
-        this.state.modal === false
-      ) {
-        this.setModalState('finish')
-        this.openModal()
       }
     }
   }

@@ -240,9 +240,11 @@ function federatedPredictiveInfo() {
         Like the local predictive model, the{' '}
         <strong>federated predictive</strong> model is trained using sensor data
         from past turbofan failures. Through{' '}
-        <a href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html">
-          {' '}
-          target="_blank"> federated learning
+        <a
+          href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html"
+          target="_blank"
+        >
+          federated learning
         </a>
         , the model has the advantage of being trained not just on local data,
         but on the data of all the factories participating in the federation.
