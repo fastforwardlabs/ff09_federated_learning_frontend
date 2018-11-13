@@ -128,6 +128,8 @@ class Paperclips extends Component {
     this.info_index = null
     this.setModalState = this.setModalState.bind(this)
     this.openTurbofanInfo = this.openTurbofanInfo.bind(this)
+    this.hypnodrones_released = false
+    this.releaseTheHypnodrones = this.releaseTheHypnodrones.bind(this)
   }
 
   upgradeYourStrat(strat) {
@@ -172,6 +174,12 @@ class Paperclips extends Component {
 
   keepPlaying() {
     this.keep_playing = true
+    this.setState({ modal: false })
+    this.play()
+  }
+
+  releaseTheHypnodrones() {
+    this.hypnodrones_released = true
     this.setState({ modal: false })
     this.play()
   }
@@ -352,6 +360,15 @@ class Paperclips extends Component {
           this.setModalState('finish')
           this.openModal()
         }
+        if (
+          max_last_profit >= 50 * 1000 * 1000 &&
+          !this.hypnodrones_released &&
+          this.state.modal === false
+        ) {
+          this.setModalState('hypnodrones')
+          this.openModal()
+        }
+
         for (let fi = 0; fi < factory_number; fi++) {
           let factory_state = this.factories_state[fi]
           let factory_strategy = last(this.factories_strategies[fi])[0]
@@ -1089,6 +1106,7 @@ class Paperclips extends Component {
             factories_state={this.factories_state}
             factory_names={this.factory_names}
             stack={stack}
+            releaseTheHypnodrones={this.releaseTheHypnodrones}
           />
         ) : null}
       </div>

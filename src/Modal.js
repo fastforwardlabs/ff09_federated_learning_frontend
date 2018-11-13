@@ -6,6 +6,7 @@ import {
   StrategyInfo,
   TurbofanModal,
   Finish,
+  HypnodronesModal,
 } from './ModalContent'
 
 let line_height = 21
@@ -66,6 +67,14 @@ class Modal extends Component {
         break
       case 'turbofan':
         content = <TurbofanModal closeModal={this.props.closeModal} />
+        break
+      case 'hypnodrones':
+        content = (
+          <HypnodronesModal
+            closeModal={this.props.closeModal}
+            releaseTheHypnodrones={this.props.releaseTheHypnodrones}
+          />
+        )
         break
       case 'finish':
         content = (

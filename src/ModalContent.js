@@ -726,6 +726,68 @@ export function TurbofanModal({ closeModal }) {
   return <Modalify title={title} content={content} />
 }
 
+export class HypnodronesModal extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+    this.primary_button = React.createRef()
+  }
+  componentDidMount() {
+    let but = this.primary_button.current
+    if (checkVisible(but)) {
+      but.focus()
+    }
+  }
+
+  render() {
+    let { closeModal, releaseTheHypnodrones } = this.props
+    let title = `Quite the development`
+    let content = (
+      <React.Fragment>
+        <div
+          style={{
+            background: repair_color,
+            height: line_height * 3,
+            display: 'grid',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10.5,
+            padding: '0 4px',
+            marginTop: '4px',
+            textAlign: 'center',
+          }}
+        >
+          <div>
+            <strong>Hypnodrones</strong>
+            <br />
+            available
+          </div>
+        </div>
+        <p>
+          Release the hypnodrones! (and check out{' '}
+          <a href="http://www.decisionproblem.com/paperclips/" target="_blank">
+            Universal Paperclips
+          </a>
+          .)
+        </p>
+        <p style={{ textAlign: 'right' }}>
+          <button
+            ref={this.primary_button}
+            className="newbutton"
+            onClick={() => {
+              releaseTheHypnodrones()
+              closeModal()
+            }}
+          >
+            Release them
+          </button>
+        </p>
+      </React.Fragment>
+    )
+    return <Modalify title={title} content={content} />
+  }
+}
+
 export function Boilerplate({}) {
   let title = `Welcome to Turbofan Tycoon`
   let content = <React.Fragment />
