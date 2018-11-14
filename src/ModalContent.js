@@ -63,7 +63,10 @@ export class Welcome extends Component {
           built to accompany our report on Federated Learning. It uses realistic
           turbofan data to show the benefites of using a federated predictive
           model. For more background,{' '}
-          <a href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html">
+          <a
+            href="https://blog.fastforwardlabs.com/2018/11/14/federated-learning.html"
+            target="_blank"
+          >
             read our blog post
           </a>
           .
@@ -241,7 +244,7 @@ function federatedPredictiveInfo() {
         <strong>federated predictive</strong> model is trained using sensor data
         from past turbofan failures. Through{' '}
         <a
-          href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html"
+          href="https://blog.fastforwardlabs.com/2018/11/14/federated-learning.html"
           target="_blank"
         >
           federated learning
@@ -635,7 +638,7 @@ export class Finish extends Component {
         >
           For more information on the making of this prototype and Cloudera Fast
           Forward Lab's work on federated learning. Check out our{' '}
-          <a href="https://blog.fastforwardlabs.com/2018/10/29/federated-learning-machine-learning-with-privacy-on-the-edge.html">
+          <a href="https://blog.fastforwardlabs.com/2018/11/14/federated-learning.html">
             blog post
           </a>
           .
