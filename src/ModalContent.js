@@ -61,7 +61,7 @@ export class Welcome extends Component {
             Cloudera Fast Forward Labs
           </a>{' '}
           built to accompany our report on Federated Learning. It uses realistic
-          turbofan data to show the benefites of using a federated predictive
+          turbofan data to show the benefits of using a federated predictive
           model. For more background,{' '}
           <a
             href="https://blog.fastforwardlabs.com/2018/11/14/federated-learning.html"
