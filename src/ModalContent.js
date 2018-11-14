@@ -196,7 +196,7 @@ function preventativeInfo() {
           When the number of hours run reaches the scheduled maintenance time
           (shown as a dotted line) maintenance is performed.
         </span>{' '}
-        If an turbofan fails before it reaches the maintenance point it is
+        If a turbofan fails before it reaches the maintenance point it is
         counted as a failure.
       </p>
     </React.Fragment>
@@ -701,7 +701,7 @@ export function TurbofanModal({ closeModal }) {
         <img src={turbofan_png} alt="" />
       </div>
       <p>
-        On the left are graphs of data from the turbofan. This data include
+        On the left are graphs of data from the turbofan. This data includes
         operational settings, temperatures, pressures, and fan rotation speeds
         for various components of the turbofan. All data is from the{' '}
         <a

@@ -137,6 +137,35 @@ class App extends Component {
             </div>
           </div>
         )}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 60,
+            left: 20,
+            border: 'solid 2px black',
+            padding: '2px 8px',
+            background: 'white',
+            display: 'none',
+          }}
+        >
+          <div style={{ fontWeight: 'bold' }}>
+            <img
+              src="/favicon.png"
+              style={{
+                height: '16px',
+                display: 'inline',
+                position: 'relative',
+                top: 2.5,
+                marginRight: 4,
+              }}
+            />
+            Turbofan Tycoon
+          </div>
+          <div>A federated learning prototype</div>
+          <div style={{ fontStyle: 'italic' }}>
+            by Cloudera Fast Forward Labs
+          </div>
+        </div>
       </div>
     )
   }
